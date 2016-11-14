@@ -5,7 +5,7 @@
         <option value="{{$v['cid']}}" style="padding-left: {{$v['level']*10}}px;" data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
     @endif
 
-    @if(isset($v['c']) && !empty($v['c'])){
+    @if(isset($v['c']) && !empty($v['c']))
         @include('common.cselect', ['c' => $v['c']])
     @endif
 @endforeach

@@ -5,7 +5,7 @@
         <option value="{{$v['lid']}}" style="padding-left: {{$v['level']*10}}px;">{{$v['title']}}</option>
     @endif
 
-    @if(isset($v['c']) && !empty($v['c'])){
+    @if(isset($v['c']) && !empty($v['c']))
         @include('common.lselect', ['c' => $v['c']])
     @endif
 @endforeach
