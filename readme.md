@@ -71,7 +71,7 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
 18. If you like the script please donate
 
 ### Info
-If you find bugs, please report here: [https://github.com/gdinko/dclassifieds.laravel/issues]https://github.com/gdinko/dclassifieds.laravel/issues
+If you find bugs, please report here: https://github.com/gdinko/dclassifieds.laravel/issues
 
 ### Services
 - Installation Services - please contact

@@ -53,7 +53,7 @@ class PayController extends Controller
                 'pay_number' => 'max:255',
                 'pay_secret' => 'max:255',
                 'pay_testmode' => 'numeric',
-                'pay_paypal_mail' => 'max:255|mail',
+                'pay_paypal_mail' => 'max:255|email',
                 'pay_sum_to_charge' => 'numeric',
                 'pay_currency' => 'max:255',
                 'pay_locale' => 'max:255',
