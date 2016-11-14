@@ -216,6 +216,7 @@ Route::get('/deactivate', 'CronController@deactivate');
 Route::get('/sendmaildeactivatesoon', 'CronController@sendmaildeactivatesoon');
 Route::get('/sendmailpromoexpiresoon', 'CronController@sendmailpromoexpiresoon');
 Route::get('/deactivatepromo', 'CronController@deactivatepromo');
+Route::get('/removedouble', 'CronController@removedouble');
 
 /**
  * social login

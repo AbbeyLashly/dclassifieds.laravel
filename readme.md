@@ -13,7 +13,7 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
 ### Futures
 - Unlimited Levels of Categories
 - Unlimited Levels of Locations
-- 7 Types of categories (different field in ad publish and ad search)
+- 7 Types of categories (different fields in ad publish and ad search)
 - Lightning fast, several types of caching
 - Laravel based
 - Seo Ready
@@ -21,8 +21,11 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
 - Magic Keywords
 - Social Login (Facebook, Twitter, Google)
 - User Messaging system
-- User Wallet
+- User Wallet / Promo ads
 - 4 Payment Gateways (Mobio SMS, Fortumo SMS, Paypal Standard, Stripe)
+- Favorite Ads
+- Static pages
+- Themes support
 - and many more
 
 ### Server Requirements
@@ -60,18 +63,37 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
     - depends on ads volume and hosting limits, set it to several times a day, set number of mails from settings
 13. Set cron job to remove promo from expired promo ads: http://your domain/deactivatepromo
     - once a day
-14. Enjoy :)
-15. If you like the script please donate
+14. Set cron job to remove double ads (with duplicate content): http://your domain/removedouble
+    - several times a day
+15. Make sure all sub folders in /public/uf are writable (if needed change mode to 777)
+16. Make sure all sub folders in /storage are writable (if needed change mode to 777)
+17. Enjoy :)
+18. If you like the script please donate
 
 ### Info
-If you find bugs, please report.
+If you find bugs, please report here: [https://github.com/gdinko/dclassifieds.laravel/issues]https://github.com/gdinko/dclassifieds.laravel/issues
 
 ### Services
-- Install Services
-- Custom Development Services
-- Please contact
+- Installation Services - please contact
+- Custom Development Services - please contact
 
 ### Contact and Credits
+- Made in Bulgaria, Sofia
 - Developer: Dinko Georgiev - contact@dclassifieds.eu
 - QA: Georgi Georgiev
 - p.s. we are not relatives :)
+
+### How to translate
+Copy the folder resources/lang/en, then rename it and translate, then change the language from admin -> settings
+
+### How to make your own theme
+1. Copy the basic theme from resources/views/themes/basic, name it like you want
+2. Change the theme from admin -> settings
+3. Copy your css/js files to public/css and public/js
+
+### How to make your own functionality
+1. Place your frontend controllers in app/Http/Controllers
+2. Place your frontend routing files in app/Http/Routes/frontend
+3. Place your backend controllers in app/Http/Controllers/Admin
+4. Place your backend routing files in app/Http/Routes/backend
+5. For more info read Laravel 5.2 Documentation

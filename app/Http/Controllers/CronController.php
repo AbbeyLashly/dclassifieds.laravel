@@ -67,4 +67,20 @@ class CronController extends Controller
         Ad::where('ad_promo_until' , '<', $today)->update(['ad_promo' => 0, 'ad_promo_until' => NULL]);
         Cache::flush();
     }
+
+    public function removedouble(Request $request)
+    {
+        $double_ads = Ad::select('ad_id')
+            ->groupBy('ad_description_hash')
+            ->havingRaw('count(ad_id) >= 2')
+            ->get()
+            ->toArray();
+        if(!empty($double_ads)){
+            $in_array = [];
+            foreach($double_ads as $k => $v){
+                $in_array[] = $v['ad_id'];
+            }
+            Ad::whereIn('ad_id', $in_array)->delete();
+        }
+    }
 }
