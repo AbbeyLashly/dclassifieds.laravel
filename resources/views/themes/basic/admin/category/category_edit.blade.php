@@ -39,7 +39,7 @@
                                         <option value="{{$v['cid']}}">{{$v['title']}}</option>
                                     @endif
 
-                                    @if(isset($v['c']) && !empty($v['c'])){
+                                    @if(isset($v['c']) && !empty($v['c']))
                                         @include('common.cselect', ['c' => $v['c']])
                                     @endif
                                 @endforeach

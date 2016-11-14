@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Nov 13, 2016 at 05:14 PM
+-- Generation Time: Nov 14, 2016 at 05:06 PM
 -- Server version: 5.1.42
 -- PHP Version: 5.2.12
 
@@ -790,7 +790,7 @@ INSERT INTO `settings` (`setting_id`, `setting_name`, `setting_value`, `setting_
 (92, 'mail_user', NULL, 'Mail user', 1, 'text', NULL, 0, 1),
 (93, 'mail_password', NULL, 'Mail password', 1, 'text', NULL, 0, 1),
 (94, 'app_env', 'production', 'Application Environment', 1, 'text', 'Application Environment info', 0, 1),
-(95, 'app_debug', '1', 'Application Debug Mode', 1, 'yesno', 'Application Debug Mode info', 0, 1),
+(95, 'app_debug', '0', 'Application Debug Mode', 1, 'yesno', 'Application Debug Mode info', 0, 1),
 (96, 'api_key', 'T1RYgieja3iJnqzQVaVtQ0OM6yCb4444', 'Encryption Key', 1, 'text', 'Encryption Key info', 0, 1),
 (97, 'app_locale', 'en', 'Site Language', 1, 'text', NULL, 0, 1),
 (98, 'app_timezone', 'UTC', 'Timezone', 1, 'text', NULL, 0, 1),

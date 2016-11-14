@@ -23,6 +23,7 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
 - User Messaging system
 - User Wallet / Promo ads
 - 4 Payment Gateways (Mobio SMS, Fortumo SMS, Paypal Standard, Stripe)
+- Bonus/Reward System
 - Favorite Ads
 - Static pages
 - Themes support

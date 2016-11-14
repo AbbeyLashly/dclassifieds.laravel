@@ -64,7 +64,7 @@
                                         <option value="0"></option>
                                         @foreach ($c as $k => $v)
                                             <optgroup label="{{$v['title']}}">
-                                                @if(isset($v['c']) && !empty($v['c'])){
+                                                @if(isset($v['c']) && !empty($v['c']))
                                                     @include('common.cselect', ['c' => $v['c'], 'cid' => old('category_id')])
                                                 @endif
                                             </optgroup>
@@ -978,7 +978,7 @@
                                     <option value="0"></option>
                                     @foreach ($l as $k => $v)
                                         <optgroup label="{{$v['title']}}">
-                                            @if(isset($v['c']) && !empty($v['c'])){
+                                            @if(isset($v['c']) && !empty($v['c']))
                                                 @include('common.lselect', ['c' => $v['c'], 'lid' => Util::getOldOrModelValue('location_id', $user, 'user_location_id')])
                                             @endif
                                         </optgroup>

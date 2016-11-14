@@ -34,7 +34,7 @@
                                 @else
                                     <option value="{{$v['cid']}}" style="font-weight: bold;" data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
                                 @endif
-                                @if(isset($v['c']) && !empty($v['c'])){
+                                @if(isset($v['c']) && !empty($v['c']))
                                     @include('common.cselect', ['c' => $v['c']])
                                 @endif
                             @endforeach
@@ -52,7 +52,7 @@
                                 @else
                                     <option value="{{$v['lid']}}" style="font-weight: bold;">{{$v['title']}}</option>
                                 @endif
-                                @if(isset($v['c']) && !empty($v['c'])){
+                                @if(isset($v['c']) && !empty($v['c']))
                                     @include('common.lselect', ['c' => $v['c']])
                                 @endif
                             @endforeach
