@@ -111,6 +111,7 @@ class AppServiceProvider extends ServiceProvider
             config(['app.env'           => config('dc.app_env')]);
             config(['app.debug'         => (int)config('dc.app_debug')]);
             config(['app.locale'        => config('dc.app_locale')]);
+            app()->setLocale(config('dc.app_locale'));
             config(['app.key'           => config('dc.api_key')]);
             config(['app.timezone'      => config('dc.app_timezone')]);
         }
