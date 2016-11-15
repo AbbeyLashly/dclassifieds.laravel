@@ -80,7 +80,7 @@ class CategoryController extends Controller
             $rules = [
                 'category_title' => 'required|max:255',
                 'category_slug' => 'required|max:255|unique:category,category_slug',
-                'category_type' => 'required|integer',
+                'category_type' => 'required|integer|not_in:0',
                 'category_ord' => 'required|integer'
             ];
 
@@ -264,7 +264,7 @@ class CategoryController extends Controller
                             }
 
                             //check if all fields are here
-                            if(count($data_to_save) >= 5){
+                            if(count($data_to_save) >= 5 && isset($data_to_save['category_type']) && $data_to_save['category_type'] > 0){
                                 if($category_parent_id > 0 && is_numeric($category_parent_id)){
                                     $data_to_save['category_parent_id'] = $category_parent_id;
                                 }

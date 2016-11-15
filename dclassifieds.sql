@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Nov 14, 2016 at 05:06 PM
+-- Generation Time: Nov 15, 2016 at 08:26 AM
 -- Server version: 5.1.42
 -- PHP Version: 5.2.12
 
@@ -422,7 +422,7 @@ CREATE TABLE IF NOT EXISTS `car_transmission` (
 CREATE TABLE IF NOT EXISTS `category` (
   `category_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `category_parent_id` int(10) unsigned DEFAULT NULL,
-  `category_type` tinyint(4) DEFAULT '1',
+  `category_type` tinyint(4) NOT NULL,
   `category_title` varchar(255) DEFAULT NULL,
   `category_slug` varchar(255) NOT NULL,
   `category_description` varchar(255) DEFAULT NULL,
@@ -796,8 +796,8 @@ INSERT INTO `settings` (`setting_id`, `setting_name`, `setting_value`, `setting_
 (98, 'app_timezone', 'UTC', 'Timezone', 1, 'text', NULL, 0, 1),
 (99, 'watermark', '', 'Watermark', 1, 'file', NULL, 0, 0),
 (100, 'watermark_position', 'center', 'Watermark position', 1, 'text', 'Watermark position info', 0, 1),
-(101, 'show_price_sign_before_price', '1', 'Show Price Sign Before Price', 1, 'yesno', NULL, 0, 1),
-(102, 'enable_category_description_in_search', '0', 'Enable category description in search results', 1, 'yesno', NULL, 0, 1);
+(101, 'show_price_sign_before_price', '0', 'Show Price Sign Before Price', 1, 'yesno', NULL, 0, 1),
+(102, 'enable_category_description_in_search', '1', 'Enable category description in search results', 1, 'yesno', NULL, 0, 1);
 
 -- --------------------------------------------------------
 

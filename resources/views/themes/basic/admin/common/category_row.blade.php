@@ -9,7 +9,7 @@
         @if(count($parent) > 0){{ join('&nbsp;/&nbsp;', $parent) . '&nbsp;/&nbsp;' }}@endif{{ $v['title'] }}
     </td>
     <td>{{ $v['slug'] }}</td>
-    <td>{{ $categoryType[$v['category_type']] }}</td>
+    <td>{{ isset($categoryType[$v['category_type']]) ? $categoryType[$v['category_type']] : ''}}</td>
     <td>{{ $v['ord'] }}</td>
     <td>
         @if($v['active'] == 1)

@@ -48,28 +48,29 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
     - DB_PASSWORD=your db password
 5. Import the dclassifieds.sql to your database name (see 4.)
 6. Upload the script to your hosting only the content of "public" folder must be in your document root, all other files must be outside
-7. Open your site and login with user: admin@admin.com pass: 123456
-8. Goto to admin panel settings, setup your configuration
+7. Create new user with your mail and password
+8. Login with user: admin@admin.com pass: 123456, goto admin -> user, active the new user and make it admin, then deactivate/delete admin@admin.com user
+9. Goto to admin panel settings, setup your configuration
     - Set "Encryption Key" to custom string 32 characters length
     - Set reCaptcha
     - Set Facebook Login
     - etc.
-9. Add rss to your google webmasters tools, rss adress : http://your domein/rss
+10. Add rss to your google webmasters tools, rss adress : http://your domein/rss
     - set number of ads in rss from settings
-10. Set cron job to deactivate expired ads: http://your domain/deactivate
+11. Set cron job to deactivate expired ads: http://your domain/deactivate
     - once a day
-11. Set cron job to send warning mail for expiring soon ads: http://your domain/sendmaildeactivatesoon
+12. Set cron job to send warning mail for expiring soon ads: http://your domain/sendmaildeactivatesoon
     - depends on ads volume and hosting limits, set it to several times a day, set number of mails from settings
-12. Set cron job to send warning mail for expiring soon promo ads: http://your domain/sendmailpromoexpiresoon
+13. Set cron job to send warning mail for expiring soon promo ads: http://your domain/sendmailpromoexpiresoon
     - depends on ads volume and hosting limits, set it to several times a day, set number of mails from settings
-13. Set cron job to remove promo from expired promo ads: http://your domain/deactivatepromo
+14. Set cron job to remove promo from expired promo ads: http://your domain/deactivatepromo
     - once a day
-14. Set cron job to remove double ads (with duplicate content): http://your domain/removedouble
+15. Set cron job to remove double ads (with duplicate content): http://your domain/removedouble
     - several times a day
-15. Make sure all sub folders in /public/uf are writable (if needed change mode to 777)
-16. Make sure all sub folders in /storage are writable (if needed change mode to 777)
-17. Enjoy :)
-18. If you like the script please donate
+16. Make sure all sub folders in /public/uf are writable (if needed change mode to 777)
+17. Make sure all sub folders in /storage are writable (if needed change mode to 777)
+18. Enjoy :)
+19. If you like the script please donate
 
 ### Info
 If you find bugs, please report here: https://github.com/gdinko/dclassifieds.laravel/issues
