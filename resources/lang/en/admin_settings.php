@@ -118,5 +118,6 @@ return [
     'Watermark' => 'Watermark',
     'Watermark position' => 'Watermark position',
     'Show Price Sign Before Price' => 'Show Price Sign Before Price',
-    'Enable category description in search results' => 'Enable category description in search results'
+    'Enable category description in search results' => 'Enable category description in search results',
+    'Cron Password' => 'Cron Password'
 ];

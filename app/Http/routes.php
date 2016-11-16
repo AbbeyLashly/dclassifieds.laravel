@@ -212,11 +212,11 @@ Route::get('/rss', 'RssController@index')->name('rss');
 /**
  * cron
  */
-Route::get('/deactivate', 'CronController@deactivate');
-Route::get('/sendmaildeactivatesoon', 'CronController@sendmaildeactivatesoon');
-Route::get('/sendmailpromoexpiresoon', 'CronController@sendmailpromoexpiresoon');
-Route::get('/deactivatepromo', 'CronController@deactivatepromo');
-Route::get('/removedouble', 'CronController@removedouble');
+Route::get('/deactivate/{pass}', 'CronController@deactivate');
+Route::get('/sendmaildeactivatesoon/{pass}', 'CronController@sendmaildeactivatesoon');
+Route::get('/sendmailpromoexpiresoon/{pass}', 'CronController@sendmailpromoexpiresoon');
+Route::get('/deactivatepromo/{pass}', 'CronController@deactivatepromo');
+Route::get('/removedouble/{pass}', 'CronController@removedouble');
 
 /**
  * social login
