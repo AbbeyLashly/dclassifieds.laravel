@@ -79,14 +79,17 @@ class AppServiceProvider extends ServiceProvider
             //facebook login settings
             config(['services.facebook.client_id' => config('dc.facebook_app_client_id')]);
             config(['services.facebook.client_secret' => config('dc.facebook_app_secret')]);
+            config(['services.facebook.redirect' => url('socialcallback/facebook')]);
 
             //google login settings
             config(['services.google.client_id' => config('dc.google_app_client_id')]);
             config(['services.google.client_secret' => config('dc.google_app_secret')]);
+            config(['services.google.redirect' => url('socialcallback/google')]);
 
             //twitter login settings
             config(['services.twitter.client_id' => config('dc.twitter_app_client_id')]);
             config(['services.twitter.client_secret' => config('dc.twitter_app_secret')]);
+            config(['services.twitter.redirect' => url('socialcallback/twitter')]);
 
             //set themes path
             View::addLocation(realpath(base_path('resources/views/themes' . '/' . config('dc.theme'))));

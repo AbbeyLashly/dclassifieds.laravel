@@ -38,19 +38,19 @@ return [
     'facebook' => [
         'client_id' => '',
         'client_secret' => '',
-        'redirect' => url('socialcallback/facebook'),
+        'redirect' => '',
     ],
 
     'twitter' => [
         'client_id' => '',
         'client_secret' => '',
-        'redirect' => url('socialcallback/twitter'),
+        'redirect' => '',
     ],
 
     'google' => [
         'client_id' => '',
         'client_secret' => '',
-        'redirect' => url('socialcallback/google'),
+        'redirect' => '',
     ],
 
 ];
