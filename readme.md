@@ -54,18 +54,19 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
     - Set "Encryption Key" to custom string 32 characters length
     - Set reCaptcha
     - Set Facebook Login
+    - Change Cron password
     - etc.
 10. Add rss to your google webmasters tools, rss adress : http://your domein/rss
     - set number of ads in rss from settings
-11. Set cron job to deactivate expired ads: http://your domain/deactivate
+11. Set cron job to deactivate expired ads: http://your domain/deactivate/cron password from admin
     - once a day
-12. Set cron job to send warning mail for expiring soon ads: http://your domain/sendmaildeactivatesoon
+12. Set cron job to send warning mail for expiring soon ads: http://your domain/sendmaildeactivatesoon/cron password from admin
     - depends on ads volume and hosting limits, set it to several times a day, set number of mails from settings
-13. Set cron job to send warning mail for expiring soon promo ads: http://your domain/sendmailpromoexpiresoon
+13. Set cron job to send warning mail for expiring soon promo ads: http://your domain/sendmailpromoexpiresoon/cron password from admin
     - depends on ads volume and hosting limits, set it to several times a day, set number of mails from settings
-14. Set cron job to remove promo from expired promo ads: http://your domain/deactivatepromo
+14. Set cron job to remove promo from expired promo ads: http://your domain/deactivatepromo/cron password from admin
     - once a day
-15. Set cron job to remove double ads (with duplicate content): http://your domain/removedouble
+15. Set cron job to remove double ads (with duplicate content): http://your domain/removedouble/cron password from admin
     - several times a day
 16. Make sure all sub folders in /public/uf are writable (if needed change mode to 777)
 17. Make sure all sub folders in /storage are writable (if needed change mode to 777)
