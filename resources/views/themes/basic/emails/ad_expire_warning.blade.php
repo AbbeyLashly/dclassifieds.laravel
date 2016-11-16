@@ -37,7 +37,7 @@ p { margin: 10px 0px; font-size: 14px; }
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td style="padding: 10px; border-bottom: 1px solid #dddddd;">
-                                        <h1 style="font-size: 22px;">{{ trans('cron.Hello') }} {{$ad->ad_puslisher_name}},</h1>
+                                        <h1 style="font-size: 22px;">{{ trans('cron.Hello') }} {{$ad->ad_publisher_name}},</h1>
                                         <p>{{ trans('cron.Your ad') }} <strong><a href="{{ url(str_slug($ad->ad_title) . '-' . 'ad' . $ad->ad_id . '.html') }}">{{$ad->ad_title}}</a></strong> {{ trans('cron.will expire after') }} <strong>{{config('dc.send_warning_mail_ad_expire')}} {{ trans('cron.days.') }}</strong></p>
                                         <p>{{ trans('cron.You can republish your ad, and she will appear on the top of search results.') }}</p>
                                     </td>

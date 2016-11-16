@@ -887,7 +887,7 @@ class AdController extends Controller
             'type_id'           => 'required|integer|not_in:0',
             'ad_image.*'        => 'mimes:jpeg,bmp,png|max:' . config('dc.ad_image_max_size'),
             'location_id'       => 'required|integer|not_in:0',
-            'ad_puslisher_name' => 'required|string|max:255',
+            'ad_publisher_name' => 'required|string|max:255',
             'ad_email'          => 'required|email|max:255',
             'policy_agree'      => 'required',
         ];
@@ -1041,7 +1041,7 @@ class AdController extends Controller
                 $password = str_random(10);
 
                 $user                   = new User();
-                $user->name             = $ad_data['ad_puslisher_name'];
+                $user->name             = $ad_data['ad_publisher_name'];
                 $user->email            = $ad_data['ad_email'];
                 $user->user_phone       = $ad_data['ad_phone'];
                 $user->user_skype       = $ad_data['ad_skype'];
@@ -1795,7 +1795,7 @@ class AdController extends Controller
             'type_id'           => 'required|integer|not_in:0',
             'ad_image.*'        => 'mimes:jpeg,bmp,png|max:' . config('dc.ad_image_max_size'),
             'location_id'       => 'required|integer|not_in:0',
-            'ad_puslisher_name' => 'required|string|max:255',
+            'ad_publisher_name' => 'required|string|max:255',
             'ad_email'          => 'required|email|max:255',
             'policy_agree'      => 'required',
         ];

@@ -84,8 +84,8 @@ class AdController extends Controller
             $where['user_id'] = ['=', $params['user_id']];
         }
 
-        if(isset($params['ad_puslisher_name']) && !empty($params['ad_puslisher_name'])){
-            $where['ad_puslisher_name'] = ['like', $params['ad_puslisher_name'] . '%'];
+        if(isset($params['ad_publisher_name']) && !empty($params['ad_publisher_name'])){
+            $where['ad_publisher_name'] = ['like', $params['ad_publisher_name'] . '%'];
         }
 
         if(isset($params['ad_email']) && !empty($params['ad_email'])){
@@ -185,7 +185,7 @@ class AdController extends Controller
             'type_id'           => 'required|integer|not_in:0',
             'ad_image.*'        => 'mimes:jpeg,bmp,png|max:' . config('dc.ad_image_max_size'),
             'location_id'       => 'required|integer|not_in:0',
-            'ad_puslisher_name' => 'required|string|max:255',
+            'ad_publisher_name' => 'required|string|max:255',
             'ad_email'          => 'required|email|max:255'
         ];
 

@@ -7,7 +7,7 @@
     <td>{{ $v->location_name }}</td>
     <td>{{ $v->ad_title }}</td>
     <td>{{ $v->user_id }}</td>
-    <td>{{ $v->ad_puslisher_name }}</td>
+    <td>{{ $v->ad_publisher_name }}</td>
     <td>{{ $v->ad_email }}</td>
     <td>
         @if($v->ad_promo == 1)

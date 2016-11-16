@@ -15,7 +15,7 @@
     {{ $ad->ad_publish_date }}<br />
     {{ $ad->ad_email }}<br />
     {{ $ad->ad_ip }}<br />
-    <a href="{{ url('/viewbyuser/' . $ad->user_id) }}">{{ trans('mail_control_ad.View all ads from') }} {{ $ad->ad_puslisher_name }}</a><br /><br />
+    <a href="{{ url('/viewbyuser/' . $ad->user_id) }}">{{ trans('mail_control_ad.View all ads from') }} {{ $ad->ad_publisher_name }}</a><br /><br />
     
     <?
     $ad->ad_category_info = array_reverse($ad->ad_category_info);

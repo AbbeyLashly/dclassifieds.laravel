@@ -71,7 +71,7 @@
                                     <td><input type="text" class="form-control filter_field" name="location_name" id="location_name" value="{{ isset($params['location_name']) ? $params['location_name'] : ''}}" /></td>
                                     <td width="200px;"><input type="text" class="form-control filter_field" name="ad_title" id="ad_title" value="{{ isset($params['ad_title']) ? $params['ad_title'] : ''}}" /></td>
                                     <td><input type="text" class="form-control filter_field" name="user_id" id="user_id" value="{{ isset($params['user_id']) ? $params['user_id'] : ''}}" /></td>
-                                    <td><input type="text" class="form-control filter_field" name="ad_puslisher_name" id="ad_puslisher_name" value="{{ isset($params['ad_puslisher_name']) ? $params['ad_puslisher_name'] : ''}}" /></td>
+                                    <td><input type="text" class="form-control filter_field" name="ad_publisher_name" id="ad_publisher_name" value="{{ isset($params['ad_publisher_name']) ? $params['ad_publisher_name'] : ''}}" /></td>
                                     <td><input type="text" class="form-control filter_field" name="ad_email" id="ad_email" value="{{ isset($params['ad_email']) ? $params['ad_email'] : ''}}" /></td>
                                     <td width="85px;">
                                         <select class="form-control filter_field" name="ad_promo" id="ad_promo">

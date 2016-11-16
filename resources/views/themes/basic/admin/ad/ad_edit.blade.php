@@ -732,12 +732,12 @@
                                 <input type="text" class="form-control" id="ad_address" name="ad_address" value="{{ Util::getOldOrModelValue('ad_address', $ad_detail) }}" >
                             </div>
 
-                            <div class="form-group required {{ $errors->has('ad_puslisher_name') ? ' has-error' : '' }}">
-                                <label for="ad_puslisher_name" class="control-label">{{ trans('publish_edit.Contact Name') }}</label>
-                                <input type="text" class="form-control" id="ad_puslisher_name" name="ad_puslisher_name" value="{{ Util::getOldOrModelValue('ad_puslisher_name', $ad_detail) }}" />
-                                @if ($errors->has('ad_puslisher_name'))
+                            <div class="form-group required {{ $errors->has('ad_publisher_name') ? ' has-error' : '' }}">
+                                <label for="ad_publisher_name" class="control-label">{{ trans('publish_edit.Contact Name') }}</label>
+                                <input type="text" class="form-control" id="ad_publisher_name" name="ad_publisher_name" value="{{ Util::getOldOrModelValue('ad_publisher_name', $ad_detail) }}" />
+                                @if ($errors->has('ad_publisher_name'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('ad_puslisher_name') }}</strong>
+                                        <strong>{{ $errors->first('ad_publisher_name') }}</strong>
                                     </span>
                                 @endif
                             </div>

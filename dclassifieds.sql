@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Nov 16, 2016 at 03:19 PM
+-- Generation Time: Nov 16, 2016 at 05:09 PM
 -- Server version: 5.1.42
 -- PHP Version: 5.2.12
 
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `ad` (
   `ad_title` varchar(255) DEFAULT NULL,
   `ad_description` text,
   `ad_description_hash` varchar(40) DEFAULT NULL,
-  `ad_puslisher_name` varchar(255) DEFAULT NULL,
+  `ad_publisher_name` varchar(255) DEFAULT NULL,
   `code` char(30) DEFAULT NULL,
   `ad_promo` tinyint(4) DEFAULT '0',
   `ad_promo_until` date DEFAULT NULL,
