@@ -114,7 +114,7 @@
                             <label for="ad_price_type_1" class="col-md-4 control-label">{{ trans('publish_edit.Price') }}</label>
                             <div class="col-md-5">
                                 <div class="pull-left checkbox"><input type="radio" name="price_radio" id="price_radio" value="1" {{ old('price_radio') == 1 ? 'checked' : '' }}></div>
-                                <div class="pull-left" style="margin-left:5px;">
+                                <div class="pull-left" style="margin-left:5px; width:50%;">
                                     <div class="input-group">
                                         @if(config('dc.show_price_sign_before_price'))
                                             <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
@@ -664,7 +664,7 @@
                             <label for="ad_price_type_4" class="col-md-4 control-label">{{ trans('publish_edit.Price') }}</label>
                             <div class="col-md-5">
                                 <div class="pull-left checkbox"><input type="radio" name="price_radio_type_4" id="price_radio_type_4" value="1" {{ old('price_radio_type_4') == 1 ? 'checked' : '' }}></div>
-                                <div class="pull-left" style="margin-left:5px;">
+                                <div class="pull-left" style="margin-left:5px; width:50%;">
                                     <div class="input-group">
                                         @if(config('dc.show_price_sign_before_price'))
                                             <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
@@ -707,7 +707,7 @@
                             <label for="ad_price_type_5" class="col-md-4 control-label">{{ trans('publish_edit.Price') }}</label>
                             <div class="col-md-5">
                                 <div class="pull-left checkbox"><input type="radio" name="price_radio_type_5" id="price_radio_type_5" value="1" {{ old('price_radio_type_5') == 1 ? 'checked' : '' }}></div>
-                                <div class="pull-left" style="margin-left:5px;">
+                                <div class="pull-left" style="margin-left:5px; width:50%;">
                                     <div class="input-group">
                                         @if(config('dc.show_price_sign_before_price'))
                                             <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
@@ -778,7 +778,7 @@
                             <label for="ad_price_type_6" class="col-md-4 control-label">{{ trans('publish_edit.Price') }}</label>
                             <div class="col-md-5">
                                 <div class="pull-left checkbox"><input type="radio" name="price_radio_type_6" id="price_radio_type_6" value="1" {{ old('price_radio_type_6') == 1 ? 'checked' : '' }}></div>
-                                <div class="pull-left" style="margin-left:5px;">
+                                <div class="pull-left" style="margin-left:5px; width:50%;">
                                     <div class="input-group">
                                         @if(config('dc.show_price_sign_before_price'))
                                             <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
