@@ -63,11 +63,14 @@
                                     <select name="category_id" id="category_id" class="form-control cid_select">
                                         <option value="0"></option>
                                         @foreach ($c as $k => $v)
-                                            <optgroup label="{{$v['title']}}">
-                                                @if(isset($v['c']) && !empty($v['c']))
-                                                    @include('common.cselect', ['c' => $v['c'], 'cid' => old('category_id')])
-                                                @endif
-                                            </optgroup>
+                                            @if(isset($cid) && $cid == $v['cid'])
+                                                <option value="{{$v['cid']}}" style="font-weight: bold;" selected data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
+                                            @else
+                                                <option value="{{$v['cid']}}" style="font-weight: bold;" data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
+                                            @endif
+                                            @if(isset($v['c']) && !empty($v['c']))
+                                                @include('common.cselect', ['c' => $v['c'], 'cid' => old('category_id')])
+                                            @endif
                                         @endforeach
                                     </select>
                                 @endif
