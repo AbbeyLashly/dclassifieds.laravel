@@ -23,29 +23,29 @@
     </div>
     @endif
 
-    @if($modelData->isEmpty())
-        {{ trans('admin_common.There are no car models.') }}
-    @else
-        <div class="box">
-            <div class="box-header with-border">
-                <h3 class="box-title">{{ trans('admin_common.All Car Models') }}</h3>
-            </div>
-            <!-- /.box-header -->
+    <div class="box">
+        <div class="box-header with-border">
+            <h3 class="box-title">{{ trans('admin_common.All Car Models') }}</h3>
+        </div>
+        <!-- /.box-header -->
 
-            <form method="get" name="list_form" id="list_form" action="{{ url('admin/carmodel/delete') }}">
-            {!! csrf_field() !!}
+        <form method="get" name="list_form" id="list_form" action="{{ url('admin/carmodel/delete') }}">
+        {!! csrf_field() !!}
 
-                <div class="controls">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></button>
-                        <button type="submit" class="btn btn-default btn-sm need_confirm"><i class="fa fa-trash-o"></i></button>
-                    </div>
-
-                    <a href="{{ url('admin/carmodel/edit') }}" class="btn btn-primary btn-sm"><i class="fa fa-file-o"></i> {{ trans('admin_common.New Car Model') }}</a>
-                    <a href="{{ url('admin/carmodel/import') }}" class="btn btn-primary btn-sm"><i class="fa fa-files-o"></i> {{ trans('admin_common.Import Car Models from csv') }}</a>
+            <div class="controls">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></button>
+                    <button type="submit" class="btn btn-default btn-sm need_confirm"><i class="fa fa-trash-o"></i></button>
                 </div>
 
-                <div class="box-body">
+                <a href="{{ url('admin/carmodel/edit') }}" class="btn btn-primary btn-sm"><i class="fa fa-file-o"></i> {{ trans('admin_common.New Car Model') }}</a>
+                <a href="{{ url('admin/carmodel/import') }}" class="btn btn-primary btn-sm"><i class="fa fa-files-o"></i> {{ trans('admin_common.Import Car Models from csv') }}</a>
+            </div>
+
+            <div class="box-body">
+                @if($modelData->isEmpty())
+                    {{ trans('admin_common.There are no car models.') }}
+                @else
                     <div class="table-responsive">
                         <table id="list_table" class="table table-bordered table-striped table-hover">
                             <thead>
@@ -119,12 +119,12 @@
                             </nav>
                         </div>
                     </div>
-                </div>
-            <!-- /.box-body -->
-            </form>
-        </div>
-        <!-- /.box -->
-    @endif
+                @endif
+            </div>
+        <!-- /.box-body -->
+        </form>
+    </div>
+    <!-- /.box -->
     </section>
     <!-- /.content -->
 @endsection
