@@ -961,6 +961,7 @@ class AdController extends Controller
                     $ad_data['ad_price'] = 0;
                     $ad_data['ad_free'] = 1;
                 }
+                $ad_data['condition_id'] = $ad_data['condition_id_type_5'];
                 break;
             case 6:
                 if(isset($ad_data['price_radio_type_6']) && $ad_data['price_radio_type_6'] == 1){
@@ -970,6 +971,7 @@ class AdController extends Controller
                     $ad_data['ad_price'] = 0;
                     $ad_data['ad_free'] = 1;
                 }
+                $ad_data['condition_id'] = $ad_data['condition_id_type_6'];
                 break;
             case 7:
                 $ad_data['ad_price'] = $ad_data['ad_price_type_7'];
@@ -1689,6 +1691,7 @@ class AdController extends Controller
                     $ad_data['ad_price'] = 0;
                     $ad_data['ad_free'] = 1;
                 }
+                $ad_data['condition_id'] = $ad_data['condition_id_type_5'];
                 break;
             case 6:
                 if(isset($ad_data['price_radio_type_6']) && $ad_data['price_radio_type_6'] == 1){
@@ -1698,6 +1701,7 @@ class AdController extends Controller
                     $ad_data['ad_price'] = 0;
                     $ad_data['ad_free'] = 1;
                 }
+                $ad_data['condition_id'] = $ad_data['condition_id_type_6'];
                 break;
             case 7:
                 $ad_data['ad_price'] = $ad_data['ad_price_type_7'];

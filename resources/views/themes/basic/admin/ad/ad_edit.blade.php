@@ -584,6 +584,27 @@
                                     @endif
                                 </div>
 
+                                <div class="form-group required {{ $errors->has('condition_id_type_5') ? ' has-error' : '' }}">
+                                    <label for="condition_id_type_5" class="control-label">{{ trans('publish_edit.Condition') }}</label>
+                                    @if(!$ac->isEmpty())
+                                    <select name="condition_id_type_5" id="condition_id_type_5" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Condition') }}">
+                                        <option value="0"></option>
+                                        @foreach ($ac as $k => $v)
+                                            @if(Util::getOldOrModelValue('condition_id_type_5', $ad_detail) == $v->ad_condition_id)
+                                                <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
+                                            @else
+                                                <option value="{{ $v->ad_condition_id }}">{{ $v->ad_condition_name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    @endif
+                                    @if ($errors->has('condition_id_type_5'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('condition_id_type_5') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+
                             <!-- end of type 5 -->
                             </div>
 
@@ -639,6 +660,27 @@
                                     @if(trans('publish_edit.Choose Shoes Size'))
                                         <span class="help-block">
                                             {!! trans('publish_edit.Choose Shoes Size') !!}
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="form-group required {{ $errors->has('condition_id_type_6') ? ' has-error' : '' }}">
+                                    <label for="condition_id_type_6" class="control-label">{{ trans('publish_edit.Condition') }}</label>
+                                    @if(!$ac->isEmpty())
+                                    <select name="condition_id_type_6" id="condition_id_type_6" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Condition') }}">
+                                        <option value="0"></option>
+                                        @foreach ($ac as $k => $v)
+                                            @if(Util::getOldOrModelValue('condition_id_type_6', $ad_detail) == $v->ad_condition_id)
+                                                <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
+                                            @else
+                                                <option value="{{ $v->ad_condition_id }}">{{ $v->ad_condition_name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    @endif
+                                    @if ($errors->has('condition_id_type_6'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('condition_id_type_6') }}</strong>
                                         </span>
                                     @endif
                                 </div>

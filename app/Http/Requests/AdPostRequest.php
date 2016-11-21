@@ -146,6 +146,9 @@ class AdPostRequest extends Request
         $validator->sometimes(['clothes_size_id'], 'required|integer|not_in:0', function($input){
             return $input->category_type == 5 ? 1 : 0;
         });
+        $validator->sometimes(['condition_id_type_5'], 'required|integer|not_in:0', function($input){
+            return $input->category_type == 5 ? 1 : 0;
+        });
 
         /**
          * type 6 shoes validation
@@ -157,6 +160,9 @@ class AdPostRequest extends Request
             return false;
         });
         $validator->sometimes(['shoes_size_id'], 'required|integer|not_in:0', function($input){
+            return $input->category_type == 6 ? 1 : 0;
+        });
+        $validator->sometimes(['condition_id_type_6'], 'required|integer|not_in:0', function($input){
             return $input->category_type == 6 ? 1 : 0;
         });
 
