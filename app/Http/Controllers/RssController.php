@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
@@ -9,29 +10,32 @@ use App\Ad;
 
 class RssController extends Controller
 {
-    protected $ad;
+    protected $adModel;
 
-    public function __construct(Ad $_ad)
+    public function __construct(Ad $adModel)
     {
-        $this->ad = $_ad;
+        $this->adModel = $adModel;
     }
 
     public function index(Request $request)
     {
         if(config('dc.enable_rss')) {
+
+            //xml template
             $xml = '<?xml version="1.0"?>
                         <rss version="2.0">
                            <channel>
                               <title>' . config('dc.site_home_page_title') . '</title>
                               <description>' . config('dc.rss_feed_description') . '</description>
-                              <link>' . config('dc.site_url') . '</link>
-                    ';
+                              <link>' . config('dc.site_url') . '</link>';
 
+            //get ads
             $where['ad_active'] = 1;
-            $order = ['ad.ad_id' => 'desc'];
-            $limit = config('dc.rss_num_items');
-            $res = $this->ad->getAdList($where, $order, $limit);
+            $order  = ['ad.ad_id' => 'desc'];
+            $limit  = config('dc.rss_num_items');
+            $res    = $this->adModel->getAdList($where, $order, $limit);
 
+            //generate xml
             if (!empty($res)) {
                 foreach ($res as $k => $v) {
                     $link = url(str_slug($v->ad_title) . '-' . 'ad' . $v->ad_id . '.html');
@@ -47,6 +51,7 @@ class RssController extends Controller
             $xml .= '</channel>
                     </rss>';
 
+            //output generated xml
             echo $xml;
         }
     }

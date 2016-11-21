@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
@@ -21,12 +22,12 @@ class StripePayController extends Controller
     public function index(Request $request)
     {
         //get peytype
-        $paytype = $request->paytype;
+        $payType = $request->paytype;
 
         //get info for this payment
         $payTypeInfo = Pay::find(Pay::PAY_TYPE_STRIPE);
 
-        $stripeData = ['paytype' => $paytype,
+        $stripeData = ['paytype' => $payType,
             'sum_to_charge' => $payTypeInfo->pay_sum_to_charge,
             'pay_currency' => $payTypeInfo->pay_currency,
             'publish_key' => $payTypeInfo->pay_publish_key
@@ -45,8 +46,8 @@ class StripePayController extends Controller
         $params = Input::all();
 
         //get get params
-        $paytype = $request->paytype;
-        $paytype = trim($paytype);
+        $payType = $request->paytype;
+        $payType = trim($payType);
 
         //get info for this payment
         $payTypeInfo = Pay::find(Pay::PAY_TYPE_STRIPE);
@@ -60,7 +61,7 @@ class StripePayController extends Controller
             $token = $params['stripeToken'];
         }
 
-        if (!empty($token) && !empty($paytype)) {
+        if (!empty($token) && !empty($payType)) {
             // Create a charge: this will charge the user's card
             try {
                 $charge = \Stripe\Charge::create([
@@ -71,17 +72,18 @@ class StripePayController extends Controller
                 ]);
             } catch (\Exception $e) {
                 // The card has been declined
-                Log::info('STRIPE :: ERROR ' . $e->getMessage() . ' Action: ' . $paytype);
+                Log::info('STRIPE :: ERROR ' . $e->getMessage() . ' Action: ' . $payType);
                 session()->flash('message', trans('payment_stripe.There is error, please contact us.'));
                 return view('common.info_page');
             }
 
-            $pay_type = mb_strtolower(mb_substr($paytype, 0, 1));
+            //check if user is paying for promo ad or is adding money to wallet
+            $payPrefix = mb_strtolower(mb_substr($payType, 0, 1));
 
             //make ad promo
-            if ($pay_type == 'a') {
-                $ad_id = mb_substr($paytype, 1);
-                $adInfo = Ad::find($ad_id);
+            if ($payPrefix == 'a') {
+                $adId = mb_substr($payType, 1);
+                $adInfo = Ad::find($adId);
                 if (!empty($adInfo)) {
 
                     //calc promo period
@@ -89,9 +91,9 @@ class StripePayController extends Controller
 
                     //check if ad is promo and extend promo period
                     if(!empty($adInfo->ad_promo_until) && $adInfo->ad_promo == 1){
-                        $current_promo_period_timestamp = strtotime($adInfo->ad_promo_until);
-                        if($current_promo_period_timestamp) {
-                            $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d', $current_promo_period_timestamp) + $payTypeInfo->pay_promo_period, date('Y')));
+                        $currentPromoPeriodTimestamp = strtotime($adInfo->ad_promo_until);
+                        if($currentPromoPeriodTimestamp) {
+                            $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d', $currentPromoPeriodTimestamp) + $payTypeInfo->pay_promo_period, date('Y')));
                         }
                     }
 
@@ -103,37 +105,37 @@ class StripePayController extends Controller
                     $adInfo->save();
 
                     //add money to wallet
-                    $wallet_data = ['user_id' => $adInfo->user_id,
-                        'ad_id' => $ad_id,
+                    $walletData = ['user_id' => $adInfo->user_id,
+                        'ad_id' => $adId,
                         'sum' => $payTypeInfo->pay_sum,
                         'wallet_date' => date('Y-m-d H:i:s'),
                         'wallet_description' => trans('payment_stripe.Payment via Stripe')
                     ];
-                    Wallet::create($wallet_data);
+                    Wallet::create($walletData);
 
                     //subtract money from wallet
-                    $wallet_data = ['user_id' => $adInfo->user_id,
-                        'ad_id' => $ad_id,
+                    $walletData = ['user_id' => $adInfo->user_id,
+                        'ad_id' => $adId,
                         'sum' => -$payTypeInfo->pay_sum,
                         'wallet_date' => date('Y-m-d H:i:s'),
-                        'wallet_description' => trans('payment_stripe.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad_id, 'date' => $promoUntilDate])
+                        'wallet_description' => trans('payment_stripe.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adId, 'date' => $promoUntilDate])
                     ];
-                    Wallet::create($wallet_data);
+                    Wallet::create($walletData);
                 }
             }
 
             //add money to wallet
-            if ($pay_type == 'w') {
-                $user_id = mb_substr($paytype, 1);
-                $userInfo = User::find($user_id);
+            if ($payPrefix == 'w') {
+                $userId = mb_substr($payType, 1);
+                $userInfo = User::find($userId);
                 if (!empty($userInfo)) {
                     //save money to wallet
-                    $wallet_data = ['user_id' => $userInfo->user_id,
+                    $walletData = ['user_id' => $userInfo->user_id,
                         'sum' => $payTypeInfo->pay_sum,
                         'wallet_date' => date('Y-m-d H:i:s'),
                         'wallet_description' => trans('payment_stripe.Add Money to Wallet via Stripe')
                     ];
-                    Wallet::create($wallet_data);
+                    Wallet::create($walletData);
                 }
             }
 
@@ -142,7 +144,7 @@ class StripePayController extends Controller
             return view('common.info_page');
 
         } else {
-            Log::info('STRIPE :: ERROR TOKEN MISSING Action: ' . $paytype);
+            Log::info('STRIPE :: ERROR TOKEN MISSING Action: ' . $payType);
             session()->flash('message', trans('payment_stripe.There is error, please contact us.'));
             return view('common.info_page');
         }

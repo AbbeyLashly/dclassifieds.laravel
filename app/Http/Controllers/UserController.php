@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,22 +26,28 @@ use Auth;
 
 class UserController extends Controller
 {
-    protected $user;
-    protected $mail;
-    protected $location;
-    protected $wallet;
+    protected $userModel;
+    protected $mailModel;
+    protected $locationModel;
+    protected $walletModel;
     
-    public function __construct(User $_user, UserMail $_mail, Location $_location, Wallet $_wallet)
+    public function __construct(User $userModel, UserMail $mailModel, Location $locationModel, Wallet $walletModel)
     {
-        $this->user     = $_user;
-        $this->mail     = $_mail;
-        $this->location = $_location;
-        $this->wallet   = $_wallet;
+        $this->userModel     = $userModel;
+        $this->mailModel     = $mailModel;
+        $this->locationModel = $locationModel;
+        $this->walletModel   = $walletModel;
     }
-    
-    public function myprofile(Request $request)
+
+    /**
+     * Show user profile for edit
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function myProfile(Request $request)
     {
-        $user = $this->user->find(Auth::user()->user_id);
+        $user = $this->userModel->find(Auth::user()->user_id);
         $user->password = '';
 
         //set page title
@@ -48,11 +55,19 @@ class UserController extends Controller
         $title[] = trans('myprofile.My Profile');
 
         return view('user.myprofile', ['user' => $user,
-            'l' => $this->location->getAllHierarhy(),
-            'title' => $title]);
+            'location' => $this->locationModel->getAllHierarhy(),
+            'title' => $title
+        ]);
     }
-    
-    public function myprofilesave(Request $request)
+
+    /**
+     * Save user profile data
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Foundation\Validation\ValidationException
+     */
+    public function myProfileSave(Request $request)
     {
         $current_user = Auth::user();
         $rules = [
@@ -125,7 +140,7 @@ class UserController extends Controller
         $current_user_id = Auth::user()->user_id;
         $where = ['user_id_to' => $request->user()->user_id, 'UMS.mail_deleted' => 0];
         $order = ['mail_date' => 'DESC'];
-        $mailList = $this->mail->getMailList($current_user_id, $where, $order);
+        $mailList = $this->mailModel->getMailList($current_user_id, $where, $order);
 
         //set page title
         $title = [config('dc.site_domain')];
@@ -162,7 +177,7 @@ class UserController extends Controller
         //get conversation
         $where = ['user_mail.mail_hash' => $hash, 'UMS.mail_deleted' => 0];
         $order = ['mail_date' => 'ASC'];
-        $mailList = $this->mail->getMailList($current_user_id, $where, $order);
+        $mailList = $this->mailModel->getMailList($current_user_id, $where, $order);
         
         if($mailList->isEmpty()){
             return redirect(route('mymail'));
@@ -211,10 +226,10 @@ class UserController extends Controller
         if($current_user_id > 0){
 
             //get other user info
-            $userInfo = $this->user->getUserById($user_id_from);
+            $userInfo = $this->userModel->getUserById($user_id_from);
 
             //save in db and send mail
-            $this->mail->saveMailToDbAndSendMail($current_user_id, $user_id_from, $ad_id, $request->contact_message, $userInfo->email);
+            $this->mailModel->saveMailToDbAndSendMail($current_user_id, $user_id_from, $ad_id, $request->contact_message, $userInfo->email);
         
             //set flash message and return
             session()->flash('message', trans('mailview.Your message was send.'));
@@ -269,8 +284,8 @@ class UserController extends Controller
             $page = $params['page'];
         }
 
-        $walletList = $this->wallet->getList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
-        $wallet_total = $this->wallet->where('user_id', $user->user_id)->sum('sum');
+        $walletList = $this->walletModel->getList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+        $wallet_total = $this->walletModel->where('user_id', $user->user_id)->sum('sum');
 
         //set page title
         $title = [config('dc.site_domain')];

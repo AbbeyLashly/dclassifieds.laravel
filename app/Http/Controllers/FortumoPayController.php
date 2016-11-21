@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
@@ -16,7 +17,9 @@ class FortumoPayController extends Controller
 {
     public function index(Request $request)
     {
-        $sms_reply = trans('payment_fortumo.There is error, please contact us.');
+        //send reply by sms
+        $smsReply = trans('payment_fortumo.There is error, please contact us.');
+
         //get info for this payment
         $payTypeInfo = Pay::find(Pay::PAY_TYPE_FORTUMO);
 
@@ -24,32 +27,34 @@ class FortumoPayController extends Controller
         $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+$payTypeInfo->pay_promo_period, date('Y')));
 
         //get incoming params
-        $message = isset($request->message) ?  $request->message : null;
-        $status = isset($request->status) ?  $request->status : null;
-        $billing_type = isset($request->billing_type) ?  $request->billing_type : null;
+        $message        = isset($request->message) ?  $request->message : null;
+        $status         = isset($request->status) ?  $request->status : null;
+        $billingType    = isset($request->billing_type) ?  $request->billing_type : null;
 
         //check if ping is comming from allowed ips
-        $fortumo_remote_address = explode(',', $payTypeInfo->pay_allowed_ip);
+        $fortumoRemoteAddress = explode(',', $payTypeInfo->pay_allowed_ip);
 
-        if(in_array($request->ip(), $fortumo_remote_address) && $this->check_signature($request->all(), $payTypeInfo->pay_secret)) {
+        if(in_array($request->ip(), $fortumoRemoteAddress) && $this->checkSignature($request->all(), $payTypeInfo->pay_secret)) {
 
             $message = trim($message);
 
-            if(!empty($message) && ( preg_match("/OK/i", $status) || (preg_match("/MO/i", $billing_type) && preg_match("/pending/i", $status)) )){
+            if(!empty($message) && ( preg_match("/OK/i", $status) || (preg_match("/MO/i", $billingType) && preg_match("/pending/i", $status)) )){
                 try {
-                    $pay_type = mb_strtolower(mb_substr($message, 0, 1));
+
+                    //check if user is paying for promo ad or is adding money to wallet
+                    $payPrefix = mb_strtolower(mb_substr($message, 0, 1));
 
                     //make ad promo
-                    if ($pay_type == 'a') {
-                        $ad_id = mb_substr($message, 1);
-                        $adInfo = Ad::find($ad_id);
+                    if ($payPrefix == 'a') {
+                        $adId   = mb_substr($message, 1);
+                        $adInfo = Ad::find($adId);
                         if (!empty($adInfo)) {
 
                             //check if ad is promo and extend promo period
                             if(!empty($adInfo->ad_promo_until) && $adInfo->ad_promo == 1){
-                                $current_promo_period_timestamp = strtotime($adInfo->ad_promo_until);
-                                if($current_promo_period_timestamp) {
-                                    $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d', $current_promo_period_timestamp) + $payTypeInfo->pay_promo_period, date('Y')));
+                                $currentPromoPeriodTimestamp = strtotime($adInfo->ad_promo_until);
+                                if($currentPromoPeriodTimestamp) {
+                                    $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d', $currentPromoPeriodTimestamp) + $payTypeInfo->pay_promo_period, date('Y')));
                                 }
                             }
 
@@ -61,61 +66,61 @@ class FortumoPayController extends Controller
                             $adInfo->save();
 
                             //add money to wallet
-                            $wallet_data = ['user_id' => $adInfo->user_id,
-                                'ad_id' => $ad_id,
+                            $walletData = ['user_id' => $adInfo->user_id,
+                                'ad_id' => $adId,
                                 'sum' => $payTypeInfo->pay_sum,
                                 'wallet_date' => date('Y-m-d H:i:s'),
                                 'wallet_description' => trans('payment_fortumo.Payment via Fortumo SMS')
                             ];
-                            Wallet::create($wallet_data);
+                            Wallet::create($walletData);
 
                             //subtract money from wallet
-                            $wallet_data = ['user_id' => $adInfo->user_id,
-                                'ad_id' => $ad_id,
+                            $walletData = ['user_id' => $adInfo->user_id,
+                                'ad_id' => $adId,
                                 'sum' => -$payTypeInfo->pay_sum,
                                 'wallet_date' => date('Y-m-d H:i:s'),
-                                'wallet_description' => trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad_id, 'date' => $promoUntilDate])
+                                'wallet_description' => trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adId, 'date' => $promoUntilDate])
                             ];
-                            Wallet::create($wallet_data);
+                            Wallet::create($walletData);
 
-                            $sms_reply = trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad_id, 'date' => $promoUntilDate]);
+                            $smsReply = trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adId, 'date' => $promoUntilDate]);
                             Cache::flush();
                         }
                     }
 
                     //add money to wallet
-                    if ($pay_type == 'w') {
-                        $user_id = mb_substr($message, 1);
-                        $userInfo = User::find($user_id);
+                    if ($payPrefix == 'w') {
+                        $userId     = mb_substr($message, 1);
+                        $userInfo   = User::find($userId);
                         if (!empty($userInfo)) {
                             //save money to wallet
-                            $wallet_data = ['user_id' => $userInfo->user_id,
+                            $walletData = ['user_id' => $userInfo->user_id,
                                 'sum' => $payTypeInfo->pay_sum,
                                 'wallet_date' => date('Y-m-d H:i:s'),
                                 'wallet_description' => trans('payment_fortumo.Add Money to Wallet via Fortumo SMS')
                             ];
-                            Wallet::create($wallet_data);
-                            $sms_reply = trans('payment_fortumo.You have added :money to your wallet.', ['money' => number_format($payTypeInfo->pay_sum, 2) . config('dc.site_price_sign')]);
+                            Wallet::create($walletData);
+                            $smsReply = trans('payment_fortumo.You have added :money to your wallet.', ['money' => number_format($payTypeInfo->pay_sum, 2) . config('dc.site_price_sign')]);
                             Cache::flush();
                         }
                     }
                 } catch (\Exception $e){}
             }
         }
-        echo $sms_reply;
+        echo $smsReply;
     }
 
-    public function check_signature($params_array, $secret)
+    public function checkSignature($paramsArray, $secret)
     {
-        ksort($params_array);
+        ksort($paramsArray);
         $str = '';
-        foreach ($params_array as $k=>$v) {
+        foreach ($paramsArray as $k => $v) {
             if($k != 'sig') {
                 $str .= "$k=$v";
             }
         }
         $str .= $secret;
         $signature = md5($str);
-        return ($params_array['sig'] == $signature);
+        return ($paramsArray['sig'] == $signature);
   }
 }

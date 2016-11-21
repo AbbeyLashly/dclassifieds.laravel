@@ -97,10 +97,10 @@
                     <div class="form-group {{ $errors->has('user_location_id') ? ' has-error' : '' }}">
                         <label for="user_location_id" class="col-md-4 control-label">{{ trans('myprofile.Location') }}</label>
                         <div class="col-md-5">
-                            @if(isset($l) && !empty($l))
+                            @if(isset($location) && !empty($location))
                             <select name="user_location_id" id="user_location_id" class="form-control lid_select">
                                 <option value="0"></option>
-                                @foreach ($l as $k => $v)
+                                @foreach ($location as $k => $v)
                                     <optgroup label="{{$v['title']}}">
                                         @if(isset($v['c']) && !empty($v['c'])){
                                             @include('common.lselect', ['c' => $v['c'], 'lid' => Util::getOldOrModelValue('user_location_id', $user)])

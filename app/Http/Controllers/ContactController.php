@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use Validator;
 use Mail;
@@ -17,7 +18,7 @@ class ContactController extends Controller
         return view('contact.contact', ['title' => $title]);
     }
 
-    public function postcontact(Request $request)
+    public function postContact(Request $request)
     {
         //validate form
         $rules = [

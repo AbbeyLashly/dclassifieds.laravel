@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
@@ -20,7 +21,7 @@ class PaypalPayController extends Controller
     public function index(Request $request)
     {
         //get peytype
-        $paytype = $request->paytype;
+        $payType = $request->paytype;
 
         //get info for this payment
         $payTypeInfo = Pay::find(Pay::PAY_TYPE_PAYPAL);
@@ -28,7 +29,7 @@ class PaypalPayController extends Controller
         $paypalData = ['testmode' => $payTypeInfo->pay_testmode,
             'action' => 'https://www.paypal.com/cgi-bin/webscr',
             'business' => $payTypeInfo->pay_paypal_mail,
-            'paytype' => $paytype,
+            'paytype' => $payType,
             'sum_to_charge' => $payTypeInfo->pay_sum_to_charge,
             'pay_currency' => $payTypeInfo->pay_currency,
             'pay_locale' => $payTypeInfo->pay_locale
@@ -46,7 +47,7 @@ class PaypalPayController extends Controller
         return view('pay.paypal', ['paypalData' => $paypalData, 'title' => $title]);
     }
 
-    public function paypalcallback(Request $request)
+    public function paypalCallback(Request $request)
     {
         $params = Input::all();
 
@@ -57,13 +58,14 @@ class PaypalPayController extends Controller
             Log::info('PP_STANDARD :: INCOMING PARAMS: ' . json_encode($params));
         }
 
-        $order_type_info = '';
+        $orderTypeInfo = '';
         if (isset($params['custom'])) {
-            $order_type_info = $params['custom'];
+            $orderTypeInfo = $params['custom'];
         }
 
-        $order_type_info = trim($order_type_info);
-        if(!empty($order_type_info)){
+        $orderTypeInfo = trim($orderTypeInfo);
+
+        if(!empty($orderTypeInfo)){
 
             $request = 'cmd=_notify-validate';
 
@@ -99,15 +101,17 @@ class PaypalPayController extends Controller
             if ((strcmp($response, 'VERIFIED') == 0 || strcmp($response, 'UNVERIFIED') == 0) && isset($params['payment_status'])) {
                 switch($params['payment_status']) {
                     case 'Completed':
-                        $total_paid_match = ((float)$params['mc_gross'] == number_format($payTypeInfo->pay_sum_to_charge, 2, '.', ''));
+                        $totalPaidMatch = ((float)$params['mc_gross'] == number_format($payTypeInfo->pay_sum_to_charge, 2, '.', ''));
 
-                        if ($total_paid_match) {
-                            $pay_type = mb_strtolower(mb_substr($order_type_info, 0, 1));
+                        if ($totalPaidMatch) {
+
+                            //check if user is paying for promo ad or is adding money to wallet
+                            $payPrefix = mb_strtolower(mb_substr($orderTypeInfo, 0, 1));
 
                             //make ad promo
-                            if ($pay_type == 'a') {
-                                $ad_id = mb_substr($order_type_info, 1);
-                                $adInfo = Ad::find($ad_id);
+                            if ($payPrefix == 'a') {
+                                $adId = mb_substr($orderTypeInfo, 1);
+                                $adInfo = Ad::find($adId);
                                 if (!empty($adInfo)) {
 
                                     //calc promo period
@@ -115,9 +119,9 @@ class PaypalPayController extends Controller
 
                                     //check if ad is promo and extend promo period
                                     if(!empty($adInfo->ad_promo_until) && $adInfo->ad_promo == 1){
-                                        $current_promo_period_timestamp = strtotime($adInfo->ad_promo_until);
-                                        if($current_promo_period_timestamp) {
-                                            $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d', $current_promo_period_timestamp) + $payTypeInfo->pay_promo_period, date('Y')));
+                                        $currentPromoPeriodTimestamp = strtotime($adInfo->ad_promo_until);
+                                        if($currentPromoPeriodTimestamp) {
+                                            $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d', $currentPromoPeriodTimestamp) + $payTypeInfo->pay_promo_period, date('Y')));
                                         }
                                     }
 
@@ -129,42 +133,42 @@ class PaypalPayController extends Controller
                                     $adInfo->save();
 
                                     //add money to wallet
-                                    $wallet_data = ['user_id' => $adInfo->user_id,
-                                        'ad_id' => $ad_id,
+                                    $walletData = ['user_id' => $adInfo->user_id,
+                                        'ad_id' => $adId,
                                         'sum' => $payTypeInfo->pay_sum,
                                         'wallet_date' => date('Y-m-d H:i:s'),
                                         'wallet_description' => trans('payment_paypal.Payment via Paypal')
                                     ];
-                                    Wallet::create($wallet_data);
+                                    Wallet::create($walletData);
 
                                     //subtract money from wallet
-                                    $wallet_data = ['user_id' => $adInfo->user_id,
-                                        'ad_id' => $ad_id,
+                                    $walletData = ['user_id' => $adInfo->user_id,
+                                        'ad_id' => $adId,
                                         'sum' => -$payTypeInfo->pay_sum,
                                         'wallet_date' => date('Y-m-d H:i:s'),
-                                        'wallet_description' => trans('payment_paypal.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad_id, 'date' => $promoUntilDate])
+                                        'wallet_description' => trans('payment_paypal.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adId, 'date' => $promoUntilDate])
                                     ];
-                                    Wallet::create($wallet_data);
+                                    Wallet::create($walletData);
                                 }
                             }
 
                             //add money to wallet
-                            if ($pay_type == 'w') {
-                                $user_id = mb_substr($order_type_info, 1);
-                                $userInfo = User::find($user_id);
+                            if ($payPrefix == 'w') {
+                                $userId = mb_substr($orderTypeInfo, 1);
+                                $userInfo = User::find($userId);
                                 if (!empty($userInfo)) {
                                     //save money to wallet
-                                    $wallet_data = ['user_id' => $userInfo->user_id,
+                                    $walletData = ['user_id' => $userInfo->user_id,
                                         'sum' => $payTypeInfo->pay_sum,
                                         'wallet_date' => date('Y-m-d H:i:s'),
                                         'wallet_description' => trans('payment_paypal.Add Money to Wallet via Paypal')
                                     ];
-                                    Wallet::create($wallet_data);
+                                    Wallet::create($walletData);
                                 }
                             }
                         }
 
-                        if (!$total_paid_match && $payTypeInfo->pay_log) {
+                        if (!$totalPaidMatch && $payTypeInfo->pay_log) {
                             Log::info('PP_STANDARD :: TOTAL PAID MISMATCH! ' . $params['mc_gross']);
                         }
                         break;
@@ -177,7 +181,7 @@ class PaypalPayController extends Controller
                     case 'Refunded':
                     case 'Reversed':
                     case 'Voided':
-                        Log::info('PP_STANDARD :: Wrong Status ' . $order_type_info);
+                        Log::info('PP_STANDARD :: Wrong Status ' . $orderTypeInfo);
                         break;
                 }
                 Cache::flush();
@@ -187,7 +191,7 @@ class PaypalPayController extends Controller
         }
     }
 
-    public function paypalsuccess(Request $request)
+    public function paypalSuccess(Request $request)
     {
         $a = $request->a;
         $message = trans('payment_paypal.Thank you for your payment');

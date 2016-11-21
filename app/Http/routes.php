@@ -206,17 +206,17 @@ if(is_array($files) && !empty($files)){
 Route::get('/ban', 'BanController@index')->name('ban');
 Route::get('/info', 'InfoController@index')->name('info');
 Route::get('/contact', 'ContactController@index')->name('contact');
-Route::post('/contact', 'ContactController@postcontact')->name('postcontact');
+Route::post('/contact', 'ContactController@postContact')->name('postcontact');
 Route::get('/rss', 'RssController@index')->name('rss');
 
 /**
  * cron
  */
 Route::get('/deactivate/{pass}', 'CronController@deactivate');
-Route::get('/sendmaildeactivatesoon/{pass}', 'CronController@sendmaildeactivatesoon');
-Route::get('/sendmailpromoexpiresoon/{pass}', 'CronController@sendmailpromoexpiresoon');
-Route::get('/deactivatepromo/{pass}', 'CronController@deactivatepromo');
-Route::get('/removedouble/{pass}', 'CronController@removedouble');
+Route::get('/sendmaildeactivatesoon/{pass}', 'CronController@sendMailDeactivateSoon');
+Route::get('/sendmailpromoexpiresoon/{pass}', 'CronController@sendMailPromoExpireSoon');
+Route::get('/deactivatepromo/{pass}', 'CronController@deactivatePromo');
+Route::get('/removedouble/{pass}', 'CronController@removeDouble');
 
 /**
  * social login
@@ -235,8 +235,8 @@ Route::get('/fortumopay', 'FortumoPayController@index')->name('fortumopay');
 
 //paypal standard
 Route::get('/paypalpay/{paytype}', 'PaypalPayController@index')->name('paypalpay');
-Route::post('/paypalcallback', 'PaypalPayController@paypalcallback')->name('paypalcallback');
-Route::get('/paypalsuccess', 'PaypalPayController@paypalsuccess')->name('paypalsuccess');
+Route::post('/paypalcallback', 'PaypalPayController@paypalCallback')->name('paypalcallback');
+Route::get('/paypalsuccess', 'PaypalPayController@paypalSuccess')->name('paypalsuccess');
 
 //stripe
 Route::get('/stripepay/{paytype}', 'StripePayController@index')->name('stripepay');
@@ -303,8 +303,8 @@ Route::post('/mailview/{hash}/{user_id_from}/{ad_id}', 'UserController@mailviews
 
 Route::get('/maildelete/{mail_id}', 'UserController@maildelete')->name('maildelete')->middleware('auth');
 
-Route::get('/myprofile', 'UserController@myprofile')->name('profile')->middleware('auth');
-Route::post('/myprofile', 'UserController@myprofilesave')->name('profilesave')->middleware('auth');
+Route::get('/myprofile', 'UserController@myProfile')->name('profile')->middleware('auth');
+Route::post('/myprofile', 'UserController@myProfileSave')->name('profilesave')->middleware('auth');
 
 /**
  * wallet action
