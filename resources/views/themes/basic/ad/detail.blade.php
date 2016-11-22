@@ -3,10 +3,10 @@
 @section('title', join(' / ', $title))
 
 @section('header_tags')
-    <link rel="canonical" href="{{ url(str_slug($ad_detail->ad_title) . '-' . 'ad' . $ad_detail->ad_id . '.html') }}" />
+    <link rel="canonical" href="{{ url(str_slug($adDetail->ad_title) . '-' . 'ad' . $adDetail->ad_id . '.html') }}" />
     <meta property="og:title" content="{{ join(' / ', $title) }}"/>
     <meta property="og:site_name" content="{{ config('dc.site_domain') }}"/>
-    <meta property="og:image" content="{{ asset('uf/adata/1000_' . $ad_detail->ad_pic) }}"/>
+    <meta property="og:image" content="{{ asset('uf/adata/1000_' . $adDetail->ad_pic) }}"/>
 @endsection
 
 @section('search_filter')
@@ -19,13 +19,13 @@
             <div class="col-md-12">
                 <ol class="breadcrumb" vocab="http://schema.org/" typeof="BreadcrumbList">
                     <li property="itemListElement" typeof="ListItem"><a href="{{ route('home') }}" property="item" typeof="WebPage"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> <span property="name">{{ trans('detail.Home') }}</span></a></li>
-                    <li property="itemListElement" typeof="ListItem"><a href="{{ url('l-' . $ad_detail->location_slug)}}" property="item" typeof="WebPage"><span property="name">{{ $ad_detail->location_name }}</span></a></li>
+                    <li property="itemListElement" typeof="ListItem"><a href="{{ url('l-' . $adDetail->location_slug)}}" property="item" typeof="WebPage"><span property="name">{{ $adDetail->location_name }}</span></a></li>
                     @if(isset($breadcrump['c']) && !empty($breadcrump['c']))
                         @foreach ($breadcrump['c'] as $k => $v)
                             <li property="itemListElement" typeof="ListItem"><a href="{{ $v['category_url'] }}" property="item" typeof="WebPage"><span property="name">{{ $v['category_title'] }}</span></a></li>
                         @endforeach
                     @endif
-                    <li class="active wrap" property="itemListElement" typeof="ListItem"><span property="name">{{ $ad_detail->ad_title }}</span></li>
+                    <li class="active wrap" property="itemListElement" typeof="ListItem"><span property="name">{{ $adDetail->ad_title }}</span></li>
                 </ol>
             </div>
         </div>
@@ -33,13 +33,13 @@
 
     <div class="container ad_detail_container" itemscope itemtype="http://schema.org/Product">
         <div class="row">
-            <div class="col-md-12"><h1 class="wrap" itemprop="name">{{ $ad_detail->ad_title }}</h1></div>
+            <div class="col-md-12"><h1 class="wrap" itemprop="name">{{ $adDetail->ad_title }}</h1></div>
         </div>
         <div class="row ad_detail_publish_info">
-            <div class="col-md-12"><a href="{{ url('l-' . $ad_detail->location_slug)}}">{{ $ad_detail->location_name }}</a> | <span class="text-muted">{{ trans('detail.Added on') }} {{ $ad_detail->ad_publish_date }}.</span></div>
+            <div class="col-md-12"><a href="{{ url('l-' . $adDetail->location_slug)}}">{{ $adDetail->location_name }}</a> | <span class="text-muted">{{ trans('detail.Added on') }} {{ $adDetail->ad_publish_date }}.</span></div>
         </div>
         <div class="row ad_detail_ad_info">
-            <div class="col-md-12"><span class="text-muted">{{ trans('detail.Ad Id') }}: <span itemprop="productID">{{ $ad_detail->ad_id }}</span> | {{ trans('detail.Views') }}: {{ $ad_detail->ad_view }}</span></div>
+            <div class="col-md-12"><span class="text-muted">{{ trans('detail.Ad Id') }}: <span itemprop="productID">{{ $adDetail->ad_id }}</span> | {{ trans('detail.Views') }}: {{ $adDetail->ad_view }}</span></div>
         </div>
         <div class="row ad_detail_ad_info">
             <div class="col-md-12">
@@ -47,7 +47,7 @@
                     <g:plusone></g:plusone>
                 </div>
                 <div class="pull-left" style="height:24px;">
-                    <div class="fb-like" data-href="{{ url(str_slug($ad_detail->ad_title) . '-' . 'ad' . $ad_detail->ad_id . '.html') }}" data-send="true" data-width="450" data-show-faces="false"></div>
+                    <div class="fb-like" data-href="{{ url(str_slug($adDetail->ad_title) . '-' . 'ad' . $adDetail->ad_id . '.html') }}" data-send="true" data-width="450" data-show-faces="false"></div>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -59,21 +59,21 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="ad_detail_main_image_container">
-                            @if($ad_detail->ad_promo)
+                            @if($adDetail->ad_promo)
                                 <div class="ribbon"><span>{{ trans('detail.PROMO') }}</span></div>
                             @endif
-                            @if(!empty($ad_detail->ad_pic))
-                                <a href="{{ asset('uf/adata/1000_' . $ad_detail->ad_pic) }}" class="fancybox" rel="group"><img src="{{ asset('uf/adata/740_' . $ad_detail->ad_pic) }}" class="img-responsive"  itemprop="image" /></a>
+                            @if(!empty($adDetail->ad_pic))
+                                <a href="{{ asset('uf/adata/1000_' . $adDetail->ad_pic) }}" class="fancybox" rel="group"><img src="{{ asset('uf/adata/740_' . $adDetail->ad_pic) }}" class="img-responsive"  itemprop="image" /></a>
                             @else
-                                <img src="{{ 'https://www.gravatar.com/avatar/' . md5(trim($ad_detail->email)) . '?s=740&d=identicon' }}" class="img-responsive">
+                                <img src="{{ 'https://www.gravatar.com/avatar/' . md5(trim($adDetail->email)) . '?s=740&d=identicon' }}" class="img-responsive">
                             @endif
                         </div>
                     </div>
                 </div>
 
-                @if(isset($ad_pic) && !$ad_pic->isEmpty())
+                @if(isset($adPic) && !$adPic->isEmpty())
                     <div class="row">
-                        @foreach($ad_pic as $k => $v)
+                        @foreach($adPic as $k => $v)
                             <div class="col-md-3">
                                 <a href="{{ asset('uf/adata/1000_' . $v->ad_pic) }}" class="fancybox" rel="group">
                                     <img src="{{ asset('uf/adata/1000_' . $v->ad_pic) }}" class="img-responsive" class="fancybox" rel="group" />
@@ -86,95 +86,95 @@
                 <hr>
 
                 <div class="row ad_detail_detail_info">
-                    @if(!empty($ad_detail->condition_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Condition') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->ad_condition_name}}</strong></span></div>
+                    @if(!empty($adDetail->condition_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Condition') }}:</span> <span class="text-primary"><strong>{{ $adDetail->ad_condition_name}}</strong></span></div>
                     @endif
 
-                    <div class="col-md-6"><span class="text-muted">{{ trans('detail.Ad Type') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->ad_type_name}}</strong></span></div>
+                    <div class="col-md-6"><span class="text-muted">{{ trans('detail.Ad Type') }}:</span> <span class="text-primary"><strong>{{ $adDetail->ad_type_name}}</strong></span></div>
 
                     <!-- estate info -->
-                    @if(!empty($ad_detail->estate_type_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Type') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_type_name}}</strong></span></div>
+                    @if(!empty($adDetail->estate_type_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Type') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_type_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->estate_sq_m))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate sq. m.') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_sq_m}}{{ config('dc.site_metric_system') }}</strong></span></div>
+                    @if(!empty($adDetail->estate_sq_m))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate sq. m.') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_sq_m}}{{ config('dc.site_metric_system') }}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->estate_year))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate year of construction') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_year}}</strong></span></div>
+                    @if(!empty($adDetail->estate_year))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate year of construction') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_year}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->estate_construction_type_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Construction Type') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_construction_type_name}}</strong></span></div>
+                    @if(!empty($adDetail->estate_construction_type_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Construction Type') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_construction_type_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->estate_floor))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate floor') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_floor}}</strong></span></div>
+                    @if(!empty($adDetail->estate_floor))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate floor') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_floor}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->estate_num_floors_in_building))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Num Floors in Building') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_num_floors_in_building}}</strong></span></div>
+                    @if(!empty($adDetail->estate_num_floors_in_building))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Num Floors in Building') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_num_floors_in_building}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->estate_heating_type_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Heating') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_heating_type_name}}</strong></span></div>
+                    @if(!empty($adDetail->estate_heating_type_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Heating') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_heating_type_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->estate_furnishing_type_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Furnishing') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->estate_furnishing_type_name}}</strong></span></div>
+                    @if(!empty($adDetail->estate_furnishing_type_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Estate Furnishing') }}:</span> <span class="text-primary"><strong>{{ $adDetail->estate_furnishing_type_name}}</strong></span></div>
                     @endif
 
                     <!-- cars info -->
-                    @if(!empty($ad_detail->car_brand_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Brand') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_brand_name}}</strong></span></div>
+                    @if(!empty($adDetail->car_brand_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Brand') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_brand_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->car_model_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Model') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_model_name}}</strong></span></div>
+                    @if(!empty($adDetail->car_model_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Model') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_model_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->car_modification_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Modification') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_modification_name}}</strong></span></div>
+                    @if(!empty($adDetail->car_modification_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Modification') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_modification_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->car_engine_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Engine') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_engine_name}}</strong></span></div>
+                    @if(!empty($adDetail->car_engine_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Engine') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_engine_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->car_transmission_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Transmission') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_transmission_name}}</strong></span></div>
+                    @if(!empty($adDetail->car_transmission_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Transmission') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_transmission_name}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->car_year))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Year') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_year}}</strong></span></div>
+                    @if(!empty($adDetail->car_year))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Year') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_year}}</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->car_kilometeres))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Kilometers') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_kilometeres}}km.</strong></span></div>
+                    @if(!empty($adDetail->car_kilometeres))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Kilometers') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_kilometeres}}km.</strong></span></div>
                     @endif
 
-                    @if(!empty($ad_detail->car_condition_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Condition') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->car_condition_name}}</strong></span></div>
+                    @if(!empty($adDetail->car_condition_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Car Condition') }}:</span> <span class="text-primary"><strong>{{ $adDetail->car_condition_name}}</strong></span></div>
                     @endif
 
                     <!-- clothes info -->
-                    @if(!empty($ad_detail->clothes_size_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Clothes Size') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->clothes_size_name}}</strong></span></div>
+                    @if(!empty($adDetail->clothes_size_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Clothes Size') }}:</span> <span class="text-primary"><strong>{{ $adDetail->clothes_size_name}}</strong></span></div>
                     @endif
 
                     <!-- shoes info -->
-                    @if(!empty($ad_detail->shoes_size_id))
-                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Shoes Size') }}:</span> <span class="text-primary"><strong>{{ $ad_detail->shoes_size_name}}</strong></span></div>
+                    @if(!empty($adDetail->shoes_size_id))
+                        <div class="col-md-6"><span class="text-muted">{{ trans('detail.Shoes Size') }}:</span> <span class="text-primary"><strong>{{ $adDetail->shoes_size_name}}</strong></span></div>
                     @endif
 
                     <!-- ad link -->
                     @if(config('dc.enable_link_in_ad'))
-                        @if(!empty($ad_detail->ad_link))
-                            @if(config('dc.enable_dofollow_link') || (config('dc.enable_dofollow_link_promo') && $ad_detail->ad_promo == 1))
-                                <div class="col-md-6"><span class="text-muted">{{ trans('detail.Site') }}:</span> <a href="{{ $ad_detail->ad_link }}" target="_blank">{{ $ad_detail->ad_link }}</a></div>
+                        @if(!empty($adDetail->ad_link))
+                            @if(config('dc.enable_dofollow_link') || (config('dc.enable_dofollow_link_promo') && $adDetail->ad_promo == 1))
+                                <div class="col-md-6"><span class="text-muted">{{ trans('detail.Site') }}:</span> <a href="{{ $adDetail->ad_link }}" target="_blank">{{ $adDetail->ad_link }}</a></div>
                             @else
-                                <div class="col-md-6"><span class="text-muted">{{ trans('detail.Site') }}:</span> <a href="{{ $ad_detail->ad_link }}" rel="nofollow" target="_blank">{{ $ad_detail->ad_link }}</a></div>
+                                <div class="col-md-6"><span class="text-muted">{{ trans('detail.Site') }}:</span> <a href="{{ $adDetail->ad_link }}" rel="nofollow" target="_blank">{{ $adDetail->ad_link }}</a></div>
                             @endif
                         @endif
                     @endif
@@ -184,17 +184,17 @@
 
                 <div class="row ad_detail_ad_text">
                     <div class="col-md-12 wrap" itemprop="description">
-                        {!! $ad_detail->ad_description !!}
+                        {!! $adDetail->ad_description !!}
                     </div>
                 </div>
 
                 <hr>
 
-                @if(!empty($ad_detail->ad_video))
+                @if(!empty($adDetail->ad_video))
                     <div class="row">
                         <div class="col-md-12">
                             <div class="embed-responsive embed-responsive-16by9">
-                                {!! $ad_detail->ad_video_fixed !!}
+                                {!! $adDetail->ad_video_fixed !!}
                             </div>
                         </div>
                     </div>
@@ -204,13 +204,13 @@
             <div class="col-md-4">
                 <div class="ad_detail_price text-center" itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
                     <h2>
-                        @if($ad_detail->ad_free)
+                        @if($adDetail->ad_free)
                             <span itemprop="price">{{ trans('detail.free') }}</span>
                         @else
                             @if(config('dc.show_price_sign_before_price'))
-                                {{ config('dc.site_price_sign') }}<span itemprop="price">{{ Util::formatPrice($ad_detail->ad_price) }}</span>
+                                {{ config('dc.site_price_sign') }}<span itemprop="price">{{ Util::formatPrice($adDetail->ad_price) }}</span>
                             @else
-                                <span itemprop="price">{{ Util::formatPrice($ad_detail->ad_price) }}</span>{{ config('dc.site_price_sign') }}
+                                <span itemprop="price">{{ Util::formatPrice($adDetail->ad_price) }}</span>{{ config('dc.site_price_sign') }}
                             @endif
                         @endif
                         <meta itemprop="priceCurrency" content="{{ config('dc.site_currency_code') }}">
@@ -222,17 +222,17 @@
                 <div class="ad_detail_panel">
                     <div class="row">
                         <div class="col-md-4">
-                            <a href="{{ url('ad/user/' . $ad_detail->user_id) }}" class="thumbnail">
-                                @if(empty($ad_detail->avatar))
-                                    <img src="{{ 'https://www.gravatar.com/avatar/' . md5(trim($ad_detail->email)) . '?s=100&d=identicon' }}" alt="{{ $ad_detail->name }}">
+                            <a href="{{ url('ad/user/' . $adDetail->user_id) }}" class="thumbnail">
+                                @if(empty($adDetail->avatar))
+                                    <img src="{{ 'https://www.gravatar.com/avatar/' . md5(trim($adDetail->email)) . '?s=100&d=identicon' }}" alt="{{ $adDetail->name }}">
                                 @else
-                                    <img src="{{ asset('uf/udata/100_' . $ad_detail->avatar) }}" alt="{{ $ad_detail->name }}">
+                                    <img src="{{ asset('uf/udata/100_' . $adDetail->avatar) }}" alt="{{ $adDetail->name }}">
                                 @endif
                             </a>
                         </div>
                         <div class="col-md-8">
-                            <h4>{{ trans('detail.Ad from') }} <a href="{{ url('ad/user/' . $ad_detail->user_id) }}">{{ $ad_detail->name }}</a></h4>
-                            <small><span class="text-muted">({{ trans('detail.Registered') }}: {{ $ad_detail->user_register_date }})</span></small>
+                            <h4>{{ trans('detail.Ad from') }} <a href="{{ url('ad/user/' . $adDetail->user_id) }}">{{ $adDetail->name }}</a></h4>
+                            <small><span class="text-muted">({{ trans('detail.Registered') }}: {{ $adDetail->user_register_date }})</span></small>
                         </div>
                     </div>
                 </div>
@@ -240,27 +240,27 @@
                 <hr>
 
                 <div class="ad_detail_panel">
-                    @if(Auth::check() && Auth::user()->user_id == $ad_detail->user_id)
+                    @if(Auth::check() && Auth::user()->user_id == $adDetail->user_id)
                         @if(config('dc.enable_promo_ads'))
-                            <a href="{{ route('makepromo', ['ad_id' => $ad_detail->ad_id]) }}" class="btn btn-warning btn-block btn-lg">{{ trans('detail.Make Promo') }}</a>
+                            <a href="{{ route('makepromo', ['ad_id' => $adDetail->ad_id]) }}" class="btn btn-warning btn-block btn-lg">{{ trans('detail.Make Promo') }}</a>
                         @endif
                     @else
-                        <a href="{{ route('ad_contact', ['ad_id' => $ad_detail->ad_id]) }}" class="btn btn-primary btn-block btn-lg"><span class="fa fa-envelope-o" aria-hidden="true"></span> {{ trans('detail.Send Message') }}</a>
+                        <a href="{{ route('ad_contact', ['ad_id' => $adDetail->ad_id]) }}" class="btn btn-primary btn-block btn-lg"><span class="fa fa-envelope-o" aria-hidden="true"></span> {{ trans('detail.Send Message') }}</a>
                     @endif
 
-                    @if(!empty($ad_detail->ad_phone))
-                        <a href="callto:{{ $ad_detail->ad_phone }}" class="btn btn-primary btn-block btn-lg"><span class="fa fa-phone" aria-hidden="true"></span> {{ $ad_detail->ad_phone }}</a>
+                    @if(!empty($adDetail->ad_phone))
+                        <a href="callto:{{ $adDetail->ad_phone }}" class="btn btn-primary btn-block btn-lg"><span class="fa fa-phone" aria-hidden="true"></span> {{ $adDetail->ad_phone }}</a>
                     @endif
 
-                    @if(!empty($ad_detail->ad_skype))
-                        <a href="callto:{{ $ad_detail->ad_skype }}" class="btn btn-primary btn-block btn-lg"><span class="fa fa-skype"></span> {{ $ad_detail->ad_skype }}</a>
+                    @if(!empty($adDetail->ad_skype))
+                        <a href="callto:{{ $adDetail->ad_skype }}" class="btn btn-primary btn-block btn-lg"><span class="fa fa-skype"></span> {{ $adDetail->ad_skype }}</a>
                     @endif
                 </div>
 
                 <hr>
 
                 <div class="ad_detail_panel">
-                    @if($ad_fav)
+                    @if($adFav)
                         <a href="#" id="add_to_fav" class="btn btn-default btn-block btn-sm" data-loading-text="{{ trans('detail.Saving...') }}" data-addfav-text='<span class="fa fa-star"></span> {{ trans('detail.Add to favorites') }}' data-removefav-text='<span class="fa fa-star"></span> {{ trans('detail.Remove from favorites') }}'>
                             <span class="fa fa-star"></span> {{ trans('detail.Remove from favorites') }}
                         </a>
@@ -271,15 +271,15 @@
                     @endif
 
                     <a href="#" onclick="window.print(); return false;" class="btn btn-default btn-block btn-sm"><span class="fa fa-print"></span> {{ trans('detail.Print this ad') }}</a>
-                    @if(Auth::check() && Auth::user()->user_id == $ad_detail->user_id)
-                        <a href="{{ url('ad/edit/' . $ad_detail->ad_id) }}" class="btn btn-default btn-block btn-sm"><span class="fa fa-pencil-square-o"></span> {{ trans('detail.Edit this ad') }}</a>
+                    @if(Auth::check() && Auth::user()->user_id == $adDetail->user_id)
+                        <a href="{{ url('ad/edit/' . $adDetail->ad_id) }}" class="btn btn-default btn-block btn-sm"><span class="fa fa-pencil-square-o"></span> {{ trans('detail.Edit this ad') }}</a>
                     @endif
                     <button class="btn btn-danger btn-block btn-sm" data-toggle="modal" data-target="#report_modal"><span class="fa fa-exclamation-triangle"></span> {{ trans('detail.Report this ad') }}</button>
 
                 </div>
                 <hr>
 
-                @if(!empty($ad_detail->ad_lat_lng))
+                @if(!empty($adDetail->ad_lat_lng))
                 <div class="row">
                     <div class="col-md-12">
                         <div id="gmap_detail" style="width: 100%; height:300px;"></div>
@@ -296,7 +296,7 @@
 
         <div class="row">
             <div class="col-md-8">
-                @if(!$other_ads->isEmpty())
+                @if(!$otherAds->isEmpty())
                     <div class="row">
                         <div class="col-md-12">
                             <h4>{{ trans('detail.Other Classifieds from this user') }}</h4>
@@ -304,7 +304,7 @@
                     </div>
 
                     <div class="row margin_bottom_15">
-                        @foreach ($other_ads as $k => $v)
+                        @foreach ($otherAds as $k => $v)
                             @include('common.ad_list')
                         @endforeach
                     </div>
@@ -354,7 +354,7 @@
                 <div class="modal-body">
                     <form method="POST" id="report_form" name="report_form">
                         {!! csrf_field() !!}
-                        <input type="hidden" name="report_ad_id" id="report_ad_id" value="{{ $ad_detail->ad_id }}">
+                        <input type="hidden" name="report_ad_id" id="report_ad_id" value="{{ $adDetail->ad_id }}">
                         <div class="radio">
                             <label>
                                 <input type="radio" name="report_radio" id="report_radio_1" value="1">
@@ -423,7 +423,7 @@
     <script src="{{asset('js/fancybox/jquery.fancybox.pack.js')}}"></script>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=true&language=en"></script>
     <script type="text/javascript">
-        var latlng = new google.maps.LatLng({{ trim($ad_detail->ad_lat_lng, '()') }});
+        var latlng = new google.maps.LatLng({{ trim($adDetail->ad_lat_lng, '()') }});
         var myOptions = {
             zoom: 16,
             center: latlng,

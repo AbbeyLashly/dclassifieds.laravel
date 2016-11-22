@@ -11,10 +11,10 @@
                         <input type="text" name="search_text" id="search_text" class="form-control" placeholder="{{ trans('home.1 000 000 Ads') }}" value="{{ isset($search_text) ? stripslashes($search_text) : '' }}"/>
                     </div>
                     <div class="col-md-3 padding_bottom_15">
-                        @if(isset($c) && !empty($c))
+                        @if(isset($categoryList) && !empty($categoryList))
                         <select name="cid" id="cid" class="form-control cid_select" onchange="$('#search_form').submit();">
                             <option value="0"></option>
-                            @foreach ($c as $k => $v)
+                            @foreach ($categoryList as $k => $v)
                                 @if(isset($cid) && $cid == $v['cid'])
                                     <option value="{{$v['cid']}}" style="font-weight: bold;" selected data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
                                 @else
@@ -28,10 +28,10 @@
                         @endif
                     </div>
                     <div class="col-md-3 padding_bottom_15">
-                        @if(isset($l) && !empty($l))
+                        @if(isset($locationList) && !empty($locationList))
                         <select name="lid" id="lid" class="form-control lid_select">
                             <option value="0"></option>
-                            @foreach ($l as $k => $v)
+                            @foreach ($locationList as $k => $v)
                                 @if(isset($lid) && $lid == $v['lid'])
                                     <option value="{{$v['lid']}}" style="font-weight: bold;" selected>{{$v['title']}}</option>
                                 @else
@@ -57,10 +57,10 @@
 
 @section('content')
 
-    @if(isset($first_level_childs) && !$first_level_childs->isEmpty())
+    @if(isset($firstLevelChilds) && !$firstLevelChilds->isEmpty())
         <div class="container category_panel">
             <div class="row">
-                @foreach ($first_level_childs as $k => $v)
+                @foreach ($firstLevelChilds as $k => $v)
                     <div class="col-md-3 padding_top_bottom_15">
                         <a href="{{ $v->category_url }}" class="home-category-link"><img src="{{ asset('uf/cicons/' . $v->category_img) }}" />{{ $v->category_title }} <small class="text-muted">({{ $v->ad_count }})</small></a>
                     </div>
@@ -69,7 +69,7 @@
         </div>
     @endif
 
-    @if(isset($promo_ad_list) && !$promo_ad_list->isEmpty())
+    @if(isset($promoAdList) && !$promoAdList->isEmpty())
         <div class="container home_promo_ads_panel">
             <div class="row margin_bottom_15">
                 <div class="col-md-12">
@@ -79,7 +79,7 @@
             </div>
             <!-- ad row-->
             <div class="row margin_bottom_15">
-                @foreach ($promo_ad_list as $k => $v)
+                @foreach ($promoAdList as $k => $v)
                     @if(config('dc.show_small_item_ads_list'))
                         @include('common.ad_list_small')
                     @else
@@ -91,7 +91,7 @@
         </div>
     @endif
 
-    @if(isset($latest_ad_list) && !$latest_ad_list->isEmpty())
+    @if(isset($latestAdList) && !$latestAdList->isEmpty())
         <div class="container home_promo_ads_panel">
             <div class="row margin_bottom_15">
                 <div class="col-md-12">
@@ -101,7 +101,7 @@
 
             <!-- ad row-->
             <div class="row margin_bottom_15">
-                @foreach ($latest_ad_list as $k => $v)
+                @foreach ($latestAdList as $k => $v)
                     @include('common.ad_list_small')
                 @endforeach
             </div>
@@ -121,13 +121,13 @@
         <hr>
     </div>
 
-    @if(isset($first_level_childs) && !$first_level_childs->isEmpty())
+    @if(isset($firstLevelChilds) && !$firstLevelChilds->isEmpty())
         <div class="container home_info_link_panel">
             <div class="row">
                 <div class="col-md-12">
                     <ol class="breadcrumb">
                         <li class="active">{{ trans('home.Main Categories') }}</li>
-                        @foreach ($first_level_childs as $k => $v)
+                        @foreach ($firstLevelChilds as $k => $v)
                             <li><a href="{{ $v->category_url }}">{{ $v->category_title }}</a></li>
                         @endforeach
                     </ol>
@@ -136,13 +136,13 @@
         </div>
     @endif
 
-    @if(config('dc.enable_magic_keywords') && !$magic_keywords->isEmpty())
+    @if(config('dc.enable_magic_keywords') && !$magicKeywords->isEmpty())
         <div class="container home_info_link_panel">
             <div class="row">
                 <div class="col-md-12">
                     <ol class="breadcrumb">
                         <li class="active">{{ trans('home.Popular Searches') }}</li>
-                        @foreach ($magic_keywords as $k => $v)
+                        @foreach ($magicKeywords as $k => $v)
                             <?
                             $url = $v->keyword_url;
                             if(empty($url)){

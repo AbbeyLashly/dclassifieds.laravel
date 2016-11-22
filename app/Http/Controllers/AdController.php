@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Input;
@@ -46,41 +47,46 @@ use Auth;
 use Cookie;
 use Cache;
 
-
 class AdController extends Controller
 {
-    protected $category;
-    protected $location;
-    protected $ad;
-    protected $user;
-    protected $mail;
+    protected $categoryModel;
+    protected $locationModel;
+    protected $adModel;
+    protected $userModel;
+    protected $mailModel;
 
-    public function __construct(Category $_category, Location $_location, Ad $_ad, User $_user, UserMail $_mail)
+    public function __construct(Category $categoryModel, Location $locationModel, Ad $adModel, User $userModel, UserMail $mailModel)
     {
-        $this->category = $_category;
-        $this->location = $_location;
-        $this->ad = $_ad;
-        $this->user = $_user;
-        $this->mail = $_mail;
+        $this->categoryModel    = $categoryModel;
+        $this->locationModel    = $locationModel;
+        $this->adModel          = $adModel;
+        $this->userModel        = $userModel;
+        $this->mailModel        = $mailModel;
     }
 
+    /**
+     * Show home page
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index(Request $request)
     {
         //is there selected location
         $lid = session()->get('lid', 0);
 
         //generate category url with location if selected
-        $first_level_childs = $this->category->getOneLevel();
-        if(!empty($first_level_childs)){
-            foreach ($first_level_childs as $k => &$v){
-                $category_url_params = array();
-                $category_url_params[] = $this->category->getCategoryFullPathById($v->category_id);
+        $firstLevelChilds = $this->categoryModel->getOneLevel();
+        if(!empty($firstLevelChilds)){
+            foreach ($firstLevelChilds as $k => &$v){
+                $categoryUrlParams = [];
+                $categoryUrlParams[] = $this->categoryModel->getCategoryFullPathById($v->category_id);
                 if(session()->has('location_slug')){
-                    $category_url_params[] = 'l-' . session()->get('location_slug');
+                    $categoryUrlParams[] = 'l-' . session()->get('location_slug');
                 }
 
-                if(!empty($category_url_params)){
-                    $v->category_url = Util::buildUrl($category_url_params);
+                if(!empty($categoryUrlParams)){
+                    $v->category_url = Util::buildUrl($categoryUrlParams);
                 }
             }
         }
@@ -89,96 +95,101 @@ class AdController extends Controller
         $where = ['ad_promo' => 1, 'ad_active' => 1];
 
         //check if location is selected and get all childs
-        $all_location_childs = [];
+        $allLocationChilds = [];
         $whereIn = [];
         if($lid > 0){
-            $alc = $this->location->getAllHierarhyFlat($lid);
+            $alc = $this->locationModel->getAllHierarhyFlat($lid);
             if (!empty($alc)) {
                 foreach ($alc as $ak => $av) {
-                    $all_location_childs[] = $av['lid'];
+                    $allLocationChilds[] = $av['lid'];
                 }
             }
-            $all_location_childs[] = $lid;
-            $whereIn['ad.location_id'] = $all_location_childs;
+            $allLocationChilds[] = $lid;
+            $whereIn['ad.location_id'] = $allLocationChilds;
         }
 
         $order = ['ad_publish_date' => 'desc'];
         $limit = config('dc.num_promo_ads_home_page');
-        $promo_ad_list = $this->ad->getAdList($where, $order, $limit, [], $whereIn);
+        $promoAdList = $this->adModel->getAdList($where, $order, $limit, [], $whereIn);
 
-        if($promo_ad_list->count() < config('dc.num_promo_ads_home_page')){
+        if($promoAdList->count() < config('dc.num_promo_ads_home_page')){
             $where['ad_promo'] = 0;
-            $limit = config('dc.num_promo_ads_home_page') - $promo_ad_list->count();
-            $promo_ad_list = $promo_ad_list->merge($this->ad->getAdList($where, $order, $limit, [], $whereIn));
+            $limit = config('dc.num_promo_ads_home_page') - $promoAdList->count();
+            $promoAdList = $promoAdList->merge($this->adModel->getAdList($where, $order, $limit, [], $whereIn));
         }
 
         //if enable latest ads on home page get some new ads
-        $latest_ad_list = new Collection();
+        $latestAdList = new Collection();
         if(config('dc.enable_new_ads_on_homepage')){
             $where['ad_promo'] = 0;
             $limit = config('dc.num_latest_ads_home_page');
-            $latest_ad_list = $this->ad->getAdList($where, $order, $limit, [], $whereIn);
+            $latestAdList = $this->adModel->getAdList($where, $order, $limit, [], $whereIn);
         }
 
         /**
          * get ad count by category and selected filter
          */
-
-        if(!$first_level_childs->isEmpty()){
+        if(!$firstLevelChilds->isEmpty()){
             unset($where['ad_promo']);
             if($lid > 0){
-                $whereIn['ad.location_id'] = $all_location_childs;
+                $whereIn['ad.location_id'] = $allLocationChilds;
             }
 
-            foreach($first_level_childs as $k => &$v){
+            foreach($firstLevelChilds as $k => &$v){
 
-                $this_category_childs = [];
+                $thisCategoryChilds = [];
                 //get this category childs
-                $acc = $this->category->getAllHierarhyFlat($v->category_id);
+                $acc = $this->categoryModel->getAllHierarhyFlat($v->category_id);
                 if(!empty($acc)){
                     foreach($acc as $ak => $av){
-                        $this_category_childs[] = $av['cid'];
+                        $thisCategoryChilds[] = $av['cid'];
                     }
                 }
-                $this_category_childs[] = $v->category_id;
-                $whereIn['category_id'] = $this_category_childs;
-                $v->ad_count = $this->ad->getAdCount($where, $whereIn);
+                $thisCategoryChilds[] = $v->category_id;
+                $whereIn['category_id'] = $thisCategoryChilds;
+                $v->ad_count = $this->adModel->getAdCount($where, $whereIn);
             }
         }
 
         /**
          * magic keywords
          */
-        $magic_keywords = new Collection();
+        $magicKeywords = new Collection();
         if(config('dc.enable_magic_keywords')){
             $order = ['keyword_count' => 'DESC'];
             $limit = config('dc.num_magic_keywords_to_show');
             $mkModel = new MagicKeywords();
-            $magic_keywords = $mkModel->getList($order, $limit);
+            $magicKeywords = $mkModel->getList($order, $limit);
         }
 
         return view('ad.home',[
-            'c'                 => $this->category->getAllHierarhy(),
-            'l'                 => $this->location->getAllHierarhy(),
-            'first_level_childs'=> $first_level_childs,
+            'categoryList'      => $this->categoryModel->getAllHierarhy(),
+            'locationList'      => $this->locationModel->getAllHierarhy(),
+            'firstLevelChilds'  => $firstLevelChilds,
             'lid'               => $lid,
-            'promo_ad_list'     => $promo_ad_list,
-            'latest_ad_list'    => $latest_ad_list,
-            'magic_keywords'    => $magic_keywords
+            'promoAdList'       => $promoAdList,
+            'latestAdList'      => $latestAdList,
+            'magicKeywords'     => $magicKeywords
         ]);
 
     }
-    
+
+    /**
+     * Get search form data and convert url to seo friendly and redirect to search action
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function proxy(Request $request)
     {
         //root url / base url
         $root = $request->root();
 
         //generated url if no parameters redirect to search
-        $redirect_url = url('search');
+        $redirectUrl = url('search');
 
         //generated url parameters container
-        $url_params = array();
+        $urlParams = array();
 
         //get incoming parameters
         $params = Input::all();
@@ -187,8 +198,8 @@ class AdController extends Controller
         $cid = 0;
         if(isset($params['cid']) && $params['cid'] > 0){
             $cid = $params['cid'];
-            $category_slug = $this->category->getCategoryFullPathById($cid);
-            $url_params[] = $category_slug;
+            $categorySlug = $this->categoryModel->getCategoryFullPathById($cid);
+            $urlParams[] = $categorySlug;
             unset($params['cid']);
         }
 
@@ -196,11 +207,11 @@ class AdController extends Controller
         $lid = 0;
         if(isset($params['lid']) && $params['lid'] > 0){
             $lid = $params['lid'];
-            $location_slug = $this->location->getSlugById($lid);
-            $url_params[] = 'l-' . $location_slug;
+            $locationSlug = $this->locationModel->getSlugById($lid);
+            $urlParams[] = 'l-' . $locationSlug;
             unset($params['lid']);
             session()->put('lid', $lid);
-            session()->put('location_slug', $location_slug);
+            session()->put('location_slug', $locationSlug);
         } else {
             if(session()->has('lid')){
                 session()->forget('lid');
@@ -212,37 +223,37 @@ class AdController extends Controller
         }
 
         //check for search text
-        $search_text = '';
+        $searchText = '';
         if(isset($params['search_text'])){
-            $search_text_tmp = Util::sanitize($params['search_text']);
-            if(!empty($search_text_tmp) && mb_strlen($search_text_tmp, 'utf-8') > 3){
-                $search_text = $search_text_tmp;
-                $search_text = preg_replace('/\s+/', '-', $search_text);
-                $url_params[] = 'q-' . $search_text;
+            $searchTextTmp = Util::sanitize($params['search_text']);
+            if(!empty($searchTextTmp) && mb_strlen($searchTextTmp, 'utf-8') > 3){
+                $searchText = $searchTextTmp;
+                $searchText = preg_replace('/\s+/', '-', $searchText);
+                $urlParams[] = 'q-' . $searchText;
             }
             unset($params['search_text']);
         }
 
         //generate new url for redirection
-        if(!empty($url_params)){
-            $redirect_url = Util::buildUrl($url_params);
+        if(!empty($urlParams)){
+            $redirectUrl = Util::buildUrl($urlParams);
         }
 
         //check if there are parameters for query string if other category selected do not add
-        $query_string = '';
+        $queryString = '';
         if(session('old_cid') == $cid) {
             if (!empty($params)) {
                 //clear token var if exist
                 if (isset($params['_token'])) {
                     unset($params['_token']);
                 }
-                $query_string = Util::getQueryStringFromArray($params);
+                $queryString = Util::getQueryStringFromArray($params);
             }
         }
 
         //add query string to generated url
-        if(!empty($query_string)){
-            $redirect_url .= '?' . $query_string;
+        if(!empty($queryString)){
+            $redirectUrl .= '?' . $queryString;
         }
 
         //save the selected category
@@ -250,9 +261,15 @@ class AdController extends Controller
             session(['old_cid' => $cid]);
         }
 
-        return redirect($redirect_url);
+        return redirect($redirectUrl);
     }
-    
+
+    /**
+     * Search ads
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function search(Request $request)
     {
         //get incoming params
@@ -265,7 +282,7 @@ class AdController extends Controller
         $title = [config('dc.site_domain')];
 
         //check if there is car brand selected
-        $car_model = array();
+        $carModelListArray = [];
         if(old('car_brand_id')){
             if(is_numeric(old('car_brand_id')) && old('car_brand_id') > 0){
 
@@ -273,12 +290,12 @@ class AdController extends Controller
                 $select     = ['car_model_id', 'car_model_name'];
                 $where      = ['car_brand_id' => old('car_brand_id'), 'car_model_active' => 1];
                 $order      = ['car_model_name' => 'asc'];
-                $car_models = $carModel->getListSimple($select, $where, $order);
+                $carModelListCollection = $carModel->getListSimple($select, $where, $order);
 
-                if(!$car_models->isEmpty()){
-                    $car_model = [0 => trans('search.Select Car Model')];
-                    foreach ($car_models as $k => $v){
-                        $car_model[$v->car_model_id] = $v->car_model_name;
+                if(!$carModelListCollection->isEmpty()){
+                    $carModelListArray = [0 => trans('search.Select Car Model')];
+                    foreach ($carModelListCollection as $k => $v){
+                        $carModelListArray[$v->car_model_id] = $v->car_model_name;
                     }
                 }
             }
@@ -288,124 +305,124 @@ class AdController extends Controller
         $breadcrump = array();
 
         //check if category selected
-        $category_slug = '';
+        $categorySlug = '';
         if(isset($request->category_slug)){
-            $category_slug = Util::sanitize($request->category_slug);
+            $categorySlug = Util::sanitize($request->category_slug);
         }
 
         $cid = 0;
-        if(!empty($category_slug)){
-            $cid = $this->category->getCategoryIdByFullPath($category_slug);
+        if(!empty($categorySlug)){
+            $cid = $this->categoryModel->getCategoryIdByFullPath($categorySlug);
             if (empty($cid)) {
                 abort(404);
             }
 
-            if($category_slug != $this->category->getCategoryFullPathById($cid)){
+            if($categorySlug != $this->categoryModel->getCategoryFullPathById($cid)){
                 abort(404);
             }
         }
 
         //if category selected get info, get childs and generate url and breadcrump
-        $first_level_childs = new Collection();
-        $all_category_childs = [];
+        $firstLevelChilds = new Collection();
+        $allCategoryChilds = [];
         if($cid > 0){
             $params['cid'] = $cid;
-            $selected_category_info = Category::where('category_id', $cid)->first();
+            $selectedCategoryInfo = Category::where('category_id', $cid)->first();
 
             //get first childs info and generate links
-            $first_level_childs = $this->category->getOneLevel($cid);
-            foreach ($first_level_childs as $k => &$v){
+            $firstLevelChilds = $this->categoryModel->getOneLevel($cid);
+            foreach ($firstLevelChilds as $k => &$v){
 
-                $category_url_params = [];
-                $category_url_params[] = $this->category->getCategoryFullPathById($v->category_id);
+                $categoryUrlParams = [];
+                $categoryUrlParams[] = $this->categoryModel->getCategoryFullPathById($v->category_id);
                 if(session()->has('location_slug')){
-                    $category_url_params[] = 'l-' . session()->get('location_slug');
+                    $categoryUrlParams[] = 'l-' . session()->get('location_slug');
                 }
 
-                if(!empty($category_url_params)){
-                    $v->category_url = Util::buildUrl($category_url_params);
+                if(!empty($categoryUrlParams)){
+                    $v->category_url = Util::buildUrl($categoryUrlParams);
                 }
             }
 
             //generate breadcrump info
-            $breadcrump_data = $this->category->getParentsByIdFlat($cid);
-            if(!empty($breadcrump_data)){
-                $category_title_array = [];
-                foreach ($breadcrump_data as $k => &$v){
+            $breadcrumpData = $this->categoryModel->getParentsByIdFlat($cid);
+            if(!empty($breadcrumpData)){
+                $categoryTitleArray = [];
+                foreach ($breadcrumpData as $k => &$v){
 
-                    $category_url_params = [];
-                    $category_url_params[] = $this->category->getCategoryFullPathById($v['category_id']);
+                    $categoryUrlParams = [];
+                    $categoryUrlParams[] = $this->categoryModel->getCategoryFullPathById($v['category_id']);
                     if(session()->has('location_slug')){
-                        $category_url_params[] = 'l-' . session()->get('location_slug');
+                        $categoryUrlParams[] = 'l-' . session()->get('location_slug');
                     }
 
-                    if(!empty($category_url_params)){
-                        $v['category_url'] = Util::buildUrl($category_url_params);
+                    if(!empty($categoryUrlParams)){
+                        $v['category_url'] = Util::buildUrl($categoryUrlParams);
                     }
 
-                    $category_title_array[] = $v['category_title'];
+                    $categoryTitleArray[] = $v['category_title'];
                 }
 
                 //category part of breadcrump
-                $breadcrump['c'] = array_reverse($breadcrump_data);
+                $breadcrump['c'] = array_reverse($breadcrumpData);
 
                 //category part of page title
-                $title[] = join(' / ', array_reverse($category_title_array));
+                $title[] = join(' / ', array_reverse($categoryTitleArray));
             }
 
-            $acc = $this->category->getAllHierarhyFlat($cid);
+            $acc = $this->categoryModel->getAllHierarhyFlat($cid);
             if(!empty($acc)){
                 foreach($acc as $ak => $av){
-                    $all_category_childs[] = $av['cid'];
+                    $allCategoryChilds[] = $av['cid'];
                 }
             }
-            $all_category_childs[] = $cid;
+            $allCategoryChilds[] = $cid;
         }
 
         //check for location selection
-        $location_slug = '';
+        $locationSlug = '';
         if(isset($request->location_slug)){
-            $location_slug = Util::sanitize($request->location_slug);
+            $locationSlug = Util::sanitize($request->location_slug);
         }
 
         $lid = 0;
-        if(!empty($location_slug)){
-            $lid = $this->location->getIdBySlug($location_slug);
+        if(!empty($locationSlug)){
+            $lid = $this->locationModel->getIdBySlug($locationSlug);
             if (empty($lid)) {
                 abort(404);
             }
             $params['lid'] = $lid;
 
             //get info for title
-            $location_info = $this->location->getLocationInfo($lid);
-            if(!empty($location_info)){
-                $title[] = $location_info->location_name;
+            $locationInfo = $this->locationModel->getLocationInfo($lid);
+            if(!empty($locationInfo)){
+                $title[] = $locationInfo->location_name;
             }
         }
 
         //if location selected get all child locations
-        $all_location_childs = [];
+        $allLocationChilds = [];
         if($lid > 0) {
-            $alc = $this->location->getAllHierarhyFlat($lid);
+            $alc = $this->locationModel->getAllHierarhyFlat($lid);
             if (!empty($alc)) {
                 foreach ($alc as $ak => $av) {
-                    $all_location_childs[] = $av['lid'];
+                    $allLocationChilds[] = $av['lid'];
                 }
             }
-            $all_location_childs[] = $lid;
+            $allLocationChilds[] = $lid;
         }
 
         //check for search text
-        $search_text = '';
-        $search_text_tmp = '';
+        $searchText = '';
+        $searchTextTmp = '';
         if(isset($request->search_text)){
-            $search_text_tmp = Util::sanitize($request->search_text);
+            $searchTextTmp = Util::sanitize($request->search_text);
         }
 
-        if(!empty($search_text_tmp) && mb_strlen($search_text_tmp, 'utf-8') > 3){
-            $search_text = preg_replace('/-/', ' ', $search_text_tmp);
-            $params['search_text'] = $search_text;
-            $title[] = $search_text;
+        if(!empty($searchTextTmp) && mb_strlen($searchTextTmp, 'utf-8') > 3){
+            $searchText = preg_replace('/-/', ' ', $searchTextTmp);
+            $params['search_text'] = $searchText;
+            $title[] = $searchText;
         }
 
         /*
@@ -539,10 +556,10 @@ class AdController extends Controller
             $whereIn['shoes_size_id'] = $params['shoes_size_id'];
         }
 
-        $show_only_promo = 0;
+        $showOnlyPromo = 0;
         if(isset($params['promo_ads']) && !empty($params['promo_ads'])){
             $where['ad_promo'] = 1;
-            $show_only_promo = 1;
+            $showOnlyPromo = 1;
         }
 
         /*
@@ -551,22 +568,22 @@ class AdController extends Controller
         $where['ad_promo'] = 1;
         $where['ad_active'] = 1;
         if($lid > 0){
-            $whereIn['ad.location_id'] = $all_location_childs;
+            $whereIn['ad.location_id'] = $allLocationChilds;
         }
         if($cid > 0){
-            $whereIn['category_id'] = $all_category_childs;
+            $whereIn['category_id'] = $allCategoryChilds;
         }
-        if(!empty($search_text)){
-            $whereRaw['match(ad_title, ad_description) against(?)'] = [$search_text];
+        if(!empty($searchText)){
+            $whereRaw['match(ad_title, ad_description) against(?)'] = [$searchText];
         }
         $orderRaw = 'rand()';
         $limit = config('dc.num_promo_ads_list');
-        $promo_ad_list = $this->ad->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate);
+        $promoAdList = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate);
 
         /*
          * get normal ads
          */
-        if(!$show_only_promo) {
+        if(!$showOnlyPromo) {
             $where['ad_promo'] = 0;
         }
         $limit      = 0;
@@ -578,22 +595,22 @@ class AdController extends Controller
         }
         $title[] = trans('search.Page:') . ' ' . $page;
 
-        $ad_list = $this->ad->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+        $adList = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
 
         /**
          * magic keywords
          */
-        if(!empty($search_text) && config('dc.enable_magic_keywords')){
+        if(!empty($searchText) && config('dc.enable_magic_keywords')){
             unset($where['ad_promo']);
-            $ad_count = $this->ad->getAdCount($where, $whereIn, $whereRaw);
-            if($ad_count >= config('dc.minimum_results_to_save_magic_keyword')){
+            $adCount = $this->adModel->getAdCount($where, $whereIn, $whereRaw);
+            if($adCount >= config('dc.minimum_results_to_save_magic_keyword')){
                 $mkModel = new MagicKeywords();
-                $mkCount = $mkModel->where('keyword', $search_text)->count();
+                $mkCount = $mkModel->where('keyword', $searchText)->count();
                 if($mkCount == 0){
-                    $mkModel->keyword = $search_text;
+                    $mkModel->keyword = $searchText;
                     $mkModel->save();
                 } else {
-                    $mkModel->where('keyword', $search_text)->increment('keyword_count', 1);
+                    $mkModel->where('keyword', $searchText)->increment('keyword_count', 1);
                 }
             }
         }
@@ -601,199 +618,210 @@ class AdController extends Controller
         /**
          * get ad count by category and selected filter
          */
-        if(!$first_level_childs->isEmpty()){
+        if(!$firstLevelChilds->isEmpty()){
             unset($where['ad_promo']);
 
-            foreach($first_level_childs as $k => &$v){
+            foreach($firstLevelChilds as $k => &$v){
 
-                $this_category_childs = [];
+                $thisCategoryChilds = [];
                 //get this category childs
-                $acc = $this->category->getAllHierarhyFlat($v->category_id);
+                $acc = $this->categoryModel->getAllHierarhyFlat($v->category_id);
                 if(!empty($acc)){
                     foreach($acc as $ak => $av){
-                        $this_category_childs[] = $av['cid'];
+                        $thisCategoryChilds[] = $av['cid'];
                     }
                 }
-                $this_category_childs[] = $v->category_id;
-                $whereIn['category_id'] = $this_category_childs;
-                $v->ad_count = $this->ad->getAdCount($where, $whereIn, $whereRaw);
+                $thisCategoryChilds[] = $v->category_id;
+                $whereIn['category_id'] = $thisCategoryChilds;
+                $v->ad_count = $this->adModel->getAdCount($where, $whereIn, $whereRaw);
             }
         }
 
         /**
          * put all view vars in array
          */
-        $view_params = [
-            'c'                 => $this->category->getAllHierarhy(), //all categories hierarhy
-            'l'                 => $this->location->getAllHierarhy(), //all location hierarhy
+        $viewParams = [
+            'categoryList'      => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
+            'locationList'      => $this->locationModel->getAllHierarhy(), //all location hierarhy
             'params'            => $params, //incoming search params
             'cid'               => $cid, //selected category
             'lid'               => $lid, //selected location
-            'search_text'       => $search_text, //search text
-            'first_level_childs'=> $first_level_childs, //selected category one level childs
+            'search_text'       => $searchText, //search text
+            'firstLevelChilds'  => $firstLevelChilds, //selected category one level childs
             'breadcrump'        => $breadcrump, //breadcrump data
-            'promo_ad_list'     => $promo_ad_list, //promo ads
-            'ad_list'           => $ad_list, //standard ads
-            'show_only_promo'   => $show_only_promo, //show only promo ads
+            'promoAdList'       => $promoAdList, //promo ads
+            'adList'            => $adList, //standard ads
+            'showOnlyPromo'     => $showOnlyPromo, //show only promo ads
             'title'             => $title, //generated page title array
 
             //filter vars
-            'at'                        => AdType::allCached('ad_type_name'),
-            'ac'                        => AdCondition::allCached('ad_condition_name'),
-            'estate_construction_type'  => EstateConstructionType::allCached('estate_construction_type_name'),
-            'estate_furnishing_type'    => EstateFurnishingType::allCached('estate_furnishing_type_name'),
-            'estate_heating_type'       => EstateHeatingType::allCached('estate_heating_type_name'),
-            'estate_type'               => EstateType::allCached('estate_type_name'),
-            'car_brand'                 => CarBrand::allCached('car_brand_name'),
-            'car_model'                 => $car_model,
-            'car_engine'                => CarEngine::allCached('car_engine_name'),
-            'car_transmission'          => CarTransmission::allCached('car_transmission_name'),
-            'car_condition'             => CarCondition::allCached('car_condition_name'),
-            'car_modification'          => CarModification::allCached('car_modification_name'),
-            'clothes_sizes'             => ClothesSize::allCached('clothes_size_ord'),
-            'shoes_sizes'               => ShoesSize::allCached('shoes_size_ord')
+            'adTypeList'                    => AdType::allCached('ad_type_name'),
+            'adConditionList'               => AdCondition::allCached('ad_condition_name'),
+            'estateConstructionTypeList'    => EstateConstructionType::allCached('estate_construction_type_name'),
+            'estateFurnishingTypeList'      => EstateFurnishingType::allCached('estate_furnishing_type_name'),
+            'estateHeatingTypeList'         => EstateHeatingType::allCached('estate_heating_type_name'),
+            'estateTypeList'                => EstateType::allCached('estate_type_name'),
+            'carBrandList'                  => CarBrand::allCached('car_brand_name'),
+            'carModelList'                  => $carModelListArray,
+            'carEngineList'                 => CarEngine::allCached('car_engine_name'),
+            'carTransmissionList'           => CarTransmission::allCached('car_transmission_name'),
+            'carConditionList'              => CarCondition::allCached('car_condition_name'),
+            'carModificationList'           => CarModification::allCached('car_modification_name'),
+            'clothesSizesList'              => ClothesSize::allCached('clothes_size_ord'),
+            'shoesSizesList'                => ShoesSize::allCached('shoes_size_ord')
         ];
 
         if($cid > 0){
-            $view_params['selected_category_info'] = $selected_category_info;
+            $viewParams['selected_category_info'] = $selectedCategoryInfo;
         }
 
         if($lid > 0){
-            $view_params['location_info'] = $location_info;
+            $viewParams['location_info'] = $locationInfo;
         }
 
-        return view('ad.search', $view_params);
+        return view('ad.search', $viewParams);
     }
-    
+
+    /**
+     * Show ad detail info
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function detail(Request $request)
     {
         //get ad id
-        $ad_id = $request->ad_id;
+        $adId = $request->ad_id;
         
         //get ad info and increment num views
-        $ad_detail = $this->ad->getAdDetail($ad_id);
+        $adDetail = $this->adModel->getAdDetail($adId);
 
         //check original slug and url slug
-        $request_slug = $request->ad_slug;
-        $original_slug  = str_slug($ad_detail->ad_title);
-        if($request_slug != $original_slug){
-            $ad_url = url(str_slug($ad_detail->ad_title) . '-' . 'ad' . $ad_detail->ad_id . '.html');
-            return redirect($ad_url);
+        $requestSlug = $request->ad_slug;
+        $originalSlug  = str_slug($adDetail->ad_title);
+        if($requestSlug != $originalSlug){
+            $adUrl = url(str_slug($adDetail->ad_title) . '-' . 'ad' . $adDetail->ad_id . '.html');
+            return redirect($adUrl);
         }
 
-        $ad_detail->increment('ad_view', 1);
+        $adDetail->increment('ad_view', 1);
 
-        if(!empty($ad_detail->ad_video)){
-            $ad_detail->ad_video_fixed = Util::getVideoReady($ad_detail->ad_video);
+        if(!empty($adDetail->ad_video)){
+            $adDetail->ad_video_fixed = Util::getVideoReady($adDetail->ad_video);
         }
         
         //get ad pics
         $adPicModel = new AdPic();
         $where = [];
         $order = [];
-        $where['ad_id'] = $ad_id;
+        $where['ad_id'] = $adId;
         $order['ad_pic_id'] = 'ASC';
-        $ad_pic = $adPicModel->getAdPics($where, $order);
+        $adPic = $adPicModel->getAdPics($where, $order);
         
         //get this user other ads
         $where = [];
         $order = [];
         $where['ad_active'] = 1;
-        $where['ad_id'] = ['!=', $ad_detail->ad_id];
+        $where['ad_id'] = ['!=', $adDetail->ad_id];
         $order['ad_publish_date'] = 'desc';
         $limit = config('dc.num_addition_ads_from_user');
-        $other_ads = $this->ad->getAdList($where, $order, $limit);
+        $otherAds = $this->adModel->getAdList($where, $order, $limit);
         
         //save ad for last view
-        $last_view_ad = [
-            'ad_id'         => $ad_detail->ad_id,
-            'ad_title'      => $ad_detail->ad_title,
-            'location_name' => $ad_detail->location_name,
-            'ad_price'      => $ad_detail->ad_price,
-            'ad_pic'        => $ad_detail->ad_pic,
-            'ad_promo'      => $ad_detail->ad_promo
+        $lastViewAd = [
+            'ad_id'         => $adDetail->ad_id,
+            'ad_title'      => $adDetail->ad_title,
+            'location_name' => $adDetail->location_name,
+            'ad_price'      => $adDetail->ad_price,
+            'ad_pic'        => $adDetail->ad_pic,
+            'ad_promo'      => $adDetail->ad_promo
         ];
 
         if(session()->has('last_view')){
-            $last_view_array = session('last_view');
-            $add_to_last_view = 1;
+            $lastViewArray = session('last_view');
+            $addToLastView = 1;
 
             //check if this ad is in last view
-            foreach($last_view_array as $k => $v){
-                if($v['ad_id'] == $last_view_ad['ad_id']){
-                    $add_to_last_view = 0;
+            foreach($lastViewArray as $k => $v){
+                if($v['ad_id'] == $lastViewAd['ad_id']){
+                    $addToLastView = 0;
                     break;
                 }
             }
 
-            if($add_to_last_view) {
-                $last_view_array[] = $last_view_ad;
-                if (count($last_view_array) > config('dc.num_last_viewed_ads')) {
+            if($addToLastView) {
+                $lastViewArray[] = $lastViewAd;
+                if (count($lastViewArray) > config('dc.num_last_viewed_ads')) {
                     //reindex the array
-                    $last_view_array = array_values($last_view_array);
+                    $lastViewArray = array_values($lastViewArray);
                     //remove oldest ad
-                    unset($last_view_array[0]);
+                    unset($lastViewArray[0]);
                 }
-                session()->put('last_view', $last_view_array);
+                session()->put('last_view', $lastViewArray);
             }
         } else {
-            $last_view_array = [];
-            $last_view_array[] = $last_view_ad;
-            session()->put('last_view', $last_view_array);
+            $lastViewArray = [];
+            $lastViewArray[] = $lastViewAd;
+            session()->put('last_view', $lastViewArray);
         }
 
         //generate breadcrump
         $breadcrump = array();
-        $breadcrump_data = $this->category->getParentsByIdFlat($ad_detail->category_id);
-        if(!empty($breadcrump_data)){
-            foreach ($breadcrump_data as $k => &$v){
-                $category_url_params = array();
-                $category_url_params[] = $this->category->getCategoryFullPathById($v['category_id']);
+        $breadcrumpData = $this->categoryModel->getParentsByIdFlat($adDetail->category_id);
+        if(!empty($breadcrumpData)){
+            foreach ($breadcrumpData as $k => &$v){
+                $categoryUrlParams = array();
+                $categoryUrlParams[] = $this->categoryModel->getCategoryFullPathById($v['category_id']);
                 if(session()->has('location_slug')){
-                    $category_url_params[] = 'l-' . session()->get('location_slug');
+                    $categoryUrlParams[] = 'l-' . session()->get('location_slug');
                 }
         
-                if(!empty($category_url_params)){
-                    $v['category_url'] = Util::buildUrl($category_url_params);
+                if(!empty($categoryUrlParams)){
+                    $v['category_url'] = Util::buildUrl($categoryUrlParams);
                 }
             }
             //category part of breadcrump
-            $breadcrump['c'] = array_reverse($breadcrump_data);
+            $breadcrump['c'] = array_reverse($breadcrumpData);
         }
         
         //check if ad is in favorites
-        $ad_fav = 0;
-        $fav_ads_info = [];
+        $adFav = 0;
+        $favAdsInfo = [];
         //is there user
         if(Auth::check()){
             $adFavModel = new AdFav();
-            $fav_ads_info = $adFavModel->getFavAds($request->user()->user_id);
+            $favAdsInfo = $adFavModel->getFavAds($request->user()->user_id);
         } else if(Cookie::has('__' . md5(config('dc.site_domain')) . '_fav_ads')) {
             //no user check cookie
-            $fav_ads_info = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
+            $favAdsInfo = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
         }
-        if(isset($fav_ads_info[$ad_id])){
-            $ad_fav = 1;
+        if(isset($favAdsInfo[$adId])){
+            $adFav = 1;
         }
 
         //generate title
         $title = [config('dc.site_domain')];
-        $title[] = $ad_detail->ad_title;
-        $title[] = trans('detail.Ad Id') . ': ' . $ad_detail->ad_id;
+        $title[] = $adDetail->ad_title;
+        $title[] = trans('detail.Ad Id') . ': ' . $adDetail->ad_id;
         
         return view('ad.detail', [
-            'ad_detail'     => $ad_detail,
-            'ad_pic'        => $ad_pic,
-            'other_ads'     => $other_ads,
+            'adDetail'      => $adDetail,
+            'adPic'         => $adPic,
+            'otherAds'      => $otherAds,
             'breadcrump'    => $breadcrump,
-            'ad_fav'        => $ad_fav,
+            'adFav'         => $adFav,
             'title'         => $title
         ]);
     }
-    
+
+    /**
+     * Show ad publish form
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function getPublish()
     {
-        $car_model = [];
+        $carModelListArray = [];
         if(old('car_brand_id')){
             if(is_numeric(old('car_brand_id')) && old('car_brand_id') > 0){
 
@@ -801,12 +829,12 @@ class AdController extends Controller
                 $select     = ['car_model_id', 'car_model_name'];
                 $where      = ['car_brand_id' => old('car_brand_id'), 'car_model_active' => 1];
                 $order      = ['car_model_name' => 'asc'];
-                $car_models = $carModel->getListSimple($select, $where, $order);
+                $carModelListCollection = $carModel->getListSimple($select, $where, $order);
 
-                if(!$car_models->isEmpty()){
-                    $car_model = [0 => trans('search.Select Car Model')];
-                    foreach ($car_models as $k => $v){
-                        $car_model[$v->car_model_id] = $v->car_model_name;
+                if(!$carModelListCollection->isEmpty()){
+                    $carModelListArray = [0 => trans('search.Select Car Model')];
+                    foreach ($carModelListCollection as $k => $v){
+                        $carModelListArray[$v->car_model_id] = $v->car_model_name;
                     }
                 }
             }
@@ -842,20 +870,20 @@ class AdController extends Controller
             }
         }
 
-        $first_level_childs = $this->category->getOneLevel();
-        $location_first_level_childs = $this->location->getOneLevel();
+        $firstLevelChilds = $this->categoryModel->getOneLevel();
+        $location_first_level_childs = $this->locationModel->getOneLevel();
 
         /**
          * put all view vars in array
          */
         $view_params = [
-            'c'     => $this->category->getAllHierarhy(), //all categories hierarhy
-            'l'     => $this->location->getAllHierarhy(), //all location hierarhy
+            'c'     => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
+            'l'     => $this->locationModel->getAllHierarhy(), //all location hierarhy
             'user'  => $user, //user object or empty class,
             'title' => $title, //set the page title
             'payment_methods' => $payment_methods, //get payment methods
             'enable_pay_from_wallet' => $enable_pay_from_wallet, //enable/disable wallet promo ad pay
-            'first_level_childs' => $first_level_childs, //first level categories
+            'first_level_childs' => $firstLevelChilds, //first level categories
             'location_first_level_childs' => $location_first_level_childs, //first level locations
 
             //filter vars
@@ -866,7 +894,7 @@ class AdController extends Controller
             'estate_heating_type'       => EstateHeatingType::allCached('estate_heating_type_name'),
             'estate_type'               => EstateType::allCached('estate_type_name'),
             'car_brand'                 => CarBrand::allCached('car_brand_name'),
-            'car_model'                 => $car_model,
+            'car_model'                 => $carModelListArray,
             'car_engine'                => CarEngine::allCached('car_engine_name'),
             'car_transmission'          => CarTransmission::allCached('car_transmission_name'),
             'car_condition'             => CarCondition::allCached('car_condition_name'),
@@ -877,7 +905,13 @@ class AdController extends Controller
         
         return view('ad.publish', $view_params);
     }
-    
+
+    /**
+     * Save ad to database
+     *
+     * @param AdPostRequest $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function postPublish(AdPostRequest $request)
     {
         $ad_data = $request->all();
@@ -1059,8 +1093,8 @@ class AdController extends Controller
             }
         }
 
-        $ad->ad_category_info   = $this->category->getParentsByIdFlat($ad->category_id);
-        $ad->ad_location_info   = $this->location->getParentsByIdFlat($ad->location_id);
+        $ad->ad_category_info   = $this->categoryModel->getParentsByIdFlat($ad->category_id);
+        $ad->ad_location_info   = $this->locationModel->getParentsByIdFlat($ad->location_id);
         $ad->pics               = AdPic::where('ad_id', $ad->ad_id)->get();
         $ad->same_ads           = Ad::where([['ad_description_hash', $ad->ad_description_hash], ['ad_id', '<>', $ad->ad_id]])->get();
 
@@ -1159,7 +1193,13 @@ class AdController extends Controller
         session()->flash('message', $message);
         return redirect(route('info'));
     }
-    
+
+    /**
+     * Activate published ad
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function activate(Request $request)
     {
         $code = $request->token;
@@ -1199,7 +1239,13 @@ class AdController extends Controller
         session()->flash('message', $message);
         return redirect(route('info'));
     }
-    
+
+    /**
+     * Delete Ad
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function delete(Request $request)
     {
         $code = $request->token;
@@ -1234,50 +1280,63 @@ class AdController extends Controller
         session()->flash('message', $message);
         return redirect(route('info'));
     }
-    
+
+    /**
+     * Show ad contact form
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function getAdContact(Request $request)
     {
         //get ad id
-        $ad_id = $request->ad_id;
+        $adId = $request->ad_id;
         
         //get ad info
-        $ad_detail = $this->ad->getAdDetail($ad_id);
+        $adDetail = $this->adModel->getAdDetail($adId);
 
         //generate breadcrump
         $breadcrump = [];
-        $breadcrump_data = $this->category->getParentsByIdFlat($ad_detail->category_id);
-        if(!empty($breadcrump_data)){
-            foreach ($breadcrump_data as $k => &$v){
-                $category_url_params = array();
-                $category_url_params[] = $this->category->getCategoryFullPathById($v['category_id']);
+        $breadcrumpData = $this->categoryModel->getParentsByIdFlat($adDetail->category_id);
+        if(!empty($breadcrumpData)){
+            foreach ($breadcrumpData as $k => &$v){
+                $categoryUrlParams = array();
+                $categoryUrlParams[] = $this->categoryModel->getCategoryFullPathById($v['category_id']);
                 if(session()->has('location_slug')){
-                    $category_url_params[] = 'l-' . session()->get('location_slug');
+                    $categoryUrlParams[] = 'l-' . session()->get('location_slug');
                 }
         
-                if(!empty($category_url_params)){
-                    $v['category_url'] = Util::buildUrl($category_url_params);
+                if(!empty($categoryUrlParams)){
+                    $v['category_url'] = Util::buildUrl($categoryUrlParams);
                 }
             }
             //category part of breadcrump
-            $breadcrump['c'] = array_reverse($breadcrump_data);
+            $breadcrump['c'] = array_reverse($breadcrumpData);
         }
 
         //generate title
         $title      = [config('dc.site_domain')];
-        $title[]    = $ad_detail->ad_title;
-        $title[]    = trans('detail.Ad Id') . ': ' . $ad_detail->ad_id;
+        $title[]    = $adDetail->ad_title;
+        $title[]    = trans('detail.Ad Id') . ': ' . $adDetail->ad_id;
         $title[]    = trans('contact.Send Message');
         
-        return view('ad.contact', ['ad_detail' => $ad_detail, 'breadcrump' => $breadcrump, 'title' => $title]);
+        return view('ad.contact', ['ad_detail' => $adDetail, 'breadcrump' => $breadcrump, 'title' => $title]);
     }
-    
+
+    /**
+     * Save ad contact form
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Foundation\Validation\ValidationException
+     */
     public function postAdContact(Request $request)
     {
         //get ad id
-        $ad_id = $request->ad_id;
+        $adId = $request->ad_id;
     
         //get ad info
-        $ad_detail = Ad::where('ad_active', 1)->findOrFail($ad_id);
+        $adDetail = Ad::where('ad_active', 1)->findOrFail($adId);
         
         //validate form
         $rules = [
@@ -1338,7 +1397,7 @@ class AdController extends Controller
         //if user save message
         if($current_user_id > 0){
             //save in db and send mail
-            $this->mail->saveMailToDbAndSendMail($current_user_id, $ad_detail->user_id, $ad_id, $request->contact_message, $ad_detail->ad_email);
+            $this->mailModel->saveMailToDbAndSendMail($current_user_id, $adDetail->user_id, $adId, $request->contact_message, $adDetail->ad_email);
             
             //set flash message and return
             session()->flash('message', trans('contact.Your message was send.'));
@@ -1348,16 +1407,21 @@ class AdController extends Controller
         }
         return redirect()->back();
     }
-    
-    public function axgetcarmodels(Request $request)
+
+    /**
+     * Ajax get car models based on selected car brand
+     *
+     * @param Request $request
+     */
+    public function ajaxGetCarModels(Request $request)
     {
         $ret = array('code' => 400);
         $car_brand_id = (int)$request->car_brand_id;
         if(is_numeric($car_brand_id) && $car_brand_id > 0){
-            $car_models = CarModel::where('car_brand_id', $car_brand_id)->orderBy('car_model_name', 'asc')->get();
-            if(!$car_models->isEmpty()){
+            $carModelListCollection = CarModel::where('car_brand_id', $car_brand_id)->orderBy('car_model_name', 'asc')->get();
+            if(!$carModelListCollection->isEmpty()){
                 $info = array(0 => 'Select Car Model');
-                foreach ($car_models as $k => $v){
+                foreach ($carModelListCollection as $k => $v){
                     $info[$v->car_model_id] = $v->car_model_name;
                 }
                 if(!empty($info)){
@@ -1369,23 +1433,28 @@ class AdController extends Controller
         echo json_encode($ret);
     }
 
-    public function axgetcategory(Request $request)
+    /**
+     * Ajax get category childs
+     *
+     * @param Request $request
+     */
+    public function ajaxGetCategory(Request $request)
     {
         $ret = array('code' => 400);
         $category_id = (int)$request->category_id;
         if(is_numeric($category_id)){
             if($category_id == 0) {
-                $first_level_childs = $this->category->getOneLevel();
+                $firstLevelChilds = $this->categoryModel->getOneLevel();
             } else {
-                $first_level_childs = $this->category->getOneLevel($category_id);
-                $breadcrump_data = $this->category->getParentsByIdFlat($category_id);
+                $firstLevelChilds = $this->categoryModel->getOneLevel($category_id);
+                $breadcrumpData = $this->categoryModel->getParentsByIdFlat($category_id);
             }
-            if(!$first_level_childs->isEmpty()){
-                foreach ($first_level_childs as $k => $v){
+            if(!$firstLevelChilds->isEmpty()){
+                foreach ($firstLevelChilds as $k => $v){
                     $info[$v->category_id] = $v->category_title;
                 }
-                if(!empty($breadcrump_data)){
-                    foreach($breadcrump_data as $k => $v){
+                if(!empty($breadcrumpData)){
+                    foreach($breadcrumpData as $k => $v){
                         $binfo[$v['category_id']] = $v['category_title'];
                     }
 
@@ -1406,23 +1475,28 @@ class AdController extends Controller
         echo json_encode($ret);
     }
 
-    public function axgetlocation(Request $request)
+    /**
+     * Ajax get location childs
+     *
+     * @param Request $request
+     */
+    public function ajaxGetLocation(Request $request)
     {
         $ret = array('code' => 400);
         $location_id = (int)$request->location_id;
         if(is_numeric($location_id)){
             if($location_id == 0) {
-                $first_level_childs = $this->location->getOneLevel();
+                $firstLevelChilds = $this->locationModel->getOneLevel();
             } else {
-                $first_level_childs = $this->location->getOneLevel($location_id);
-                $breadcrump_data = $this->location->getParentsByIdFlat($location_id);
+                $firstLevelChilds = $this->locationModel->getOneLevel($location_id);
+                $breadcrumpData = $this->locationModel->getParentsByIdFlat($location_id);
             }
-            if(!$first_level_childs->isEmpty()){
-                foreach ($first_level_childs as $k => $v){
+            if(!$firstLevelChilds->isEmpty()){
+                foreach ($firstLevelChilds as $k => $v){
                     $info[$v->location_id] = $v->location_name;
                 }
-                if(!empty($breadcrump_data)){
-                    foreach($breadcrump_data as $k => $v){
+                if(!empty($breadcrumpData)){
+                    foreach($breadcrumpData as $k => $v){
                         $binfo[$v['location_id']] = $v['location_name'];
                     }
 
@@ -1442,8 +1516,13 @@ class AdController extends Controller
         }
         echo json_encode($ret);
     }
-    
-    public function axreportad(Request $request)
+
+    /**
+     * Ajax save ad report
+     *
+     * @param Request $request
+     */
+    public function ajaxReportAd(Request $request)
     {
         $ret = array('code' => 400);
         parse_str($request->form_data, $form_data);
@@ -1468,29 +1547,35 @@ class AdController extends Controller
         }
         echo json_encode($ret);
     }
-    
-    public function axsavetofav(Request $request)
+
+    /**
+     * Ajax save ad to favorites
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ajaxSaveToFav(Request $request)
     {
         $ret = array('code' => 400);
-        $ad_id = $request->ad_id;
+        $adId = $request->ad_id;
         
-        if(isset($ad_id) && is_numeric($ad_id)){
-            $fav_ads_info = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
+        if(isset($adId) && is_numeric($adId)){
+            $favAdsInfo = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
             if(Auth::check()){
                 //registered user save/remove to/from db
                 $adFavModel = new AdFav();
                 $user_id = $request->user()->user_id;
                 $fav_ads_db = $adFavModel->getFavAds($user_id);
-                if(isset($fav_ads_db[$ad_id])){
+                if(isset($fav_ads_db[$adId])){
                     //remove from db
-                    $adFavModel->where('ad_id', $ad_id)->where('user_id', $user_id)->delete();
+                    $adFavModel->where('ad_id', $adId)->where('user_id', $user_id)->delete();
                     $ret['code'] = 201;
                 } else {
                     //remove all favs from db for this user
                     $adFavModel->where('user_id', $user_id)->delete();
                     
-                    $fav_ads_info[$ad_id] = $ad_id;
-                    $fav_to_save = array_replace($fav_ads_info, $fav_ads_db);
+                    $favAdsInfo[$adId] = $adId;
+                    $fav_to_save = array_replace($favAdsInfo, $fav_ads_db);
                     
                     //save to db, if there is cookie info save it too
                     foreach ($fav_to_save as $k){
@@ -1503,25 +1588,31 @@ class AdController extends Controller
                 }
                 
                 //remove cookie, data is saved to db
-                $fav_ads_info = array();
+                $favAdsInfo = array();
             } else {
                 //not registered user save/remove ad to/from cookie
-                if(isset($fav_ads_info[$ad_id])){
-                    unset($fav_ads_info[$ad_id]);
+                if(isset($favAdsInfo[$adId])){
+                    unset($favAdsInfo[$adId]);
                     $ret['code'] = 201;
                 } else {
-                    $fav_ads_info[$ad_id] = $ad_id;
+                    $favAdsInfo[$adId] = $adId;
                     $ret['code'] = 200;
                 }
             }
-            $cookie = Cookie::forever('__' . md5(config('dc.site_domain')) . '_fav_ads', $fav_ads_info);
+            $cookie = Cookie::forever('__' . md5(config('dc.site_domain')) . '_fav_ads', $favAdsInfo);
             Cookie::queue($cookie);
         }
         
         return response()->json($ret);
     }
-    
-    public function myads(Request $request)
+
+    /**
+     * Show list with user ads
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function myAds(Request $request)
     {
         $params     = $request->all();
         $limit      = 0;
@@ -1536,7 +1627,7 @@ class AdController extends Controller
 
         $where = ['user_id' => Auth::user()->user_id];
         $order = ['ad_publish_date' => 'desc'];
-        $my_ad_list = $this->ad->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+        $my_ad_list = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
 
         //set page title
         $title = [config('dc.site_domain')];
@@ -1545,8 +1636,14 @@ class AdController extends Controller
 
         return view('ad.myads', ['my_ad_list' => $my_ad_list, 'title' => $title, 'params' => $params]);
     }
-    
-    public function republish(Request $request)
+
+    /**
+     * Republish ad
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function rePublish(Request $request)
     {
         $code = $request->token;
         if(!empty($code)){
@@ -1561,36 +1658,42 @@ class AdController extends Controller
         }
         return redirect(url('myads'));
     }
-    
+
+    /**
+     * Show ad edit form
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
     public function getAdEdit(Request $request)
     {
         //get ad id
-        $ad_id = $request->ad_id;
+        $adId = $request->ad_id;
     
         //get ad info
-        $ad_detail = $this->ad->getAdDetail($ad_id, 0);
+        $adDetail = $this->adModel->getAdDetail($adId, 0);
         
-        if($ad_detail->user_id != Auth::user()->user_id){
+        if($adDetail->user_id != Auth::user()->user_id){
             return redirect(route('myads'));
         }
         
-        $ad_detail->ad_price_type_1     = $ad_detail->ad_price_type_2 = $ad_detail->ad_price_type_3 = $ad_detail->ad_price_type_4 = $ad_detail->ad_price;
-        $ad_detail->ad_price_type_5     = $ad_detail->ad_price_type_6 = $ad_detail->ad_price_type_7 = $ad_detail->ad_price;
+        $adDetail->ad_price_type_1     = $adDetail->ad_price_type_2 = $adDetail->ad_price_type_3 = $adDetail->ad_price_type_4 = $adDetail->ad_price;
+        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price;
 
-        if($ad_detail->ad_price > 0){
-            $ad_detail->price_radio = $ad_detail->price_radio_type_4 = $ad_detail->price_radio_type_5 = $ad_detail->price_radio_type_6 = 1;
-        } elseif ($ad_detail->ad_free){
-            $ad_detail->price_radio = $ad_detail->price_radio_type_4 = $ad_detail->price_radio_type_5 = $ad_detail->price_radio_type_6 = 2;
+        if($adDetail->ad_price > 0){
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 1;
+        } elseif ($adDetail->ad_free){
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 2;
         }
 
-        $ad_detail->condition_id_type_1 = $ad_detail->condition_id_type_3 = $ad_detail->condition_id;
-        $ad_detail->estate_sq_m_type_7  = $ad_detail->estate_sq_m;
-        $ad_detail->ad_description      = Util::br2nl($ad_detail->ad_description);
+        $adDetail->condition_id_type_1 = $adDetail->condition_id_type_3 = $adDetail->condition_id;
+        $adDetail->estate_sq_m_type_7  = $adDetail->estate_sq_m;
+        $adDetail->ad_description      = Util::br2nl($adDetail->ad_description);
         
         //get ad pics
-        $ad_pic = AdPic::where('ad_id', $ad_id)->get();
+        $adPic = AdPic::where('ad_id', $adId)->get();
         
-        $car_model = [];
+        $carModelListArray = [];
         if(old('car_brand_id')){
             if(is_numeric(old('car_brand_id')) && old('car_brand_id') > 0){
 
@@ -1598,30 +1701,30 @@ class AdController extends Controller
                 $select     = ['car_model_id', 'car_model_name'];
                 $where      = ['car_brand_id' => old('car_brand_id'), 'car_model_active' => 1];
                 $order      = ['car_model_name' => 'asc'];
-                $car_models = $carModel->getListSimple($select, $where, $order);
+                $carModelListCollection = $carModel->getListSimple($select, $where, $order);
 
-                if(!$car_models->isEmpty()){
-                    $car_model = [0 => trans('search.Select Car Model')];
-                    foreach ($car_models as $k => $v){
-                        $car_model[$v->car_model_id] = $v->car_model_name;
+                if(!$carModelListCollection->isEmpty()){
+                    $carModelListArray = [0 => trans('search.Select Car Model')];
+                    foreach ($carModelListCollection as $k => $v){
+                        $carModelListArray[$v->car_model_id] = $v->car_model_name;
                     }
                 }
             }
         }
         
-        $ad_detail->ad_category_info = $this->category->getParentsByIdFlat($ad_detail->category_id);
+        $adDetail->ad_category_info = $this->categoryModel->getParentsByIdFlat($adDetail->category_id);
 
         //set page title
         $title = [config('dc.site_domain')];
         $title[] = trans('publish_edit.Edit Ad');
 
-        $location_first_level_childs = $this->location->getOneLevel();
+        $location_first_level_childs = $this->locationModel->getOneLevel();
         
         return view('ad.edit', [
-            'c'     => $this->category->getAllHierarhy(), //all categories hierarhy
-            'l'     => $this->location->getAllHierarhy(), //all location hierarhy
-            'ad_detail' => $ad_detail,
-            'ad_pic'    => $ad_pic,
+            'c'     => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
+            'l'     => $this->locationModel->getAllHierarhy(), //all location hierarhy
+            'ad_detail' => $adDetail,
+            'ad_pic'    => $adPic,
             'title'     => $title,
             'location_first_level_childs' => $location_first_level_childs,
 
@@ -1633,7 +1736,7 @@ class AdController extends Controller
             'estate_heating_type'       => EstateHeatingType::allCached('estate_heating_type_name'),
             'estate_type'               => EstateType::allCached('estate_type_name'),
             'car_brand'                 => CarBrand::allCached('car_brand_name'),
-            'car_model'                 => $car_model,
+            'car_model'                 => $carModelListArray,
             'car_engine'                => CarEngine::allCached('car_engine_name'),
             'car_transmission'          => CarTransmission::allCached('car_transmission_name'),
             'car_condition'             => CarCondition::allCached('car_condition_name'),
@@ -1642,7 +1745,13 @@ class AdController extends Controller
             'shoes_sizes'               => ShoesSize::allCached('shoes_size_ord')
         ]);
     }
-    
+
+    /**
+     * Save ad edit form
+     *
+     * @param AdPostRequest $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function postAdEdit(AdPostRequest $request)
     {
         $ad_data = $request->all();
@@ -1802,8 +1911,8 @@ class AdController extends Controller
             }
         }
          
-        $ad->ad_category_info   = $this->category->getParentsByIdFlat($ad->category_id);
-        $ad->ad_location_info   = $this->location->getParentsByIdFlat($ad->location_id);
+        $ad->ad_category_info   = $this->categoryModel->getParentsByIdFlat($ad->category_id);
+        $ad->ad_location_info   = $this->locationModel->getParentsByIdFlat($ad->location_id);
         $ad->pics               = AdPic::where('ad_id', $ad->ad_id)->get();
         $ad->same_ads           = Ad::where([['ad_description_hash', $ad->ad_description_hash], ['ad_id', '<>', $ad->ad_id]])->get();
          
@@ -1831,8 +1940,14 @@ class AdController extends Controller
         session()->flash('message', $message);
         return redirect(route('info'));
     }
-    
-    public function userads(Request $request)
+
+    /**
+     * Show list of ads by user
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function userAds(Request $request)
     {
         $params     = $request->all();
         $limit      = 0;
@@ -1845,10 +1960,10 @@ class AdController extends Controller
             $page = $params['page'];
         }
 
-        $user = $this->user->getUserById($request->user_id);
+        $user = $this->userModel->getUserById($request->user_id);
         $where = ['user_id' => $user->user_id, 'ad_active' => 1];
         $order = ['ad_publish_date' => 'desc'];
-        $user_ad_list = $this->ad->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+        $user_ad_list = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
 
         //set page title
         $title = [config('dc.site_domain')];
@@ -1859,15 +1974,21 @@ class AdController extends Controller
         return view('ad.user', ['user' => $user, 'user_ad_list' => $user_ad_list, 'title' => $title, 'params' => $params]);
     }
 
-    public function makepromo(Request $request)
+    /**
+     * Make ad promo, show payment methods
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function makePromo(Request $request)
     {
         //get ad info
-        $ad_id = $request->ad_id;
-        $ad_detail = $this->ad->getAdDetail($ad_id);
+        $adId = $request->ad_id;
+        $adDetail = $this->adModel->getAdDetail($adId);
 
         //set page title
         $title = [config('dc.site_domain')];
-        $title[] = trans('makepromo.Make promo Ad Id') . ' #' . $ad_detail->ad_id;
+        $title[] = trans('makepromo.Make promo Ad Id') . ' #' . $adDetail->ad_id;
 
         $payment_methods = new Collection();
         if(config('dc.enable_promo_ads')){
@@ -1888,16 +2009,23 @@ class AdController extends Controller
 
         return view('ad.makepromo', ['title' => $title,
             'payment_methods' => $payment_methods,
-            'ad_detail' => $ad_detail,
+            'ad_detail' => $adDetail,
             'enable_pay_from_wallet' => $enable_pay_from_wallet
         ]);
     }
 
-    public function postmakepromo(Request $request)
+    /**
+     * Save ad promo, make ad promo if there are money in wallet, else redirect to payment gateway
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Foundation\Validation\ValidationException
+     */
+    public function postMakePromo(Request $request)
     {
         //get ad info
-        $ad_id = $request->ad_id;
-        $ad_detail = $this->ad->getAdDetail($ad_id);
+        $adId = $request->ad_id;
+        $adDetail = $this->adModel->getAdDetail($adId);
 
         $rules = [
             'ad_type_pay' => 'required|integer|not_in:0'
@@ -1929,22 +2057,22 @@ class AdController extends Controller
                     $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+config('dc.wallet_promo_ad_period'), date('Y')));
 
                     //make ad promo and activate it
-                    $ad_detail->ad_promo = 1;
-                    $ad_detail->ad_promo_until = $promoUntilDate;
-                    $ad_detail->ad_active = 1;
-                    $ad_detail->save();
+                    $adDetail->ad_promo = 1;
+                    $adDetail->ad_promo_until = $promoUntilDate;
+                    $adDetail->ad_active = 1;
+                    $adDetail->save();
 
                     //subtract money from wallet
-                    $wallet_data = ['user_id' => $ad_detail->user_id,
-                        'ad_id' => $ad_detail->ad_id,
+                    $wallet_data = ['user_id' => $adDetail->user_id,
+                        'ad_id' => $adDetail->ad_id,
                         'sum' => -number_format(config('dc.wallet_promo_ad_price'), 2, '.', ''),
                         'wallet_date' => date('Y-m-d H:i:s'),
-                        'wallet_description' => trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad_detail->ad_id, 'date' => $promoUntilDate])
+                        'wallet_description' => trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adDetail->ad_id, 'date' => $promoUntilDate])
                     ];
                     Wallet::create($wallet_data);
                     Cache::flush();
 
-                    $message[] = trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad_detail->ad_id, 'date' => $promoUntilDate]);
+                    $message[] = trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adDetail->ad_id, 'date' => $promoUntilDate]);
                     $message[] = trans('publish_edit.Click here to publish new ad', ['link' => route('publish')]);
                 }
             } else {
@@ -1958,7 +2086,7 @@ class AdController extends Controller
                             if(empty($v->pay_page_name)){
                                 $message[] = trans('publish_edit.Send sms and make your ad promo', [
                                     'number' => $v->pay_number,
-                                    'text' => $v->pay_sms_prefix . ' a' . $ad_detail->ad_id,
+                                    'text' => $v->pay_sms_prefix . ' a' . $adDetail->ad_id,
                                     'period' => $v->pay_promo_period,
                                     'sum' => number_format($v->pay_sum, 2, '.', ''),
                                     'cur' => config('dc.site_price_sign')
@@ -1971,7 +2099,7 @@ class AdController extends Controller
                                     'cur' => config('dc.site_price_sign')
                                 ]);
                                 session()->flash('message', $message);
-                                return redirect(url($v->pay_page_name . '/a' . $ad_detail->ad_id));
+                                return redirect(url($v->pay_page_name . '/a' . $adDetail->ad_id));
                             }
                         }
                     }
@@ -1984,7 +2112,13 @@ class AdController extends Controller
         return redirect(route('info'));
     }
 
-    public function myfav(Request $request)
+    /**
+     * Show user favorite ads, if logged user get from database, if not logged get from cookie
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function myFav(Request $request)
     {
         $params     = $request->all();
         $limit      = 0;
@@ -1998,17 +2132,17 @@ class AdController extends Controller
         }
 
         //get fav ads from cookie or db
-        $fav_ads_info = [];
+        $favAdsInfo = [];
         if(Auth::check()){
             $adFavModel = new AdFav();
-            $fav_ads_info = $adFavModel->getFavAds(Auth::user()->user_id);
+            $favAdsInfo = $adFavModel->getFavAds(Auth::user()->user_id);
         } else if(Cookie::has('__' . md5(config('dc.site_domain')) . '_fav_ads')) {
             //no user check cookie
-            $fav_ads_info = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
+            $favAdsInfo = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
         }
 
-        if(!empty($fav_ads_info)){
-            $whereIn['ad.ad_id'] = $fav_ads_info;
+        if(!empty($favAdsInfo)){
+            $whereIn['ad.ad_id'] = $favAdsInfo;
         }
 
         $where = ['ad_active' => 1];
@@ -2016,7 +2150,7 @@ class AdController extends Controller
 
         $my_ad_list = new Collection();
         if(!empty($whereIn)) {
-            $my_ad_list = $this->ad->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+            $my_ad_list = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
         }
 
         //set page title

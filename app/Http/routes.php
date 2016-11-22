@@ -262,28 +262,28 @@ Route::post('/ad/contact/{ad_id}', 'AdController@postAdContact')
         
 Route::get('/publish', 'AdController@getPublish')->name('publish');
 Route::post('/publish', 'AdController@postPublish')->name('postPublish');
-Route::post('/axgetcategory', 'AdController@axgetcategory');
-Route::post('/axgetlocation', 'AdController@axgetlocation');
+Route::post('/axgetcategory', 'AdController@ajaxGetCategory');
+Route::post('/axgetlocation', 'AdController@ajaxGetLocation');
 
-Route::post('/axgetcarmodels', 'AdController@axgetcarmodels');
-Route::post('/axreportad', 'AdController@axreportad');
-Route::post('/axsavetofav', 'AdController@axsavetofav');
+Route::post('/axgetcarmodels', 'AdController@ajaxGetCarModels');
+Route::post('/axreportad', 'AdController@ajaxReportAd');
+Route::post('/axsavetofav', 'AdController@ajaxSaveToFav');
 
 Route::get('/publish/activate/{token}', 'AdController@activate');
 Route::get('/delete/{token}', 'AdController@delete')->name('delete');
 
-Route::get('/myads', 'AdController@myads')->name('myads')->middleware('auth');
-Route::get('/myfav', 'AdController@myfav')->name('myfav');
-Route::get('/republish/{token}', 'AdController@republish')->name('republish');
+Route::get('/myads', 'AdController@myAds')->name('myads')->middleware('auth');
+Route::get('/myfav', 'AdController@myFav')->name('myfav');
+Route::get('/republish/{token}', 'AdController@rePublish')->name('republish');
 
 Route::get('/ad/edit/{ad_id}', 'AdController@getAdEdit')->name('adedit')->where(['ad_id' => '\d+'])->middleware('auth');
 Route::post('/ad/edit/{ad_id}', 'AdController@postAdEdit')->name('postAdEdit')->where(['ad_id' => '\d+'])->middleware('auth');
-Route::get('/ad/user/{user_id}', 'AdController@userads')->name('userads')->where(['user_id' => '\d+'])->middleware('auth');
+Route::get('/ad/user/{user_id}', 'AdController@userAds')->name('userads')->where(['user_id' => '\d+'])->middleware('auth');
 
 Route::get('/proxy', 'AdController@proxy')->name('proxy');
 
-Route::get('/makepromo/{ad_id}', 'AdController@makepromo')->name('makepromo')->middleware('auth');
-Route::post('/makepromo/{ad_id}', 'AdController@postmakepromo')->name('postmakepromo')->middleware('auth');
+Route::get('/makepromo/{ad_id}', 'AdController@makePromo')->name('makepromo')->middleware('auth');
+Route::post('/makepromo/{ad_id}', 'AdController@postMakePromo')->name('postmakepromo')->middleware('auth');
 
 
 

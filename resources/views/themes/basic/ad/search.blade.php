@@ -25,10 +25,10 @@
                     </div>
 
                     <div class="col-md-3 padding_bottom_15">
-                        @if(isset($c) && !empty($c))
+                        @if(isset($categoryList) && !empty($categoryList))
                         <select name="cid" id="cid" class="form-control cid_select" onchange="$('#search_form').submit();">
                             <option value="0"></option>
-                            @foreach ($c as $k => $v)
+                            @foreach ($categoryList as $k => $v)
                                 @if(isset($cid) && $cid == $v['cid'])
                                     <option value="{{$v['cid']}}" style="font-weight: bold;" selected data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
                                 @else
@@ -43,10 +43,10 @@
                     </div>
 
                     <div class="col-md-3 padding_bottom_15">
-                        @if(isset($l) && !empty($l))
+                        @if(isset($locationList) && !empty($locationList))
                         <select name="lid" id="lid" class="form-control lid_select">
                             <option value="0"></option>
-                            @foreach ($l as $k => $v)
+                            @foreach ($locationList as $k => $v)
                                 @if(isset($lid) && $lid == $v['lid'])
                                     <option value="{{$v['lid']}}" style="font-weight: bold;" selected>{{$v['title']}}</option>
                                 @else
@@ -68,9 +68,9 @@
                     @endif
                     @if(!$hide_condition)
                     <div class="col-md-3 padding_bottom_15">
-                        @if(!$ac->isEmpty())
+                        @if(!$adConditionList->isEmpty())
                         <select name="condition_id[]" id="condition_id" class="form-control multi_select" data-placeholder="{{ trans('search.Condition') }}" multiple="multiple">
-                            @foreach ($ac as $k => $v)
+                            @foreach ($adConditionList as $k => $v)
                                 @if(in_array($v->ad_condition_id, old('condition_id', [])))
                                     <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
                                 @else
@@ -83,9 +83,9 @@
                     @endif
 
                     <div class="col-md-3 padding_bottom_15">
-                        @if(!$at->isEmpty())
+                        @if(!$adTypeList->isEmpty())
                         <select name="type_id[]" id="type_id" class="form-control multi_select" data-placeholder="{{ trans('search.Private/Business Ad') }}" multiple="multiple">
-                            @foreach ($at as $k => $v)
+                            @foreach ($adTypeList as $k => $v)
                                 @if(in_array($v->ad_type_id, old('type_id', [])))
                                     <option value="{{ $v->ad_type_id }}" selected>{{ $v->ad_type_name }}</option>
                                 @else
@@ -139,9 +139,9 @@
                     @if(isset($selected_category_info) && !empty($selected_category_info))
                         @if($selected_category_info['category_type'] == 2)
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$estate_type->isEmpty())
+                                @if(!$estateTypeList->isEmpty())
                                 <select name="estate_type_id[]" id="estate_type_id" class="form-control multi_select" data-placeholder="{{ trans('search.Estate Type') }}" multiple="multiple">
-                                    @foreach ($estate_type as $k => $v)
+                                    @foreach ($estateTypeList as $k => $v)
                                         @if(in_array($v->estate_type_id, old('estate_type_id', [])))
                                             <option value="{{ $v->estate_type_id }}" selected>{{ $v->estate_type_name }}</option>
                                         @else
@@ -175,9 +175,9 @@
                             </div>
 
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$estate_construction_type->isEmpty())
+                                @if(!$estateConstructionTypeList->isEmpty())
                                 <select name="estate_construction_type_id[]" id="estate_construction_type_id" class="form-control multi_select" data-placeholder="{{ trans('search.Estate Construction Type') }}" multiple="multiple">
-                                    @foreach ($estate_construction_type as $k => $v)
+                                    @foreach ($estateConstructionTypeList as $k => $v)
                                         @if(in_array($v->estate_construction_type_id, old('estate_construction_type_id', [])))
                                             <option value="{{ $v->estate_construction_type_id }}" selected>{{ $v->estate_construction_type_name }}</option>
                                         @else
@@ -189,9 +189,9 @@
                             </div>
 
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$estate_heating_type->isEmpty())
+                                @if(!$estateHeatingTypeList->isEmpty())
                                 <select name="estate_heating_type_id[]" id="estate_heating_type_id" class="form-control multi_select" data-placeholder="{{ trans('search.Estate Heating') }}" multiple="multiple">
-                                    @foreach ($estate_heating_type as $k => $v)
+                                    @foreach ($estateHeatingTypeList as $k => $v)
                                         @if(in_array($v->estate_heating_type_id, old('estate_heating_type_id', [])))
                                             <option value="{{ $v->estate_heating_type_id }}" selected>{{ $v->estate_heating_type_name }}</option>
                                         @else
@@ -215,9 +215,9 @@
                             </div>
 
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$estate_furnishing_type->isEmpty())
+                                @if(!$estateFurnishingTypeList->isEmpty())
                                 <select name="estate_furnishing_type_id[]" id="estate_furnishing_type_id" class="form-control multi_select" data-placeholder="{{ trans('search.Estate Furnishing') }}" multiple="multiple">
-                                    @foreach ($estate_furnishing_type as $k => $v)
+                                    @foreach ($estateFurnishingTypeList as $k => $v)
                                         @if(in_array($v->estate_furnishing_type_id, old('estate_furnishing_type_id', [])))
                                             <option value="{{ $v->estate_furnishing_type_id }}" selected>{{ $v->estate_furnishing_type_name }}</option>
                                         @else
@@ -231,9 +231,9 @@
 
                         @if($selected_category_info['category_type'] == 3)
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$car_engine->isEmpty())
+                                @if(!$carEngineList->isEmpty())
                                 <select name="car_engine_id[]" id="car_engine_id" class="form-control multi_select" data-placeholder="{{ trans('search.Car Engine') }}" multiple="multiple">
-                                    @foreach ($car_engine as $k => $v)
+                                    @foreach ($carEngineList as $k => $v)
                                         @if(in_array($v->car_engine_id, old('car_engine_id', [])))
                                             <option value="{{ $v->car_engine_id }}" selected>{{ $v->car_engine_name }}</option>
                                         @else
@@ -245,10 +245,10 @@
                             </div>
 
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$car_brand->isEmpty())
+                                @if(!$carBrandList->isEmpty())
                                 <select name="car_brand_id" id="car_brand_id" class="form-control chosen_select" data-placeholder="{{ trans('search.Car Brand') }}">
                                     <option value="0"></option>
-                                    @foreach ($car_brand as $k => $v)
+                                    @foreach ($carBrandList as $k => $v)
                                         @if(old('car_brand_id') == $v->car_brand_id)
                                             <option value="{{ $v->car_brand_id }}" selected>{{ $v->car_brand_name }}</option>
                                         @else
@@ -261,9 +261,9 @@
 
                             <div class="col-md-3 padding_bottom_15">
                                 <div id="car_model_loader"><img src="{{ asset('images/small_loader.gif') }}" /></div>
-                                @if(isset($car_model) && !empty($car_model))
+                                @if(isset($carModelList) && !empty($carModelList))
                                     <select name="car_model_id" id="car_model_id" class="form-control chosen_select" data-placeholder="{{ trans('search.Car Model') }}">
-                                        @foreach ($car_model as $k => $v)
+                                        @foreach ($carModelList as $k => $v)
                                             @if(old('car_model_id') == $k)
                                                 <option value="{{ $k }}" selected>{{ $v }}</option>
                                             @else
@@ -279,9 +279,9 @@
                             </div>
 
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$car_transmission->isEmpty())
+                                @if(!$carTransmissionList->isEmpty())
                                 <select name="car_transmission_id[]" id="car_transmission_id" class="form-control multi_select" data-placeholder="{{ trans('search.Car Tranmission') }}" multiple="multiple">
-                                    @foreach ($car_transmission as $k => $v)
+                                    @foreach ($carTransmissionList as $k => $v)
                                         @if(in_array($v->car_transmission_id, old('car_transmission_id', [])))
                                             <option value="{{ $v->car_transmission_id }}" selected>{{ $v->car_transmission_name }}</option>
                                         @else
@@ -293,9 +293,9 @@
                             </div>
 
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$car_modification->isEmpty())
+                                @if(!$carModificationList->isEmpty())
                                 <select name="car_modification_id[]" id="car_modification_id" class="form-control multi_select" data-placeholder="{{ trans('search.Car Modification') }}" multiple="multiple">
-                                    @foreach ($car_modification as $k => $v)
+                                    @foreach ($carModificationList as $k => $v)
                                         @if(in_array($v->car_modification_id, old('car_modification_id', [])))
                                             <option value="{{ $v->car_modification_id }}" selected>{{ $v->car_modification_name }}</option>
                                         @else
@@ -323,9 +323,9 @@
                             </div>
 
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$car_condition->isEmpty())
+                                @if(!$carConditionList->isEmpty())
                                 <select name="car_condition_id[]" id="car_condition_id" class="form-control multi_select" data-placeholder="{{ trans('search.Car Condition') }}" multiple="multiple">
-                                    @foreach ($car_condition as $k => $v)
+                                    @foreach ($carConditionList as $k => $v)
                                         @if(in_array($v->car_condition_id, old('car_condition_id', [])))
                                             <option value="{{ $v->car_condition_id }}" selected>{{ $v->car_condition_name }}</option>
                                         @else
@@ -339,9 +339,9 @@
 
                         @if($selected_category_info['category_type'] == 5)
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$clothes_sizes->isEmpty())
+                                @if(!$clothesSizesList->isEmpty())
                                 <select name="clothes_size_id[]" id="clothes_size_id" class="form-control multi_select" data-placeholder="{{ trans('search.Select Clothes Sizes') }}" multiple="multiple">
-                                    @foreach ($clothes_sizes as $k => $v)
+                                    @foreach ($clothesSizesList as $k => $v)
                                         @if(in_array($v->clothes_size_id, old('clothes_size_id', [])))
                                             <option value="{{ $v->clothes_size_id }}" selected>{{ $v->clothes_size_name }}</option>
                                         @else
@@ -355,9 +355,9 @@
 
                         @if($selected_category_info['category_type'] == 6)
                             <div class="col-md-3 padding_bottom_15">
-                                @if(!$shoes_sizes->isEmpty())
+                                @if(!$shoesSizesList->isEmpty())
                                 <select name="shoes_size_id[]" id="shoes_size_id" class="form-control multi_select" data-placeholder="{{ trans('search.Select Shoes Sizes') }}" multiple="multiple">
-                                    @foreach ($shoes_sizes as $k => $v)
+                                    @foreach ($shoesSizesList as $k => $v)
                                         @if(in_array($v->shoes_size_id, old('shoes_size_id', [])))
                                             <option value="{{ $v->shoes_size_id }}" selected>{{ $v->shoes_size_name }}</option>
                                         @else
@@ -407,7 +407,7 @@
         </div>
     </div>
 
-    @if(isset($first_level_childs) && !$first_level_childs->isEmpty())
+    @if(isset($firstLevelChilds) && !$firstLevelChilds->isEmpty())
 
         @if(isset($selected_category_info) && !empty($selected_category_info) && config('dc.enable_category_description_in_search'))
             <div class="container category_panel">
@@ -419,14 +419,14 @@
 
         <div class="container category_panel">
             <div class="row">
-                @foreach ($first_level_childs as $k => $v)
+                @foreach ($firstLevelChilds as $k => $v)
                     <div class="col-md-3 padding_top_bottom_5 sub_category"><i class="fa fa-circle-o" style="font-size: 12px;"></i> <a href="{{ $v->category_url }}">{{ $v->category_title }}</a> <small class="text-muted">({{ $v->ad_count }})</small></div>
                 @endforeach
             </div>
         </div>
     @endif
 
-    @if(isset($promo_ad_list) && !$promo_ad_list->isEmpty() && !$show_only_promo)
+    @if(isset($promoAdList) && !$promoAdList->isEmpty() && !$showOnlyPromo)
         <div class="container home_promo_ads_panel">
             <div class="row margin_bottom_15">
                 <div class="col-md-12">
@@ -436,7 +436,7 @@
 
             <!-- ad row-->
             <div class="row margin_bottom_15">
-                @foreach ($promo_ad_list as $k => $v)
+                @foreach ($promoAdList as $k => $v)
                     @if(config('dc.show_small_item_ads_list'))
                         @include('common.ad_list_small')
                     @else
@@ -451,7 +451,7 @@
     <div class="container home_promo_ads_panel">
         <div class="row margin_bottom_15">
             <div class="col-md-12">
-                @if(!$show_only_promo)
+                @if(!$showOnlyPromo)
                     <h3>{{ trans('search.Latest Classifieds') }}</h3>
                     <a href="{{ url('publish') }}">{{ trans('search.pusblish an ad') }}</a>
                 @else
@@ -462,8 +462,8 @@
 
         <!-- ad row-->
         <div class="row margin_bottom_15">
-            @if(isset($ad_list) && !$ad_list->isEmpty())
-                @foreach ($ad_list as $k => $v)
+            @if(isset($adList) && !$adList->isEmpty())
+                @foreach ($adList as $k => $v)
                     @if(config('dc.show_small_item_ads_list'))
                         @include('common.ad_list_small')
                     @else
@@ -479,11 +479,11 @@
         <!--end of ad row -->
     </div>
 
-    @if(isset($ad_list) && !$ad_list->isEmpty())
+    @if(isset($adList) && !$adList->isEmpty())
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <nav>{{  $ad_list->appends($params)->links() }}</nav>
+                <nav>{{  $adList->appends($params)->links() }}</nav>
             </div>
         </div>
     </div>
