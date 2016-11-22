@@ -59,10 +59,10 @@
                         <label for="category_id" class="col-md-4 control-label">{{ trans('publish_edit.Category') }}</label>
                         <div class="col-md-5">
                             <div class="input-group">
-                                @if(isset($c) && !empty($c))
+                                @if(isset($categoryList) && !empty($categoryList))
                                     <select name="category_id" id="category_id" class="form-control cid_select">
                                         <option value="0"></option>
-                                        @foreach ($c as $k => $v)
+                                        @foreach ($categoryList as $k => $v)
                                             @if(isset($cid) && $cid == $v['cid'])
                                                 <option value="{{$v['cid']}}" style="font-weight: bold;" selected data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
                                             @else
@@ -153,10 +153,10 @@
                         <div class="form-group required {{ $errors->has('condition_id_type_1') ? ' has-error' : '' }}">
                             <label for="condition_id_type_1" class="col-md-4 control-label">{{ trans('publish_edit.Condition') }}</label>
                             <div class="col-md-5">
-                                @if(!$ac->isEmpty())
+                                @if(!$adConditionList->isEmpty())
                                 <select name="condition_id_type_1" id="condition_id_type_1" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Condition') }}">
                                     <option value="0"></option>
-                                    @foreach ($ac as $k => $v)
+                                    @foreach ($adConditionList as $k => $v)
                                         @if(old('condition_id_type_1') == $v->ad_condition_id)
                                             <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
                                         @else
@@ -213,10 +213,10 @@
                         <div class="form-group required {{ $errors->has('estate_type_id') ? ' has-error' : '' }}">
                             <label for="estate_type_id" class="col-md-4 control-label">{{ trans('publish_edit.Estate Type') }}</label>
                             <div class="col-md-5">
-                                @if(!$estate_type->isEmpty())
+                                @if(!$estateTypeList->isEmpty())
                                 <select name="estate_type_id" id="estate_type_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Estate Type') }}">
                                     <option value="0"></option>
-                                    @foreach ($estate_type as $k => $v)
+                                    @foreach ($estateTypeList as $k => $v)
                                         @if(old('estate_type_id') == $v->estate_type_id)
                                             <option value="{{ $v->estate_type_id }}" selected>{{ $v->estate_type_name }}</option>
                                         @else
@@ -273,10 +273,10 @@
                         <div class="form-group">
                             <label for="estate_construction_type_id" class="col-md-4 control-label">{{ trans('publish_edit.Estate Construction Type') }}</label>
                             <div class="col-md-5">
-                                @if(!$estate_construction_type->isEmpty())
+                                @if(!$estateConstructionTypeList->isEmpty())
                                 <select name="estate_construction_type_id" id="estate_construction_type_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Estate Construction Type') }}">
                                     <option value="0"></option>
-                                    @foreach ($estate_construction_type as $k => $v)
+                                    @foreach ($estateConstructionTypeList as $k => $v)
                                         @if(old('estate_construction_type_id') == $v->estate_construction_type_id)
                                             <option value="{{ $v->estate_construction_type_id }}" selected>{{ $v->estate_construction_type_name }}</option>
                                         @else
@@ -320,10 +320,10 @@
                         <div class="form-group">
                             <label for="estate_heating_type_id" class="col-md-4 control-label">{{ trans('publish_edit.Estate Heating') }}</label>
                             <div class="col-md-5">
-                                @if(!$estate_heating_type->isEmpty())
+                                @if(!$estateHeatingTypeList->isEmpty())
                                 <select name="estate_heating_type_id" id="estate_heating_type_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Estate Heating') }}">
                                     <option value="0"></option>
-                                    @foreach ($estate_heating_type as $k => $v)
+                                    @foreach ($estateHeatingTypeList as $k => $v)
                                         @if(old('estate_heating_type_id') == $v->estate_heating_type_id)
                                             <option value="{{ $v->estate_heating_type_id }}" selected>{{ $v->estate_heating_type_name }}</option>
                                         @else
@@ -343,10 +343,10 @@
                         <div class="form-group">
                             <label for="estate_furnishing_type_id" class="col-md-4 control-label">{{ trans('publish_edit.Estate Furnishing') }}</label>
                             <div class="col-md-5">
-                                @if(!$estate_furnishing_type->isEmpty())
+                                @if(!$estateFurnishingTypeList->isEmpty())
                                 <select name="estate_furnishing_type_id" id="estate_furnishing_type_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Estate Furnishing') }}">
                                     <option value="0"></option>
-                                    @foreach ($estate_furnishing_type as $k => $v)
+                                    @foreach ($estateFurnishingTypeList as $k => $v)
                                         @if(old('estate_furnishing_type_id') == $v->estate_furnishing_type_id)
                                             <option value="{{ $v->estate_furnishing_type_id }}" selected>{{ $v->estate_furnishing_type_name }}</option>
                                         @else
@@ -366,10 +366,10 @@
                         <div class="form-group {{ $errors->has('condition_id_type_2') ? ' has-error' : '' }}">
                             <label for="condition_id_type_2" class="col-md-4 control-label">{{ trans('publish_edit.Estate Condition') }}</label>
                             <div class="col-md-5">
-                                @if(!$ac->isEmpty())
+                                @if(!$adConditionList->isEmpty())
                                 <select name="condition_id_type_2" id="condition_id_type_2" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Condition') }}">
                                     <option value="0"></option>
-                                    @foreach ($ac as $k => $v)
+                                    @foreach ($adConditionList as $k => $v)
                                         @if(old('condition_id_type_2') == $v->ad_condition_id)
                                             <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
                                         @else
@@ -401,10 +401,10 @@
                         <div class="form-group required {{ $errors->has('car_brand_id') ? ' has-error' : '' }}">
                             <label for="car_brand_id" class="col-md-4 control-label">{{ trans('publish_edit.Car Brand') }}</label>
                             <div class="col-md-5">
-                                @if(!$car_brand->isEmpty())
+                                @if(!$carBrandList->isEmpty())
                                 <select name="car_brand_id" id="car_brand_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Car Brand') }}">
                                     <option value="0"></option>
-                                    @foreach ($car_brand as $k => $v)
+                                    @foreach ($carBrandList as $k => $v)
                                         @if(old('car_brand_id') == $v->car_brand_id)
                                             <option value="{{ $v->car_brand_id }}" selected>{{ $v->car_brand_name }}</option>
                                         @else
@@ -430,9 +430,9 @@
                             <label for="car_model_id" class="col-md-4 control-label">{{ trans('publish_edit.Car Model') }}</label>
                             <div class="col-md-5">
                                 <div id="car_model_loader"><img src="{{ asset('images/small_loader.gif') }}" /></div>
-                                @if(isset($car_model) && !empty($car_model))
+                                @if(isset($carModelList) && !empty($carModelList))
                                     <select name="car_model_id" id="car_model_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Car Model') }}">
-                                        @foreach ($car_model as $k => $v)
+                                        @foreach ($carModelList as $k => $v)
                                             @if(old('car_model_id') == $k)
                                                 <option value="{{ $k }}" selected>{{ $v }}</option>
                                             @else
@@ -461,10 +461,10 @@
                         <div class="form-group required {{ $errors->has('car_engine_id') ? ' has-error' : '' }}">
                             <label for="car_engine_id" class="col-md-4 control-label">{{ trans('publish_edit.Car Engine') }}</label>
                             <div class="col-md-5">
-                                @if(!$car_engine->isEmpty())
+                                @if(!$carEngineList->isEmpty())
                                 <select name="car_engine_id" id="car_engine_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Car Engine') }}">
                                     <option value="0"></option>
-                                    @foreach ($car_engine as $k => $v)
+                                    @foreach ($carEngineList as $k => $v)
                                         @if(old('car_engine_id') == $v->car_engine_id)
                                             <option value="{{ $v->car_engine_id }}" selected>{{ $v->car_engine_name }}</option>
                                         @else
@@ -489,10 +489,10 @@
                         <div class="form-group required {{ $errors->has('car_transmission_id') ? ' has-error' : '' }}">
                             <label for="car_transmission_id" class="col-md-4 control-label">{{ trans('publish_edit.Car Transmission') }}</label>
                             <div class="col-md-5">
-                                @if(!$car_transmission->isEmpty())
+                                @if(!$carTransmissionList->isEmpty())
                                 <select name="car_transmission_id" id="car_transmission_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Car Tranmission') }}">
                                     <option value="0"></option>
-                                    @foreach ($car_transmission as $k => $v)
+                                    @foreach ($carTransmissionList as $k => $v)
                                         @if(old('car_transmission_id') == $v->car_transmission_id)
                                             <option value="{{ $v->car_transmission_id }}" selected>{{ $v->car_transmission_name }}</option>
                                         @else
@@ -517,10 +517,10 @@
                         <div class="form-group required {{ $errors->has('car_modification_id') ? ' has-error' : '' }}">
                             <label for="car_transmission_id" class="col-md-4 control-label">{{ trans('publish_edit.Car Modification') }}</label>
                             <div class="col-md-5">
-                                @if(!$car_modification->isEmpty())
+                                @if(!$carModificationList->isEmpty())
                                 <select name="car_modification_id" id="car_modification_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Car Modification') }}">
                                     <option value="0"></option>
-                                    @foreach ($car_modification as $k => $v)
+                                    @foreach ($carModificationList as $k => $v)
                                         @if(old('car_modification_id') == $v->car_modification_id)
                                             <option value="{{ $v->car_modification_id }}" selected>{{ $v->car_modification_name }}</option>
                                         @else
@@ -579,10 +579,10 @@
                         <div class="form-group required {{ $errors->has('condition_id_type_3') ? ' has-error' : '' }}">
                             <label for="condition_id_type_3" class="col-md-4 control-label">{{ trans('publish_edit.Condition') }}</label>
                             <div class="col-md-5">
-                                @if(!$ac->isEmpty())
+                                @if(!$adConditionList->isEmpty())
                                 <select name="condition_id_type_3" id="condition_id_type_3" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Condition') }}">
                                     <option value="0"></option>
-                                    @foreach ($ac as $k => $v)
+                                    @foreach ($adConditionList as $k => $v)
                                         @if(old('condition_id_type_3') == $v->ad_condition_id)
                                             <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
                                         @else
@@ -607,10 +607,10 @@
                         <div class="form-group required {{ $errors->has('car_condition_id') ? ' has-error' : '' }}">
                             <label for="car_condition_id" class="col-md-4 control-label">{{ trans('publish_edit.Car Condition') }}</label>
                             <div class="col-md-5">
-                                @if(!$car_condition->isEmpty())
+                                @if(!$carConditionList->isEmpty())
                                 <select name="car_condition_id" id="car_condition_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Car Condition') }}">
                                     <option value="0"></option>
-                                    @foreach ($car_condition as $k => $v)
+                                    @foreach ($carConditionList as $k => $v)
                                         @if(old('car_condition_id') == $v->car_condition_id)
                                             <option value="{{ $v->car_condition_id }}" selected>{{ $v->car_condition_name }}</option>
                                         @else
@@ -746,10 +746,10 @@
                         <div class="form-group required {{ $errors->has('clothes_size_id') ? ' has-error' : '' }}">
                             <label for="clothes_size_id" class="col-md-4 control-label">{{ trans('publish_edit.Clothes Size') }}</label>
                             <div class="col-md-5">
-                                @if(!$clothes_sizes->isEmpty())
+                                @if(!$clothesSizesList->isEmpty())
                                 <select name="clothes_size_id" id="clothes_size_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Clothes Size') }}">
                                     <option value="0"></option>
-                                    @foreach ($clothes_sizes as $k => $v)
+                                    @foreach ($clothesSizesList as $k => $v)
                                         @if(old('clothes_size_id') == $v->clothes_size_id)
                                             <option value="{{ $v->clothes_size_id }}" selected>{{ $v->clothes_size_name }}</option>
                                         @else
@@ -774,10 +774,10 @@
                         <div class="form-group required {{ $errors->has('condition_id_type_5') ? ' has-error' : '' }}">
                             <label for="condition_id_type_5" class="col-md-4 control-label">{{ trans('publish_edit.Condition') }}</label>
                             <div class="col-md-5">
-                                @if(!$ac->isEmpty())
+                                @if(!$adConditionList->isEmpty())
                                 <select name="condition_id_type_5" id="condition_id_type_5" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Condition') }}">
                                     <option value="0"></option>
-                                    @foreach ($ac as $k => $v)
+                                    @foreach ($adConditionList as $k => $v)
                                         @if(old('condition_id_type_5') == $v->ad_condition_id)
                                             <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
                                         @else
@@ -845,10 +845,10 @@
                         <div class="form-group required {{ $errors->has('shoes_size_id') ? ' has-error' : '' }}">
                             <label for="shoes_size_id" class="col-md-4 control-label">{{ trans('publish_edit.Shoes Size') }}</label>
                             <div class="col-md-5">
-                                @if(!$shoes_sizes->isEmpty())
+                                @if(!$shoesSizesList->isEmpty())
                                 <select name="shoes_size_id" id="shoes_size_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Shoes Size') }}">
                                     <option value="0"></option>
-                                    @foreach ($shoes_sizes as $k => $v)
+                                    @foreach ($shoesSizesList as $k => $v)
                                         @if(old('shoes_size_id') == $v->shoes_size_id)
                                             <option value="{{ $v->shoes_size_id }}" selected>{{ $v->shoes_size_name }}</option>
                                         @else
@@ -873,10 +873,10 @@
                         <div class="form-group required {{ $errors->has('condition_id_type_6') ? ' has-error' : '' }}">
                             <label for="condition_id_type_6" class="col-md-4 control-label">{{ trans('publish_edit.Condition') }}</label>
                             <div class="col-md-5">
-                                @if(!$ac->isEmpty())
+                                @if(!$adConditionList->isEmpty())
                                 <select name="condition_id_type_6" id="condition_id_type_6" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Select Condition') }}">
                                     <option value="0"></option>
-                                    @foreach ($ac as $k => $v)
+                                    @foreach ($adConditionList as $k => $v)
                                         @if(old('condition_id_type_6') == $v->ad_condition_id)
                                             <option value="{{ $v->ad_condition_id }}" selected>{{ $v->ad_condition_name }}</option>
                                         @else
@@ -956,10 +956,10 @@
                     <div class="form-group required {{ $errors->has('type_id') ? ' has-error' : '' }}">
                         <label for="type_id" class="col-md-4 control-label">{{ trans('publish_edit.Private/Business Ad') }}</label>
                         <div class="col-md-5">
-                            @if(!$at->isEmpty())
+                            @if(!$adTypeList->isEmpty())
                             <select name="type_id" id="type_id" class="form-control chosen_select" data-placeholder="{{ trans('publish_edit.Please Select') }}">
                                 <option value="0"></option>
-                                @foreach ($at as $k => $v)
+                                @foreach ($adTypeList as $k => $v)
                                     @if(old('type_id') == $v->ad_type_id)
                                         <option value="{{ $v->ad_type_id }}" selected>{{ $v->ad_type_name }}</option>
                                     @else
@@ -1032,15 +1032,19 @@
                         <label for="location_id" class="col-md-4 control-label">{{ trans('publish_edit.Location') }}</label>
                         <div class="col-md-5">
                             <div class="input-group">
-                                @if(isset($l) && !empty($l))
+                                @if(isset($locationList) && !empty($locationList))
+                                <?$lid = Util::getOldOrModelValue('location_id', $user, 'user_location_id')?>
                                 <select name="location_id" id="location_id" class="form-control lid_select">
                                     <option value="0"></option>
-                                    @foreach ($l as $k => $v)
-                                        <optgroup label="{{$v['title']}}">
-                                            @if(isset($v['c']) && !empty($v['c']))
-                                                @include('common.lselect', ['c' => $v['c'], 'lid' => Util::getOldOrModelValue('location_id', $user, 'user_location_id')])
-                                            @endif
-                                        </optgroup>
+                                    @foreach ($locationList as $k => $v)
+                                        @if(isset($lid) && $lid == $v['lid'])
+                                            <option value="{{$v['lid']}}" style="font-weight: bold;" selected>{{$v['title']}}</option>
+                                        @else
+                                            <option value="{{$v['lid']}}" style="font-weight: bold;">{{$v['title']}}</option>
+                                        @endif
+                                        @if(isset($v['c']) && !empty($v['c']))
+                                            @include('common.lselect', ['c' => $v['c']])
+                                        @endif
                                     @endforeach
                                 </select>
                                 @endif
@@ -1165,14 +1169,14 @@
                     </div>
                     @endif
 
-                    @if(config('dc.enable_promo_ads') && !$payment_methods->isEmpty())
+                    @if(config('dc.enable_promo_ads') && !$paymentMethods->isEmpty())
                         <div class="form-group">
                             <label class="col-md-4 control-label">{{ trans('publish_edit.Choose Ad Promo Type') }}</label>
 
                             <div class="col-md-8">
                                 <?
                                 $checked = 0;
-                                if($enable_pay_from_wallet){
+                                if($enablePayFromWallet){
                                     $checked = 1000;
                                 }
                                 if(old('ad_type_pay')){
@@ -1186,7 +1190,7 @@
                                     </label>
                                 </div>
 
-                                @if($enable_pay_from_wallet)
+                                @if($enablePayFromWallet)
                                     <div class="radio">
                                         <label>
                                             <input type="radio" name="ad_type_pay" value="1000" {{ (1000 == $checked) ? 'checked' : '' }}> {{ trans('publish_edit.Pay promo ad from wallet', ['sum' => Util::formatPrice(config('dc.wallet_promo_ad_price'), config('dc.site_price_sign')), 'period' => config('dc.wallet_promo_ad_period')]) }}
@@ -1194,7 +1198,7 @@
                                     </div>
                                 @endif
 
-                                @foreach($payment_methods as $k => $v)
+                                @foreach($paymentMethods as $k => $v)
                                     <div class="radio">
                                         <label>
                                             <input type="radio" name="ad_type_pay" value="{{ $v->pay_id }}" {{ ($v->pay_id == $checked) ? 'checked' : '' }}> {{ trans('publish_edit.Pay promo ad payment method', ['sum' => Util::formatPrice($v->pay_sum, config('dc.site_price_sign')), 'period' => $v->pay_promo_period, 'pay_type' => $v->pay_name]) }}

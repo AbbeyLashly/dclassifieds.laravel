@@ -1043,14 +1043,18 @@
                         <div class="col-md-5">
                             <div class="input-group">
                                 @if(isset($l) && !empty($l))
+                                <?$lid = Util::getOldOrModelValue('location_id', $ad_detail)?>
                                 <select name="location_id" id="location_id" class="form-control lid_select">
                                     <option value="0"></option>
                                     @foreach ($l as $k => $v)
-                                        <optgroup label="{{$v['title']}}">
-                                            @if(isset($v['c']) && !empty($v['c']))
-                                                @include('common.lselect', ['c' => $v['c'], 'lid' => Util::getOldOrModelValue('location_id', $ad_detail)])
-                                            @endif
-                                        </optgroup>
+                                        @if(isset($lid) && $lid == $v['lid'])
+                                            <option value="{{$v['lid']}}" style="font-weight: bold;" selected>{{$v['title']}}</option>
+                                        @else
+                                            <option value="{{$v['lid']}}" style="font-weight: bold;">{{$v['title']}}</option>
+                                        @endif
+                                        @if(isset($v['c']) && !empty($v['c']))
+                                            @include('common.lselect', ['c' => $v['c']])
+                                        @endif
                                     @endforeach
                                 </select>
                                 @endif

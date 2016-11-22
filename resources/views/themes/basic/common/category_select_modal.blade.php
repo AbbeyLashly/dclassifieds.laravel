@@ -17,8 +17,8 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div id="quick-category-select-container">
-                                @if(isset($first_level_childs) && !$first_level_childs->isEmpty())
-                                    @foreach($first_level_childs as $k => $v)
+                                @if(isset($firstLevelChilds) && !$firstLevelChilds->isEmpty())
+                                    @foreach($firstLevelChilds as $k => $v)
                                         <a href="" class="category_selector btn-block" data-id="{{ $v->category_id }}">{{ $v->category_title }}</a>
                                     @endforeach
                                 @endif

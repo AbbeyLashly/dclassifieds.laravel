@@ -16,8 +16,8 @@
 
                     <div class="row">
                         <div class="col-md-12" id="quick-location-select-container">
-                            @if(isset($location_first_level_childs) && !$location_first_level_childs->isEmpty())
-                                @foreach($location_first_level_childs as $k => $v)
+                            @if(isset($locationFirstLevelChilds) && !$locationFirstLevelChilds->isEmpty())
+                                @foreach($locationFirstLevelChilds as $k => $v)
                                     <div class="col-md-4 location_modal_item"><a href="" class="location_selector btn-block" data-id="{{ $v->location_id }}">{{ $v->location_name }}</a></div>
                                 @endforeach
                             @endif

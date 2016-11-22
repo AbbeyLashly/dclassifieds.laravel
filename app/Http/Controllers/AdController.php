@@ -851,56 +851,56 @@ class AdController extends Controller
         $title[] = trans('publish_edit.Post an ad');
 
         //check if promo ads are enabled
-        $payment_methods = new Collection();
+        $paymentMethods = new Collection();
         if(config('dc.enable_promo_ads')){
             $where['pay_active']    = 1;
             $order['pay_ord']       = 'ASC';
             $payModel               = new Pay();
-            $payment_methods        = $payModel->getList($where, $order);
+            $paymentMethods         = $payModel->getList($where, $order);
         }
 
         //check if promo ads are enabled, check if there is logged user
         //check if there are enough money in the wallet
-        $enable_pay_from_wallet = 0;
+        $enablePayFromWallet = 0;
         if(config('dc.enable_promo_ads') && Auth::check()){
             //no caching for the wallet :)
-            $wallet_total = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
-            if(number_format($wallet_total, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
-                $enable_pay_from_wallet = 1;
+            $walletTotal = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
+            if(number_format($walletTotal, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
+                $enablePayFromWallet = 1;
             }
         }
 
         $firstLevelChilds = $this->categoryModel->getOneLevel();
-        $location_first_level_childs = $this->locationModel->getOneLevel();
+        $locationFirstLevelChilds = $this->locationModel->getOneLevel();
 
         /**
          * put all view vars in array
          */
         $view_params = [
-            'c'     => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
-            'l'     => $this->locationModel->getAllHierarhy(), //all location hierarhy
-            'user'  => $user, //user object or empty class,
-            'title' => $title, //set the page title
-            'payment_methods' => $payment_methods, //get payment methods
-            'enable_pay_from_wallet' => $enable_pay_from_wallet, //enable/disable wallet promo ad pay
-            'first_level_childs' => $firstLevelChilds, //first level categories
-            'location_first_level_childs' => $location_first_level_childs, //first level locations
+            'categoryList'      => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
+            'locationList'      => $this->locationModel->getAllHierarhy(), //all location hierarhy
+            'user'              => $user, //user object or empty class,
+            'title'             => $title, //the page title
+            'paymentMethods'    => $paymentMethods, //payment methods
+            'enablePayFromWallet' => $enablePayFromWallet, //enable/disable wallet promo ad pay
+            'firstLevelChilds'  => $firstLevelChilds, //first level categories
+            'locationFirstLevelChilds' => $locationFirstLevelChilds, //first level locations
 
-            //filter vars
-            'at'                        => AdType::allCached('ad_type_name'),
-            'ac'                        => AdCondition::allCached('ad_condition_name'),
-            'estate_construction_type'  => EstateConstructionType::allCached('estate_construction_type_name'),
-            'estate_furnishing_type'    => EstateFurnishingType::allCached('estate_furnishing_type_name'),
-            'estate_heating_type'       => EstateHeatingType::allCached('estate_heating_type_name'),
-            'estate_type'               => EstateType::allCached('estate_type_name'),
-            'car_brand'                 => CarBrand::allCached('car_brand_name'),
-            'car_model'                 => $carModelListArray,
-            'car_engine'                => CarEngine::allCached('car_engine_name'),
-            'car_transmission'          => CarTransmission::allCached('car_transmission_name'),
-            'car_condition'             => CarCondition::allCached('car_condition_name'),
-            'car_modification'          => CarModification::allCached('car_modification_name'),
-            'clothes_sizes'             => ClothesSize::allCached('clothes_size_ord'),
-            'shoes_sizes'               => ShoesSize::allCached('shoes_size_ord')
+            //ad parameters
+            'adTypeList'                    => AdType::allCached('ad_type_name'),
+            'adConditionList'               => AdCondition::allCached('ad_condition_name'),
+            'estateConstructionTypeList'    => EstateConstructionType::allCached('estate_construction_type_name'),
+            'estateFurnishingTypeList'      => EstateFurnishingType::allCached('estate_furnishing_type_name'),
+            'estateHeatingTypeList'         => EstateHeatingType::allCached('estate_heating_type_name'),
+            'estateTypeList'                => EstateType::allCached('estate_type_name'),
+            'carBrandList'                  => CarBrand::allCached('car_brand_name'),
+            'carModelList'                  => $carModelListArray,
+            'carEngineList'                 => CarEngine::allCached('car_engine_name'),
+            'carTransmissionList'           => CarTransmission::allCached('car_transmission_name'),
+            'carConditionList'              => CarCondition::allCached('car_condition_name'),
+            'carModificationList'           => CarModification::allCached('car_modification_name'),
+            'clothesSizesList'              => ClothesSize::allCached('clothes_size_ord'),
+            'shoesSizesList'                => ShoesSize::allCached('shoes_size_ord')
         ];
         
         return view('ad.publish', $view_params);
@@ -1118,8 +1118,8 @@ class AdController extends Controller
             //wallet pay
             if($ad_data['ad_type_pay'] == 1000){
                 //no caching for the wallet :)
-                $wallet_total = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
-                if(number_format($wallet_total, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
+                $walletTotal = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
+                if(number_format($walletTotal, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
                     //calc promo period
                     $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+config('dc.wallet_promo_ad_period'), date('Y')));
 
@@ -1153,9 +1153,9 @@ class AdController extends Controller
                 $where['pay_active'] = 1;
                 $order['pay_ord'] = 'ASC';
                 $payModel = new Pay();
-                $payment_methods = $payModel->getList($where, $order);
-                if (!$payment_methods->isEmpty()) {
-                    foreach ($payment_methods as $k => $v) {
+                $paymentMethods = $payModel->getList($where, $order);
+                if (!$paymentMethods->isEmpty()) {
+                    foreach ($paymentMethods as $k => $v) {
                         if($v->pay_id == $ad_data['ad_type_pay']){
                             if(empty($v->pay_page_name)){
                                 $message[] = trans('publish_edit.Your ad will be activated automatically when you pay.');
@@ -1718,7 +1718,7 @@ class AdController extends Controller
         $title = [config('dc.site_domain')];
         $title[] = trans('publish_edit.Edit Ad');
 
-        $location_first_level_childs = $this->locationModel->getOneLevel();
+        $locationFirstLevelChilds = $this->locationModel->getOneLevel();
         
         return view('ad.edit', [
             'c'     => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
@@ -1726,7 +1726,7 @@ class AdController extends Controller
             'ad_detail' => $adDetail,
             'ad_pic'    => $adPic,
             'title'     => $title,
-            'location_first_level_childs' => $location_first_level_childs,
+            'location_first_level_childs' => $locationFirstLevelChilds,
 
             //filter vars
             'at'                        => AdType::allCached('ad_type_name'),
@@ -1990,27 +1990,27 @@ class AdController extends Controller
         $title = [config('dc.site_domain')];
         $title[] = trans('makepromo.Make promo Ad Id') . ' #' . $adDetail->ad_id;
 
-        $payment_methods = new Collection();
+        $paymentMethods = new Collection();
         if(config('dc.enable_promo_ads')){
             $where['pay_active']    = 1;
             $order['pay_ord']       = 'ASC';
             $payModel               = new Pay();
-            $payment_methods        = $payModel->getList($where, $order);
+            $paymentMethods        = $payModel->getList($where, $order);
         }
 
-        $enable_pay_from_wallet = 0;
+        $enablePayFromWallet = 0;
         if(config('dc.enable_promo_ads') && Auth::check()){
             //no caching for the wallet :)
-            $wallet_total = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
-            if(number_format($wallet_total, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
-                $enable_pay_from_wallet = 1;
+            $walletTotal = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
+            if(number_format($walletTotal, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
+                $enablePayFromWallet = 1;
             }
         }
 
         return view('ad.makepromo', ['title' => $title,
-            'payment_methods' => $payment_methods,
+            'payment_methods' => $paymentMethods,
             'ad_detail' => $adDetail,
-            'enable_pay_from_wallet' => $enable_pay_from_wallet
+            'enable_pay_from_wallet' => $enablePayFromWallet
         ]);
     }
 
@@ -2051,8 +2051,8 @@ class AdController extends Controller
             //wallet pay
             if($params['ad_type_pay'] == 1000){
                 //no caching for the wallet :)
-                $wallet_total = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
-                if(number_format($wallet_total, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
+                $walletTotal = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
+                if(number_format($walletTotal, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
                     //calc promo period
                     $promoUntilDate = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d')+config('dc.wallet_promo_ad_period'), date('Y')));
 
@@ -2079,9 +2079,9 @@ class AdController extends Controller
                 $where['pay_active'] = 1;
                 $order['pay_ord'] = 'ASC';
                 $payModel = new Pay();
-                $payment_methods = $payModel->getList($where, $order);
-                if (!$payment_methods->isEmpty()) {
-                    foreach ($payment_methods as $k => $v) {
+                $paymentMethods = $payModel->getList($where, $order);
+                if (!$paymentMethods->isEmpty()) {
+                    foreach ($paymentMethods as $k => $v) {
                         if($v->pay_id == $params['ad_type_pay']){
                             if(empty($v->pay_page_name)){
                                 $message[] = trans('publish_edit.Send sms and make your ad promo', [
