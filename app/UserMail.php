@@ -124,8 +124,8 @@ class UserMail extends Model
 
         //send mail to ad publisher
         Mail::send('emails.ad_contact', ['userMail' => $userMail], function ($m) use ($_mail_to) {
-            $m->from('test@mylove.bg', 'dclassifieds ad contact');
-            $m->to($_mail_to)->subject('You have new message in DClassifieds');
+            $m->from(config('dc.site_contact_mail'), config('dc.site_domain'));
+            $m->to($_mail_to)->subject(trans('mailview.You have new message'));
         });
     }
 

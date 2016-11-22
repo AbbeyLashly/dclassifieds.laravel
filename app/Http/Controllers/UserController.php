@@ -69,10 +69,10 @@ class UserController extends Controller
      */
     public function myProfileSave(Request $request)
     {
-        $current_user = Auth::user();
+        $currentUser = Auth::user();
         $rules = [
             'name'          => 'required|max:255',
-            'email'         => 'required|email|max:255|unique:user,email,' . $current_user->user_id  . ',user_id',
+            'email'         => 'required|email|max:255|unique:user,email,' . $currentUser->user_id  . ',user_id',
             'avatar_img'    => 'mimes:jpeg,bmp,png|max:300',
         ];
          
@@ -88,45 +88,45 @@ class UserController extends Controller
             );
         }
         
-        $user_data = $request->all();
+        $userData = $request->all();
         
-        if(empty($user_data['password'])){
-            unset($user_data['password']);
+        if(empty($userData['password'])){
+            unset($userData['password']);
         } else {
-            $user_data['password'] = bcrypt($user_data['password']);
+            $userData['password'] = bcrypt($userData['password']);
         }
         
-        $user = User::find($current_user->user_id);
-        $user->update($user_data);
+        $user = User::find($currentUser->user_id);
+        $user->update($userData);
         
         //upload and fix ad images
         $avatar = Input::file('avatar_img');
         if(!empty($avatar)){
-            $destination_path = public_path('uf/udata/');
+            $destinationPath = public_path('uf/udata/');
             if($avatar->isValid()){
                 @unlink(public_path('uf/udata/') . '100_' . $user->avatar);
                 
-                $file_name = $user->user_id . '_' .md5(time() + rand(0,9999)) . '.' . $avatar->getClientOriginalExtension();
-                $avatar->move($destination_path, $file_name);
+                $fileName = $user->user_id . '_' .md5(time() + rand(0,9999)) . '.' . $avatar->getClientOriginalExtension();
+                $avatar->move($destinationPath, $fileName);
                  
-                $img = Image::make($destination_path . $file_name);
+                $img = Image::make($destinationPath . $fileName);
                 $width = $img->width();
                 $height = $img->height();
                 
                 if($width == $height || $width > $height){
                     $img->heighten(100, function ($constraint) {
                         $constraint->upsize();
-                    })->save($destination_path . '100_' . $file_name);
+                    })->save($destinationPath . '100_' . $fileName);
                 } else {
                     $img->widen(100, function ($constraint) {
                         $constraint->upsize();
-                    })->save($destination_path . '100_' . $file_name);
+                    })->save($destinationPath . '100_' . $fileName);
                 }
                 
-                $img->resizeCanvas(100, 100, 'center')->save($destination_path . '100_' . $file_name);
-                $user->avatar = $file_name;
+                $img->resizeCanvas(100, 100, 'center')->save($destinationPath . '100_' . $fileName);
+                $user->avatar = $fileName;
                 $user->save();
-                @unlink($destination_path . $file_name);
+                @unlink($destinationPath . $fileName);
             }
         }
         
@@ -134,13 +134,19 @@ class UserController extends Controller
         session()->flash('message', trans('myprofile.Your profile is updated.'));
         return redirect()->back();
     }
-    
-    public function mymail(Request $request)
+
+    /**
+     * Show user mail list
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function myMail(Request $request)
     {
-        $current_user_id = Auth::user()->user_id;
+        $currentUserId = Auth::user()->user_id;
         $where = ['user_id_to' => $request->user()->user_id, 'UMS.mail_deleted' => 0];
         $order = ['mail_date' => 'DESC'];
-        $mailList = $this->mailModel->getMailList($current_user_id, $where, $order);
+        $mailList = $this->mailModel->getMailList($currentUserId, $where, $order);
 
         //set page title
         $title = [config('dc.site_domain')];
@@ -148,28 +154,34 @@ class UserController extends Controller
 
         return view('user.mymail', ['mailList' => $mailList, 'title' => $title]);
     }
-    
-    public function mailview(Request $request)
+
+    /**
+     * View mail conversation
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
+    public function mailView(Request $request)
     {
         //get params
         $hash = $request->hash;
-        $user_id_from = $request->user_id_from;
-        $ad_id = $request->ad_id;
-        $current_user_id = Auth::user()->user_id;
+        $userIdFrom = $request->user_id_from;
+        $adId = $request->ad_id;
+        $currentUserId = Auth::user()->user_id;
         
         //calc hash
-        $hash_array = array($current_user_id, $user_id_from, $ad_id);
-        sort($hash_array);
-        $calculated_hash = md5(join('-', $hash_array));
+        $hashArray = array($currentUserId, $userIdFrom, $adId);
+        sort($hashArray);
+        $calculatedHash = md5(join('-', $hashArray));
         
         //check hash
-        if($calculated_hash != $hash){
+        if($calculatedHash != $hash){
             return redirect(url('mymail'));
         }
         
         //mark conversation as read
         UserMailStatus::where('mail_hash', $hash)
-            ->where('user_id', $current_user_id)
+            ->where('user_id', $currentUserId)
             ->update(['mail_status' => UserMailStatus::MAIL_STATUS_READ]);
 
         Cache::flush();
@@ -177,7 +189,7 @@ class UserController extends Controller
         //get conversation
         $where = ['user_mail.mail_hash' => $hash, 'UMS.mail_deleted' => 0];
         $order = ['mail_date' => 'ASC'];
-        $mailList = $this->mailModel->getMailList($current_user_id, $where, $order);
+        $mailList = $this->mailModel->getMailList($currentUserId, $where, $order);
         
         if($mailList->isEmpty()){
             return redirect(route('mymail'));
@@ -189,27 +201,34 @@ class UserController extends Controller
         
         return view('user.mailview', ['mailList' => $mailList, 'hash' => $hash, 'title' => $title]);
     }
-    
-    public function mailviewsave(Request $request)
+
+    /**
+     * Save mail reply
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Foundation\Validation\ValidationException
+     */
+    public function mailViewSave(Request $request)
     {
         //get params
         $hash = $request->hash;
-        $user_id_from = $request->user_id_from;
-        $ad_id = $request->ad_id;
-        $current_user_id = Auth::user()->user_id;
+        $userIdFrom = $request->user_id_from;
+        $adId = $request->ad_id;
+        $currentUserId = Auth::user()->user_id;
     
         //calc hash
-        $hash_array = array($current_user_id, $user_id_from, $ad_id);
-        sort($hash_array);
-        $calculated_hash = md5(join('-', $hash_array));
+        $hashArray = array($currentUserId, $userIdFrom, $adId);
+        sort($hashArray);
+        $calculatedHash = md5(join('-', $hashArray));
     
         //check hash
-        if($calculated_hash != $hash){
+        if($calculatedHash != $hash){
             return redirect(url('mymail'));
         }
         
         //get ad info
-        $ad_detail = Ad::where('ad_active', 1)->findOrFail($ad_id);
+        $adDetail = Ad::where('ad_active', 1)->findOrFail($adId);
         
         //validate form
         $rules = ['contact_message' => 'required|min:20'];
@@ -223,13 +242,13 @@ class UserController extends Controller
         }
         
         //if user save message
-        if($current_user_id > 0){
+        if($currentUserId > 0){
 
             //get other user info
-            $userInfo = $this->userModel->getUserById($user_id_from);
+            $userInfo = $this->userModel->getUserById($userIdFrom);
 
             //save in db and send mail
-            $this->mailModel->saveMailToDbAndSendMail($current_user_id, $user_id_from, $ad_id, $request->contact_message, $userInfo->email);
+            $this->mailModel->saveMailToDbAndSendMail($currentUserId, $userIdFrom, $adId, $request->contact_message, $userInfo->email);
         
             //set flash message and return
             session()->flash('message', trans('mailview.Your message was send.'));
@@ -242,19 +261,25 @@ class UserController extends Controller
         }
         return redirect()->back();
     }
-    
-    public function maildelete(Request $request)
+
+    /**
+     * Delete conversation
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function mailDelete(Request $request)
     {
         //get params
-        $mail_id = $request->mail_id;
-        $current_user_id = $request->user()->user_id;
+        $mailId = $request->mail_id;
+        $currentUserId = $request->user()->user_id;
         
         //mark mail deleted
-        $umStatus = UserMailStatus::where('user_id', $current_user_id);
-        if(is_numeric($mail_id)){
-            $umStatus->where('mail_id', $mail_id);
+        $umStatus = UserMailStatus::where('user_id', $currentUserId);
+        if(is_numeric($mailId)){
+            $umStatus->where('mail_id', $mailId);
         } else {
-            $umStatus->where('mail_hash', $mail_id);
+            $umStatus->where('mail_hash', $mailId);
         }
         $umStatus->update(['mail_deleted' => UserMailStatus::MAIL_STATUS_DELETED]);
     
@@ -264,7 +289,13 @@ class UserController extends Controller
         return redirect()->back();
     }
 
-    public function mywallet(Request $request)
+    /**
+     * Show user wallet list
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function myWallet(Request $request)
     {
         $user = Auth::user();
 
@@ -284,8 +315,9 @@ class UserController extends Controller
             $page = $params['page'];
         }
 
-        $walletList = $this->walletModel->getList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
-        $wallet_total = $this->walletModel->where('user_id', $user->user_id)->sum('sum');
+        //get wallet transactions list and total
+        $walletList     = $this->walletModel->getList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+        $walletTotal    = $this->walletModel->where('user_id', $user->user_id)->sum('sum');
 
         //set page title
         $title = [config('dc.site_domain')];
@@ -294,30 +326,43 @@ class UserController extends Controller
 
         return view('user.mywallet', ['title' => $title,
             'walletList' => $walletList,
-            'wallet_total' => $wallet_total,
+            'wallet_total' => $walletTotal,
             'user' => $user,
             'params' => $params
         ]);
     }
 
-    public function addtowallet(Request $request)
+    /**
+     * Show payment methods for add money to wallet
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getAddToWallet(Request $request)
     {
         //set page title
         $title = [config('dc.site_domain')];
         $title[] = trans('addtowallet.Add Money To Wallet');
 
-        $payment_methods = new Collection();
+        $paymentMethods = new Collection();
         if(config('dc.enable_promo_ads')){
             $where['pay_active']    = 1;
             $order['pay_ord']       = 'ASC';
             $payModel               = new Pay();
-            $payment_methods        = $payModel->getList($where, $order);
+            $paymentMethods         = $payModel->getList($where, $order);
         }
 
-        return view('user.addtowallet', ['title' => $title, 'payment_methods' => $payment_methods]);
+        return view('user.addtowallet', ['title' => $title, 'payment_methods' => $paymentMethods]);
     }
 
-    public function postaddtowallet(Request $request)
+    /**
+     * Save add money to wallet and redirect to payment gateway
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Foundation\Validation\ValidationException
+     */
+    public function postAddToWallet(Request $request)
     {
         $rules = [
             'ad_type_pay' => 'required|integer|not_in:0'
@@ -341,9 +386,9 @@ class UserController extends Controller
         $where['pay_active'] = 1;
         $order['pay_ord'] = 'ASC';
         $payModel = new Pay();
-        $payment_methods = $payModel->getList($where, $order);
-        if (!$payment_methods->isEmpty()) {
-            foreach ($payment_methods as $k => $v) {
+        $paymentMethods = $payModel->getList($where, $order);
+        if (!$paymentMethods->isEmpty()) {
+            foreach ($paymentMethods as $k => $v) {
                 if($v->pay_id == $params['ad_type_pay']){
                     if(empty($v->pay_page_name)){
                         $message[] = trans('addtowallet.Your money will be added to your wallet automatically when you pay.');
@@ -370,6 +415,5 @@ class UserController extends Controller
         //set flash message and go to info page
         session()->flash('message', $message);
         return redirect(route('info'));
-
     }
 }

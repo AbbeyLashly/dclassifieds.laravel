@@ -290,18 +290,18 @@ Route::post('/makepromo/{ad_id}', 'AdController@postmakepromo')->name('postmakep
 /**
  * user actions
  */
-Route::get('/mymail', 'UserController@mymail')->name('mymail')->middleware('auth');
-Route::get('/mailview/{hash}/{user_id_from}/{ad_id}', 'UserController@mailview')
+Route::get('/mymail', 'UserController@myMail')->name('mymail')->middleware('auth');
+Route::get('/mailview/{hash}/{user_id_from}/{ad_id}', 'UserController@mailView')
     ->name('mailview')
     ->where(['user_id_from' => '\d+', 'ad_id' => '\d+'])
     ->middleware('auth');
 
-Route::post('/mailview/{hash}/{user_id_from}/{ad_id}', 'UserController@mailviewsave')
+Route::post('/mailview/{hash}/{user_id_from}/{ad_id}', 'UserController@mailViewSave')
     ->name('mailviewsave')
     ->where(['user_id_from' => '\d+', 'ad_id' => '\d+'])
     ->middleware('auth');
 
-Route::get('/maildelete/{mail_id}', 'UserController@maildelete')->name('maildelete')->middleware('auth');
+Route::get('/mailDelete/{mail_id}', 'UserController@mailDelete')->name('maildelete')->middleware('auth');
 
 Route::get('/myprofile', 'UserController@myProfile')->name('profile')->middleware('auth');
 Route::post('/myprofile', 'UserController@myProfileSave')->name('profilesave')->middleware('auth');
@@ -309,9 +309,9 @@ Route::post('/myprofile', 'UserController@myProfileSave')->name('profilesave')->
 /**
  * wallet action
  */
-Route::get('/mywallet', 'UserController@mywallet')->name('wallet')->middleware('auth');
-Route::get('/addtowallet', 'UserController@addtowallet')->name('addtowallet')->middleware('auth');
-Route::post('/addtowallet', 'UserController@postaddtowallet')->name('postaddtowallet')->middleware('auth');
+Route::get('/mywallet', 'UserController@myWallet')->name('wallet')->middleware('auth');
+Route::get('/addtowallet', 'UserController@getAddToWallet')->name('addtowallet')->middleware('auth');
+Route::post('/addtowallet', 'UserController@postAddToWallet')->name('postaddtowallet')->middleware('auth');
 
 // Authentication Routes...
 Route::get('login', 'Auth\AuthController@getLogin');

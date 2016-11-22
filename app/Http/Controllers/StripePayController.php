@@ -19,6 +19,12 @@ use Stripe\Stripe;
 
 class StripePayController extends Controller
 {
+    /**
+     * Show Stripe Pay form
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index(Request $request)
     {
         //get peytype
@@ -40,6 +46,12 @@ class StripePayController extends Controller
         return view('pay.stripe', ['stripeData' => $stripeData, 'title' => $title]);
     }
 
+    /**
+     * Stripe pay create charge
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function stripe(Request $request)
     {
         //get post params

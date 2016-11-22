@@ -17,6 +17,11 @@ class RssController extends Controller
         $this->adModel = $adModel;
     }
 
+    /**
+     * Rss Feed Generator
+     *
+     * @param Request $request
+     */
     public function index(Request $request)
     {
         if(config('dc.enable_rss')) {

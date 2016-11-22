@@ -12,5 +12,6 @@ return [
     'Message' => 'Message',
     'Send' => 'Send',
     'Your message was send.' => 'Your message was send.',
-    'Ups something is wrong, please try again later or contact our team.' => 'Ups something is wrong, please try again later or contact our team.'
+    'Ups something is wrong, please try again later or contact our team.' => 'Ups something is wrong, please try again later or contact our team.',
+    'You have new message' => 'You have new message'
 ];

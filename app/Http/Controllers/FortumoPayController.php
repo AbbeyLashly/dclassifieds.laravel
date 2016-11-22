@@ -15,6 +15,11 @@ use Cache;
 
 class FortumoPayController extends Controller
 {
+    /**
+     * Fortumo sms pay callback
+     *
+     * @param Request $request
+     */
     public function index(Request $request)
     {
         //send reply by sms
@@ -110,6 +115,13 @@ class FortumoPayController extends Controller
         echo $smsReply;
     }
 
+    /**
+     * Check if request is comming from Fortumo
+     *
+     * @param $paramsArray
+     * @param $secret
+     * @return bool
+     */
     public function checkSignature($paramsArray, $secret)
     {
         ksort($paramsArray);
@@ -122,5 +134,5 @@ class FortumoPayController extends Controller
         $str .= $secret;
         $signature = md5($str);
         return ($paramsArray['sig'] == $signature);
-  }
+    }
 }

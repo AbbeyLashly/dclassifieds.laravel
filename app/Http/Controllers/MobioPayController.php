@@ -16,6 +16,11 @@ use Cache;
 
 class MobioPayController extends Controller
 {
+    /**
+     * Mobio SMS Pay callback
+     *
+     * @param Request $request
+     */
     public function index(Request $request)
     {
         //get info for this payment

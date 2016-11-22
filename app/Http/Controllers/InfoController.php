@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 
 class InfoController extends Controller
 {
+    /**
+     * Show info page
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
         //set page title

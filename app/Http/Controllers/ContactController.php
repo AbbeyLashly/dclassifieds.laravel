@@ -9,6 +9,11 @@ use Mail;
 
 class ContactController extends Controller
 {
+    /**
+     * Show site contact form
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
         //set page title
@@ -18,6 +23,13 @@ class ContactController extends Controller
         return view('contact.contact', ['title' => $title]);
     }
 
+    /**
+     * If contact form submitted, validate and send mail to site owner
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @throws \Illuminate\Foundation\Validation\ValidationException
+     */
     public function postContact(Request $request)
     {
         //validate form
@@ -42,7 +54,7 @@ class ContactController extends Controller
         //send activation mail
         Mail::send('emails.contact', ['params' => $request->all()], function ($m) {
             $m->from(config('dc.site_contact_mail'), config('dc.site_domain'));
-            $m->to(config('dc.site_contact_mail'))->subject(trans('contact.New Contact Us Requiest'));
+            $m->to(config('dc.site_contact_mail'))->subject(trans('contact.New Contact Us Request'));
         });
 
         session()->flash('message', trans('contact.Your message was send.'));

@@ -19,11 +19,24 @@ use Socialite;
 
 class SocialAuthController extends Controller
 {
+    /**
+     * Redirect to Social Login provider
+     *
+     * @param $provider
+     * @return mixed
+     */
     public function redirect($provider)
     {
         return Socialite::driver($provider)->redirect();
     }
 
+    /**
+     * Social Login provider callback, create or login the user
+     *
+     * @param SocialAccountService $service
+     * @param $provider
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function callback(SocialAccountService $service, $provider)
     {
         try {

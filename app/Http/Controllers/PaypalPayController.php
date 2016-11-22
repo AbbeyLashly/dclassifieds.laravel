@@ -18,6 +18,12 @@ use Input;
 
 class PaypalPayController extends Controller
 {
+    /**
+     * Show Paypal redirect form
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index(Request $request)
     {
         //get peytype
@@ -47,6 +53,11 @@ class PaypalPayController extends Controller
         return view('pay.paypal', ['paypalData' => $paypalData, 'title' => $title]);
     }
 
+    /**
+     * Paypal callback
+     *
+     * @param Request $request
+     */
     public function paypalCallback(Request $request)
     {
         $params = Input::all();
@@ -191,6 +202,12 @@ class PaypalPayController extends Controller
         }
     }
 
+    /**
+     * Show Paypal success/error message
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function paypalSuccess(Request $request)
     {
         $a = $request->a;

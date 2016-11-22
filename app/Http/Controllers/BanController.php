@@ -15,6 +15,12 @@ use App\AdBanIp;
 
 class BanController extends Controller
 {
+    /**
+     * Check if user is banned by IP or E-Mail and show him message
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index(Request $request)
     {
         //message to show the user
