@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Input;
@@ -870,21 +869,24 @@ class AdController extends Controller
             }
         }
 
+        //get main categories
         $firstLevelChilds = $this->categoryModel->getOneLevel();
+
+        //get main locations
         $locationFirstLevelChilds = $this->locationModel->getOneLevel();
 
         /**
          * put all view vars in array
          */
         $view_params = [
-            'categoryList'      => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
-            'locationList'      => $this->locationModel->getAllHierarhy(), //all location hierarhy
-            'user'              => $user, //user object or empty class,
-            'title'             => $title, //the page title
-            'paymentMethods'    => $paymentMethods, //payment methods
-            'enablePayFromWallet' => $enablePayFromWallet, //enable/disable wallet promo ad pay
-            'firstLevelChilds'  => $firstLevelChilds, //first level categories
-            'locationFirstLevelChilds' => $locationFirstLevelChilds, //first level locations
+            'categoryList'                  => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
+            'locationList'                  => $this->locationModel->getAllHierarhy(), //all location hierarhy
+            'user'                          => $user, //user object or empty class,
+            'title'                         => $title, //the page title
+            'paymentMethods'                => $paymentMethods, //payment methods
+            'enablePayFromWallet'           => $enablePayFromWallet, //enable/disable wallet promo ad pay
+            'firstLevelChilds'              => $firstLevelChilds, //first level categories
+            'locationFirstLevelChilds'      => $locationFirstLevelChilds, //first level locations
 
             //ad parameters
             'adTypeList'                    => AdType::allCached('ad_type_name'),
@@ -914,31 +916,31 @@ class AdController extends Controller
      */
     public function postPublish(AdPostRequest $request)
     {
-        $ad_data = $request->all();
+        $adData = $request->all();
 
         //get user info by ad email or create new user
         $current_user_id = 0;
         if(Auth::check()){
-            $current_user_id = Auth::user()->user_id;
+            $currentUserId = Auth::user()->user_id;
             $user = Auth::user();
         } else {
             //check this mail for registered user
             try{
-                $user = User::where('email', $ad_data['ad_email'])->firstOrFail();
+                $user = User::where('email', $adData['ad_email'])->firstOrFail();
             } catch (\Exception $e) {
                 //no user create one
                 //generate password
                 $password = str_random(10);
 
                 $user                   = new User();
-                $user->name             = $ad_data['ad_publisher_name'];
-                $user->email            = $ad_data['ad_email'];
-                $user->user_phone       = $ad_data['ad_phone'];
-                $user->user_skype       = $ad_data['ad_skype'];
-                $user->user_site        = $ad_data['ad_link'];
-                $user->user_location_id = $ad_data['location_id'];
-                $user->user_address     = $ad_data['ad_address'];
-                $user->user_lat_lng     = $ad_data['ad_lat_lng'];
+                $user->name             = $adData['ad_publisher_name'];
+                $user->email            = $adData['ad_email'];
+                $user->user_phone       = $adData['ad_phone'];
+                $user->user_skype       = $adData['ad_skype'];
+                $user->user_site        = $adData['ad_link'];
+                $user->user_location_id = $adData['location_id'];
+                $user->user_address     = $adData['ad_address'];
+                $user->user_lat_lng     = $adData['ad_lat_lng'];
                 $user->password         = bcrypt($password);
                 $user->user_activation_token = str_random(30);
                 $user->save();
@@ -949,150 +951,36 @@ class AdController extends Controller
                     $m->to($user->email)->subject(trans('publish_edit.Activate your account!'));
                 });
             }
-            $current_user_id = $user->user_id;
+            $currentUserId = $user->user_id;
         }
 
         //fill additional fields
-        $ad_data['user_id']             = $current_user_id;
-        $ad_data['ad_publish_date']     = date('Y-m-d H:i:s');
-        $ad_data['ad_valid_until']      = date('Y-m-d', mktime(null, null, null, date('m'), date('d')+config('dc.ad_valid_period_in_days'), date('Y')));
-        $ad_data['ad_ip']               = Util::getRemoteAddress();
-        $ad_data['ad_description']      = Util::nl2br(strip_tags($ad_data['ad_description']));
+        $adData['user_id']             = $currentUserId;
+        $adData['ad_publish_date']     = date('Y-m-d H:i:s');
+        $adData['ad_valid_until']      = date('Y-m-d', mktime(null, null, null, date('m'), date('d')+config('dc.ad_valid_period_in_days'), date('Y')));
+        $adData['ad_ip']               = Util::getRemoteAddress();
+        $adData['ad_description']      = Util::nl2br(strip_tags($adData['ad_description']));
 
-        switch ($ad_data['category_type']){
-            case 1:
-                if(isset($ad_data['price_radio']) && $ad_data['price_radio'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_1'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_1'];
-                break;
-            case 2:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_2'];
-                $ad_data['condition_id'] = $ad_data['condition_id_type_2'];
-                break;
-            case 3:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_3'];
-                $ad_data['condition_id'] = $ad_data['condition_id_type_3'];
-                break;
-            case 4:
-                if(isset($ad_data['price_radio_type_4']) && $ad_data['price_radio_type_4'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_4'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                break;
-            case 5:
-                if(isset($ad_data['price_radio_type_5']) && $ad_data['price_radio_type_5'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_5'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_5'];
-                break;
-            case 6:
-                if(isset($ad_data['price_radio_type_6']) && $ad_data['price_radio_type_6'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_6'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_6'];
-                break;
-            case 7:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_7'];
-                $ad_data['estate_sq_m'] = $ad_data['estate_sq_m_type_7'];
-                break;
-        }
+        //fill data based on selected category type
+        $adData = $this->utilFillAdFields($adData);
 
-        $ad_data['ad_description_hash'] = md5($ad_data['ad_description']);
+        //generate unique description hash for duplication check
+        $adData['ad_description_hash'] = md5($adData['ad_description']);
 
         //generate ad unique code
         do{
-            $ad_data['code'] = str_random(30);
-        } while (Ad::where('code', $ad_data['code'])->first());
+            $adData['code'] = str_random(30);
+        } while (Ad::where('code', $adData['code'])->first());
 
         //create ad
-        $ad = Ad::create($ad_data);
+        $ad = Ad::create($adData);
 
         //upload and fix ad images
-        $ad_image = Input::file('ad_image');
-        $destination_path = public_path('uf/adata/');
-        $first_image_uploaded = 0;
-        foreach ($ad_image as $k){
-            if(!empty($k) && $k->isValid()){
-                $file_name = $ad->ad_id . '_' .md5(time() + rand(0,9999)) . '.' . $k->getClientOriginalExtension();
-                $k->move($destination_path, $file_name);
+        $adImage = Input::file('ad_image');
+        $destinationPath = public_path('uf/adata/');
+        $this->utilSaveAdImage($adImage, $destinationPath, $ad);
 
-                $img    = Image::make($destination_path . $file_name);
-                $width  = $img->width();
-                $height = $img->height();
-
-                if($width > 1000 || $height > 1000) {
-                    if ($width == $height) {
-                        $img->resize(1000, 1000);
-                        if(config('dc.watermark')){
-                            $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                        }
-                        $img->save($destination_path . '1000_' . $file_name);
-                    } elseif ($width > $height) {
-                        $img->resize(1000, null, function($constraint){
-                            $constraint->aspectRatio();
-                            $constraint->upsize();
-                        });
-                        if(config('dc.watermark')){
-                            $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                        }
-                        $img->save($destination_path . '1000_' . $file_name);
-                    } elseif ($width < $height) {
-                        $img->resize(null, 1000, function($constraint){
-                            $constraint->aspectRatio();
-                            $constraint->upsize();
-                        });
-                        if(config('dc.watermark')){
-                            $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                        }
-                        $img->save($destination_path . '1000_' . $file_name);
-                    }
-                } else {
-                    if(config('dc.watermark')){
-                        $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                        $img->save($destination_path . '1000_' . $file_name);
-                    } else {
-                        $img->save($destination_path . '1000_' . $file_name);
-                    }
-                }
-
-                if(!$first_image_uploaded){
-                    if($width >= 720 || $height >= 720) {
-                        $img->fit(720, 720);
-                        $img->save($destination_path . '740_' . $file_name);
-                    } else {
-                        $img->resizeCanvas(720, 720, 'top');
-                        $img->save($destination_path . '740_' . $file_name);
-                    }
-                    $ad->ad_pic = $file_name;
-                    $ad->save();
-                    $first_image_uploaded = 1;
-                } else {
-                    $adPic = new AdPic();
-                    $adPic->ad_id = $ad->ad_id;
-                    $adPic->ad_pic = $file_name;
-                    $adPic->save();
-                }
-
-                @unlink($destination_path . $file_name);
-            }
-        }
-
+        //Collect info for control mail
         $ad->ad_category_info   = $this->categoryModel->getParentsByIdFlat($ad->category_id);
         $ad->ad_location_info   = $this->locationModel->getParentsByIdFlat($ad->location_id);
         $ad->pics               = AdPic::where('ad_id', $ad->ad_id)->get();
@@ -1113,10 +1001,10 @@ class AdController extends Controller
         }
 
         //if promo ads are enable check witch option is selected
-        if(isset($ad_data['ad_type_pay'])){
+        if(isset($adData['ad_type_pay'])){
 
             //wallet pay
-            if($ad_data['ad_type_pay'] == 1000){
+            if($adData['ad_type_pay'] == 1000){
                 //no caching for the wallet :)
                 $walletTotal = Wallet::where('user_id', Auth::user()->user_id)->sum('sum');
                 if(number_format($walletTotal, 2, '.', '') >= number_format(config('dc.wallet_promo_ad_price'), 2, '.', '')){
@@ -1136,13 +1024,15 @@ class AdController extends Controller
                     $ad->save();
 
                     //subtract money from wallet
-                    $wallet_data = ['user_id' => $ad->user_id,
+                    $walletData = ['user_id' => $ad->user_id,
                         'ad_id' => $ad->ad_id,
                         'sum' => -number_format(config('dc.wallet_promo_ad_price'), 2, '.', ''),
                         'wallet_date' => date('Y-m-d H:i:s'),
                         'wallet_description' => trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad->ad_id, 'date' => $promoUntilDate])
                     ];
-                    Wallet::create($wallet_data);
+                    Wallet::create($walletData);
+
+                    //clear cache
                     Cache::flush();
 
                     $message[] = trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $ad->ad_id, 'date' => $promoUntilDate]);
@@ -1156,7 +1046,7 @@ class AdController extends Controller
                 $paymentMethods = $payModel->getList($where, $order);
                 if (!$paymentMethods->isEmpty()) {
                     foreach ($paymentMethods as $k => $v) {
-                        if($v->pay_id == $ad_data['ad_type_pay']){
+                        if($v->pay_id == $adData['ad_type_pay']){
                             if(empty($v->pay_page_name)){
                                 $message[] = trans('publish_edit.Your ad will be activated automatically when you pay.');
                                 $message[] = trans('publish_edit.Send sms and make your ad promo', [
@@ -1195,6 +1085,176 @@ class AdController extends Controller
     }
 
     /**
+     * Show ad edit form
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     */
+    public function getAdEdit(Request $request)
+    {
+        //get ad id
+        $adId = $request->ad_id;
+
+        //get ad info
+        $adDetail = $this->adModel->getAdDetail($adId, 0);
+
+        if($adDetail->user_id != Auth::user()->user_id){
+            return redirect(route('myads'));
+        }
+
+        $adDetail->ad_price_type_1     = $adDetail->ad_price_type_2 = $adDetail->ad_price_type_3 = $adDetail->ad_price_type_4 = $adDetail->ad_price;
+        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price;
+
+        if($adDetail->ad_price > 0){
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 1;
+        } elseif ($adDetail->ad_free){
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 2;
+        }
+
+        $adDetail->condition_id_type_1 = $adDetail->condition_id_type_3 = $adDetail->condition_id;
+        $adDetail->estate_sq_m_type_7  = $adDetail->estate_sq_m;
+        $adDetail->ad_description      = Util::br2nl($adDetail->ad_description);
+
+        //get ad pics
+        $adPic = AdPic::where('ad_id', $adId)->get();
+
+        $carModelListArray = [];
+        if(old('car_brand_id')){
+            if(is_numeric(old('car_brand_id')) && old('car_brand_id') > 0){
+
+                $carModel   = new CarModel();
+                $select     = ['car_model_id', 'car_model_name'];
+                $where      = ['car_brand_id' => old('car_brand_id'), 'car_model_active' => 1];
+                $order      = ['car_model_name' => 'asc'];
+                $carModelListCollection = $carModel->getListSimple($select, $where, $order);
+
+                if(!$carModelListCollection->isEmpty()){
+                    $carModelListArray = [0 => trans('search.Select Car Model')];
+                    foreach ($carModelListCollection as $k => $v){
+                        $carModelListArray[$v->car_model_id] = $v->car_model_name;
+                    }
+                }
+            }
+        }
+
+        $adDetail->ad_category_info = $this->categoryModel->getParentsByIdFlat($adDetail->category_id);
+
+        //set page title
+        $title = [config('dc.site_domain')];
+        $title[] = trans('publish_edit.Edit Ad');
+
+        $locationFirstLevelChilds = $this->locationModel->getOneLevel();
+
+        return view('ad.edit', [
+            'categoryList'                  => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
+            'locationList'                  => $this->locationModel->getAllHierarhy(), //all location hierarhy
+            'adDetail'                      => $adDetail,
+            'adPic'                         => $adPic,
+            'title'                         => $title,
+            'locationFirstLevelChilds'      => $locationFirstLevelChilds,
+
+            //filter vars
+            'adTypeList'                    => AdType::allCached('ad_type_name'),
+            'adConditionList'               => AdCondition::allCached('ad_condition_name'),
+            'estateConstructionTypeList'    => EstateConstructionType::allCached('estate_construction_type_name'),
+            'estateFurnishingTypeList'      => EstateFurnishingType::allCached('estate_furnishing_type_name'),
+            'estateHeatingTypeList'         => EstateHeatingType::allCached('estate_heating_type_name'),
+            'estateTypeList'                => EstateType::allCached('estate_type_name'),
+            'carBrandList'                  => CarBrand::allCached('car_brand_name'),
+            'carModelList'                  => $carModelListArray,
+            'carEngineList'                 => CarEngine::allCached('car_engine_name'),
+            'carTransmissionList'           => CarTransmission::allCached('car_transmission_name'),
+            'carConditionList'              => CarCondition::allCached('car_condition_name'),
+            'carModificationList'           => CarModification::allCached('car_modification_name'),
+            'clothesSizesList'              => ClothesSize::allCached('clothes_size_ord'),
+            'shoesSizesList'                => ShoesSize::allCached('shoes_size_ord')
+        ]);
+    }
+
+    /**
+     * Save ad edit form
+     *
+     * @param AdPostRequest $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function postAdEdit(AdPostRequest $request)
+    {
+        $adData = $request->all();
+
+        //fill additional fields
+        $adData['user_id']         = Auth::user()->user_id;
+        $adData['ad_publish_date'] = date('Y-m-d H:i:s');
+        $adData['ad_valid_until']  = date('Y-m-d', mktime(null, null, null, date('m'), date('d')+config('dc.ad_valid_period_in_days'), date('Y')));
+        $adData['expire_warning_mail_send'] = 0;
+        $adData['ad_ip']           = Util::getRemoteAddress();
+        $adData['ad_description']  = Util::nl2br(strip_tags($adData['ad_description']));
+
+        //fill data based on selected category type
+        $adData = $this->utilFillAdFields($adData);
+
+        //generate unique description hash for duplication check
+        $adData['ad_description_hash'] = md5($adData['ad_description']);
+
+        //save ad
+        $ad = Ad::find($adData['ad_id']);
+        $ad->update($adData);
+
+        //upload and fix ad images
+        $adImage = Input::file('ad_image');
+        if(!empty(array_filter($adImage))){
+
+            //delete current image
+            if(!empty($ad->ad_pic)){
+                @unlink(public_path('uf/adata/') . '740_' . $ad->ad_pic);
+                @unlink(public_path('uf/adata/') . '1000_' . $ad->ad_pic);
+            }
+
+            $morePics = AdPic::where('ad_id', $ad->ad_id)->get();
+            if(!$morePics->isEmpty()){
+                foreach ($morePics as $k => $v){
+                    @unlink(public_path('uf/adata/') . '740_' . $v->ad_pic);
+                    @unlink(public_path('uf/adata/') . '1000_' . $v->ad_pic);
+                    $v->delete();
+                }
+            }
+
+            //save new images
+            $destinationPath = public_path('uf/adata/');
+            $this->utilSaveAdImage($adImage, $destinationPath, $ad);
+        }
+
+        //Collect info for control mail
+        $ad->ad_category_info   = $this->categoryModel->getParentsByIdFlat($ad->category_id);
+        $ad->ad_location_info   = $this->locationModel->getParentsByIdFlat($ad->location_id);
+        $ad->pics               = AdPic::where('ad_id', $ad->ad_id)->get();
+        $ad->same_ads           = Ad::where([['ad_description_hash', $ad->ad_description_hash], ['ad_id', '<>', $ad->ad_id]])->get();
+
+        //send info mail
+        Mail::send('emails.ad_edit', ['user' => Auth::user(), 'ad' => $ad], function ($m) use ($request){
+            $m->from(config('dc.site_contact_mail'), config('dc.site_domain'));
+            $m->to($request->user()->email)->subject(trans('publish_edit.Your ad is edited!'));
+        });
+
+        //send control mail
+        if(config('dc.enable_control_mails')) {
+            Mail::send('emails.control_ad_activation', ['user' => Auth::user(), 'ad' => $ad], function ($m) {
+                $m->from(config('dc.site_contact_mail'), config('dc.site_domain'));
+                $m->to(config('dc.control_mail'))->subject(config('dc.control_mail_edit_subject'));
+            });
+        }
+
+        Cache::flush();
+
+        $message[] = trans('publish_edit.Your ad is saved.');
+        $message[] = trans('publish_edit.Click here to return to my ads', ['link' => route('myads')]);
+        $message[] = trans('publish_edit.Click here to publish new ad', ['link' => route('publish')]);
+
+        //set flash message and go to info page
+        session()->flash('message', $message);
+        return redirect(route('info'));
+    }
+
+    /**
      * Activate published ad
      *
      * @param Request $request
@@ -1212,13 +1272,13 @@ class AdController extends Controller
                 //if enabled add bonus to wallet
                 if(config('dc.enable_bonus_on_ad_activation') && $ad->bonus_added == 0 && config('dc.bonus_sum_on_ad_activation') > 0){
                     //add money to wallet
-                    $wallet_data = ['user_id' => $ad->user_id,
+                    $walletData = ['user_id' => $ad->user_id,
                         'ad_id' => $ad->ad_id,
                         'sum' => config('dc.bonus_sum_on_ad_activation'),
                         'wallet_date' => date('Y-m-d H:i:s'),
                         'wallet_description' => trans('publish_edit.Ad Activation Bonus')
                     ];
-                    Wallet::create($wallet_data);
+                    Wallet::create($walletData);
                     $ad->bonus_added = 1;
                     $message[] = trans('publish_edit.We have added to your wallet for ad activation.', ['sum' => config('dc.bonus_sum_on_ad_activation'), 'sign' => config('dc.site_price_sign')]);
                 }
@@ -1258,9 +1318,9 @@ class AdController extends Controller
                     @unlink(public_path('uf/adata/') . '1000_' . $ad->ad_pic);
                 }
                 
-                $more_pics = AdPic::where('ad_id', $ad->ad_id)->get();
-                if(!$more_pics->isEmpty()){
-                    foreach ($more_pics as $k => $v){
+                $morePics = AdPic::where('ad_id', $ad->ad_id)->get();
+                if(!$morePics->isEmpty()){
+                    foreach ($morePics as $k => $v){
                         @unlink(public_path('uf/adata/') . '740_' . $v->ad_pic);
                         @unlink(public_path('uf/adata/') . '1000_' . $v->ad_pic);
                         $v->delete();
@@ -1279,6 +1339,28 @@ class AdController extends Controller
 
         session()->flash('message', $message);
         return redirect(route('info'));
+    }
+
+    /**
+     * Republish ad
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function rePublish(Request $request)
+    {
+        $code = $request->token;
+        if(!empty($code)){
+            $ad = Ad::where('code', $code)->first();
+            if(!empty($ad)){
+                $ad->ad_publish_date = date('Y-m-d H:i:s');
+                $ad->ad_valid_until = date('Y-m-d', mktime(null, null, null, date('m'), date('d')+config('dc.ad_valid_period_in_days'), date('Y')));
+                $ad->expire_warning_mail_send = 0;
+                $ad->save();
+                Cache::flush();
+            }
+        }
+        return redirect(url('myads'));
     }
 
     /**
@@ -1367,9 +1449,9 @@ class AdController extends Controller
             );
         }
         
-        $current_user_id = 0;
+        $currentUserId = 0;
         if(Auth::check()){
-            $current_user_id = $request->user()->user_id;    
+            $currentUserId = $request->user()->user_id;    
         } else {
             //check this mail for registered user
             try{
@@ -1391,13 +1473,13 @@ class AdController extends Controller
                     $m->to($user->email)->subject(trans('publish_edit.Activate your account!'));
                 });
             }
-            $current_user_id = $user->user_id;
+            $currentUserId = $user->user_id;
         }
         
         //if user save message
-        if($current_user_id > 0){
+        if($currentUserId > 0){
             //save in db and send mail
-            $this->mailModel->saveMailToDbAndSendMail($current_user_id, $adDetail->user_id, $adId, $request->contact_message, $adDetail->ad_email);
+            $this->mailModel->saveMailToDbAndSendMail($currentUserId, $adDetail->user_id, $adId, $request->contact_message, $adDetail->ad_email);
             
             //set flash message and return
             session()->flash('message', trans('contact.Your message was send.'));
@@ -1406,204 +1488,6 @@ class AdController extends Controller
             session()->flash('message', trans('contact.Ups something is wrong, please try again later or contact our team.'));
         }
         return redirect()->back();
-    }
-
-    /**
-     * Ajax get car models based on selected car brand
-     *
-     * @param Request $request
-     */
-    public function ajaxGetCarModels(Request $request)
-    {
-        $ret = array('code' => 400);
-        $car_brand_id = (int)$request->car_brand_id;
-        if(is_numeric($car_brand_id) && $car_brand_id > 0){
-            $carModelListCollection = CarModel::where('car_brand_id', $car_brand_id)->orderBy('car_model_name', 'asc')->get();
-            if(!$carModelListCollection->isEmpty()){
-                $info = array(0 => 'Select Car Model');
-                foreach ($carModelListCollection as $k => $v){
-                    $info[$v->car_model_id] = $v->car_model_name;
-                }
-                if(!empty($info)){
-                    $ret['code'] = 200;
-                    $ret['info'] = $info;
-                }
-            }
-        }
-        echo json_encode($ret);
-    }
-
-    /**
-     * Ajax get category childs
-     *
-     * @param Request $request
-     */
-    public function ajaxGetCategory(Request $request)
-    {
-        $ret = array('code' => 400);
-        $category_id = (int)$request->category_id;
-        if(is_numeric($category_id)){
-            if($category_id == 0) {
-                $firstLevelChilds = $this->categoryModel->getOneLevel();
-            } else {
-                $firstLevelChilds = $this->categoryModel->getOneLevel($category_id);
-                $breadcrumpData = $this->categoryModel->getParentsByIdFlat($category_id);
-            }
-            if(!$firstLevelChilds->isEmpty()){
-                foreach ($firstLevelChilds as $k => $v){
-                    $info[$v->category_id] = $v->category_title;
-                }
-                if(!empty($breadcrumpData)){
-                    foreach($breadcrumpData as $k => $v){
-                        $binfo[$v['category_id']] = $v['category_title'];
-                    }
-
-                }
-                if(!empty($info)){
-                    if(empty($binfo)){
-                        $binfo = [];
-                    }
-                    $ret['code'] = 200;
-                    $ret['info'] = $info;
-                    $ret['binfo'] = $binfo;
-                }
-            } else {
-                $ret['code'] = 300;
-                $ret['info'] = $category_id;
-            }
-        }
-        echo json_encode($ret);
-    }
-
-    /**
-     * Ajax get location childs
-     *
-     * @param Request $request
-     */
-    public function ajaxGetLocation(Request $request)
-    {
-        $ret = array('code' => 400);
-        $location_id = (int)$request->location_id;
-        if(is_numeric($location_id)){
-            if($location_id == 0) {
-                $firstLevelChilds = $this->locationModel->getOneLevel();
-            } else {
-                $firstLevelChilds = $this->locationModel->getOneLevel($location_id);
-                $breadcrumpData = $this->locationModel->getParentsByIdFlat($location_id);
-            }
-            if(!$firstLevelChilds->isEmpty()){
-                foreach ($firstLevelChilds as $k => $v){
-                    $info[$v->location_id] = $v->location_name;
-                }
-                if(!empty($breadcrumpData)){
-                    foreach($breadcrumpData as $k => $v){
-                        $binfo[$v['location_id']] = $v['location_name'];
-                    }
-
-                }
-                if(!empty($info)){
-                    if(empty($binfo)){
-                        $binfo = [];
-                    }
-                    $ret['code'] = 200;
-                    $ret['info'] = $info;
-                    $ret['binfo'] = $binfo;
-                }
-            } else {
-                $ret['code'] = 300;
-                $ret['info'] = $location_id;
-            }
-        }
-        echo json_encode($ret);
-    }
-
-    /**
-     * Ajax save ad report
-     *
-     * @param Request $request
-     */
-    public function ajaxReportAd(Request $request)
-    {
-        $ret = array('code' => 400);
-        parse_str($request->form_data, $form_data);
-        if(isset($form_data['report_ad_id']) && is_numeric($form_data['report_ad_id']) && isset($form_data['report_radio']) && is_numeric($form_data['report_radio'])){
-            $ad_report = new AdReport();
-            $ad_report->report_ad_id = $form_data['report_ad_id'];
-            $ad_report->report_type_id = $form_data['report_radio'];
-            $ad_report->report_info = nl2br($form_data['report_more_info']);
-            $ad_report->report_date = date('Y-m-d H:i:s');
-            if(Auth::check()){
-                $ad_report->report_user_id = $request->user()->user_id;
-            }
-            try{
-                $ad_report->save();
-                $ret['code'] = 200;
-                $ret['message'] = trans('publish_edit.Thanks, The report is send.');
-            } catch (\Exception $e){
-                $ret['message'] = trans('publish_edit.Ups, something is wrong, please try again.');
-            }
-        } else {
-            $ret['message'] = trans('publish_edit.Ups, something is wrong, please try again.');
-        }
-        echo json_encode($ret);
-    }
-
-    /**
-     * Ajax save ad to favorites
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function ajaxSaveToFav(Request $request)
-    {
-        $ret = array('code' => 400);
-        $adId = $request->ad_id;
-        
-        if(isset($adId) && is_numeric($adId)){
-            $favAdsInfo = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
-            if(Auth::check()){
-                //registered user save/remove to/from db
-                $adFavModel = new AdFav();
-                $user_id = $request->user()->user_id;
-                $fav_ads_db = $adFavModel->getFavAds($user_id);
-                if(isset($fav_ads_db[$adId])){
-                    //remove from db
-                    $adFavModel->where('ad_id', $adId)->where('user_id', $user_id)->delete();
-                    $ret['code'] = 201;
-                } else {
-                    //remove all favs from db for this user
-                    $adFavModel->where('user_id', $user_id)->delete();
-                    
-                    $favAdsInfo[$adId] = $adId;
-                    $fav_to_save = array_replace($favAdsInfo, $fav_ads_db);
-                    
-                    //save to db, if there is cookie info save it too
-                    foreach ($fav_to_save as $k){
-                        $adFavModel = new AdFav();
-                        $adFavModel->ad_id = $k;
-                        $adFavModel->user_id = $user_id;
-                        $adFavModel->save();
-                    }
-                    $ret['code'] = 200;
-                }
-                
-                //remove cookie, data is saved to db
-                $favAdsInfo = array();
-            } else {
-                //not registered user save/remove ad to/from cookie
-                if(isset($favAdsInfo[$adId])){
-                    unset($favAdsInfo[$adId]);
-                    $ret['code'] = 201;
-                } else {
-                    $favAdsInfo[$adId] = $adId;
-                    $ret['code'] = 200;
-                }
-            }
-            $cookie = Cookie::forever('__' . md5(config('dc.site_domain')) . '_fav_ads', $favAdsInfo);
-            Cookie::queue($cookie);
-        }
-        
-        return response()->json($ret);
     }
 
     /**
@@ -1627,318 +1511,14 @@ class AdController extends Controller
 
         $where = ['user_id' => Auth::user()->user_id];
         $order = ['ad_publish_date' => 'desc'];
-        $my_ad_list = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+        $myAdList = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
 
         //set page title
         $title = [config('dc.site_domain')];
         $title[] = trans('myads.My Classifieds');
         $title[] = trans('myads.Page:') . ' ' . $page;
 
-        return view('ad.myads', ['my_ad_list' => $my_ad_list, 'title' => $title, 'params' => $params]);
-    }
-
-    /**
-     * Republish ad
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function rePublish(Request $request)
-    {
-        $code = $request->token;
-        if(!empty($code)){
-            $ad = Ad::where('code', $code)->first();
-            if(!empty($ad)){
-                $ad->ad_publish_date = date('Y-m-d H:i:s');
-                $ad->ad_valid_until = date('Y-m-d', mktime(null, null, null, date('m'), date('d')+config('dc.ad_valid_period_in_days'), date('Y')));
-                $ad->expire_warning_mail_send = 0;
-                $ad->save();
-                Cache::flush();
-            } 
-        }
-        return redirect(url('myads'));
-    }
-
-    /**
-     * Show ad edit form
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
-     */
-    public function getAdEdit(Request $request)
-    {
-        //get ad id
-        $adId = $request->ad_id;
-    
-        //get ad info
-        $adDetail = $this->adModel->getAdDetail($adId, 0);
-        
-        if($adDetail->user_id != Auth::user()->user_id){
-            return redirect(route('myads'));
-        }
-        
-        $adDetail->ad_price_type_1     = $adDetail->ad_price_type_2 = $adDetail->ad_price_type_3 = $adDetail->ad_price_type_4 = $adDetail->ad_price;
-        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price;
-
-        if($adDetail->ad_price > 0){
-            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 1;
-        } elseif ($adDetail->ad_free){
-            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 2;
-        }
-
-        $adDetail->condition_id_type_1 = $adDetail->condition_id_type_3 = $adDetail->condition_id;
-        $adDetail->estate_sq_m_type_7  = $adDetail->estate_sq_m;
-        $adDetail->ad_description      = Util::br2nl($adDetail->ad_description);
-        
-        //get ad pics
-        $adPic = AdPic::where('ad_id', $adId)->get();
-        
-        $carModelListArray = [];
-        if(old('car_brand_id')){
-            if(is_numeric(old('car_brand_id')) && old('car_brand_id') > 0){
-
-                $carModel   = new CarModel();
-                $select     = ['car_model_id', 'car_model_name'];
-                $where      = ['car_brand_id' => old('car_brand_id'), 'car_model_active' => 1];
-                $order      = ['car_model_name' => 'asc'];
-                $carModelListCollection = $carModel->getListSimple($select, $where, $order);
-
-                if(!$carModelListCollection->isEmpty()){
-                    $carModelListArray = [0 => trans('search.Select Car Model')];
-                    foreach ($carModelListCollection as $k => $v){
-                        $carModelListArray[$v->car_model_id] = $v->car_model_name;
-                    }
-                }
-            }
-        }
-        
-        $adDetail->ad_category_info = $this->categoryModel->getParentsByIdFlat($adDetail->category_id);
-
-        //set page title
-        $title = [config('dc.site_domain')];
-        $title[] = trans('publish_edit.Edit Ad');
-
-        $locationFirstLevelChilds = $this->locationModel->getOneLevel();
-        
-        return view('ad.edit', [
-            'c'     => $this->categoryModel->getAllHierarhy(), //all categories hierarhy
-            'l'     => $this->locationModel->getAllHierarhy(), //all location hierarhy
-            'ad_detail' => $adDetail,
-            'ad_pic'    => $adPic,
-            'title'     => $title,
-            'location_first_level_childs' => $locationFirstLevelChilds,
-
-            //filter vars
-            'at'                        => AdType::allCached('ad_type_name'),
-            'ac'                        => AdCondition::allCached('ad_condition_name'),
-            'estate_construction_type'  => EstateConstructionType::allCached('estate_construction_type_name'),
-            'estate_furnishing_type'    => EstateFurnishingType::allCached('estate_furnishing_type_name'),
-            'estate_heating_type'       => EstateHeatingType::allCached('estate_heating_type_name'),
-            'estate_type'               => EstateType::allCached('estate_type_name'),
-            'car_brand'                 => CarBrand::allCached('car_brand_name'),
-            'car_model'                 => $carModelListArray,
-            'car_engine'                => CarEngine::allCached('car_engine_name'),
-            'car_transmission'          => CarTransmission::allCached('car_transmission_name'),
-            'car_condition'             => CarCondition::allCached('car_condition_name'),
-            'car_modification'          => CarModification::allCached('car_modification_name'),
-            'clothes_sizes'             => ClothesSize::allCached('clothes_size_ord'),
-            'shoes_sizes'               => ShoesSize::allCached('shoes_size_ord')
-        ]);
-    }
-
-    /**
-     * Save ad edit form
-     *
-     * @param AdPostRequest $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function postAdEdit(AdPostRequest $request)
-    {
-        $ad_data = $request->all();
-         
-        //fill additional fields
-        $ad_data['user_id']         = Auth::user()->user_id;
-        $ad_data['ad_publish_date'] = date('Y-m-d H:i:s');
-        $ad_data['ad_valid_until']  = date('Y-m-d', mktime(null, null, null, date('m'), date('d')+config('dc.ad_valid_period_in_days'), date('Y')));
-        $ad_data['expire_warning_mail_send'] = 0;
-        $ad_data['ad_ip']           = Util::getRemoteAddress();
-        $ad_data['ad_description']  = Util::nl2br(strip_tags($ad_data['ad_description']));
-         
-        switch ($ad_data['category_type']){
-            case 1:
-                if(isset($ad_data['price_radio']) && $ad_data['price_radio'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_1'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_1'];
-                break;
-            case 2:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_2'];
-                $ad_data['condition_id'] = $ad_data['condition_id_type_2'];
-                break;
-            case 3:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_3'];
-                $ad_data['condition_id'] = $ad_data['condition_id_type_3'];
-                break;
-            case 4:
-                if(isset($ad_data['price_radio_type_4']) && $ad_data['price_radio_type_4'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_4'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                break;
-            case 5:
-                if(isset($ad_data['price_radio_type_5']) && $ad_data['price_radio_type_5'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_5'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_5'];
-                break;
-            case 6:
-                if(isset($ad_data['price_radio_type_6']) && $ad_data['price_radio_type_6'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_6'];
-                    $ad_data['ad_free'] = 0;
-                } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
-                }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_6'];
-                break;
-            case 7:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_7'];
-                $ad_data['estate_sq_m'] = $ad_data['estate_sq_m_type_7'];
-                break;
-        }
-         
-        $ad_data['ad_description_hash'] = md5($ad_data['ad_description']);
-
-        //save ad
-        $ad = Ad::find($ad_data['ad_id']);
-        $ad->update($ad_data);
-         
-        //upload and fix ad images
-        $ad_image = Input::file('ad_image');
-        if(!empty(array_filter($ad_image))){
-            
-            //delete current image
-            if(!empty($ad->ad_pic)){
-                @unlink(public_path('uf/adata/') . '740_' . $ad->ad_pic);
-                @unlink(public_path('uf/adata/') . '1000_' . $ad->ad_pic);
-            }
-        
-            $more_pics = AdPic::where('ad_id', $ad->ad_id)->get();
-            if(!$more_pics->isEmpty()){
-                foreach ($more_pics as $k => $v){
-                    @unlink(public_path('uf/adata/') . '740_' . $v->ad_pic);
-                    @unlink(public_path('uf/adata/') . '1000_' . $v->ad_pic);
-                    $v->delete();
-                }
-            }
-            
-            //save new images
-            $destination_path = public_path('uf/adata/');
-            $first_image_uploaded = 0;
-            foreach ($ad_image as $k){
-                if(!empty($k) && $k->isValid()){
-                    $file_name = $ad->ad_id . '_' .md5(time() + rand(0,9999)) . '.' . $k->getClientOriginalExtension();
-                    $k->move($destination_path, $file_name);
-
-                    $img    = Image::make($destination_path . $file_name);
-                    $width  = $img->width();
-                    $height = $img->height();
-
-                    if($width > 1000 || $height > 1000) {
-                        if ($width == $height) {
-                            $img->resize(1000, 1000);
-                            if(config('dc.watermark')){
-                                $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                            }
-                            $img->save($destination_path . '1000_' . $file_name);
-                        } elseif ($width > $height) {
-                            $img->resize(1000, null, function($constraint){
-                                $constraint->aspectRatio();
-                                $constraint->upsize();
-                            });
-                            if(config('dc.watermark')){
-                                $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                            }
-                            $img->save($destination_path . '1000_' . $file_name);
-                        } elseif ($width < $height) {
-                            $img->resize(null, 1000, function($constraint){
-                                $constraint->aspectRatio();
-                                $constraint->upsize();
-                            });
-                            if(config('dc.watermark')){
-                                $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                            }
-                            $img->save($destination_path . '1000_' . $file_name);
-                        }
-                    } else {
-                        if(config('dc.watermark')){
-                            $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
-                            $img->save($destination_path . '1000_' . $file_name);
-                        } else {
-                            $img->save($destination_path . '1000_' . $file_name);
-                        }
-                    }
-
-                    if(!$first_image_uploaded){
-                        if($width >= 720 || $height >= 720) {
-                            $img->fit(720, 720)->save($destination_path . '740_' . $file_name);
-                        } else {
-                            $img->resizeCanvas(720, 720, 'top')->save($destination_path . '740_' . $file_name);
-                        }
-                        $ad->ad_pic = $file_name;
-                        $ad->save();
-                        $first_image_uploaded = 1;
-                    } else {
-                        $adPic = new AdPic();
-                        $adPic->ad_id = $ad->ad_id;
-                        $adPic->ad_pic = $file_name;
-                        $adPic->save();
-                    }
-
-                    @unlink($destination_path . $file_name);
-                }
-            }
-        }
-         
-        $ad->ad_category_info   = $this->categoryModel->getParentsByIdFlat($ad->category_id);
-        $ad->ad_location_info   = $this->locationModel->getParentsByIdFlat($ad->location_id);
-        $ad->pics               = AdPic::where('ad_id', $ad->ad_id)->get();
-        $ad->same_ads           = Ad::where([['ad_description_hash', $ad->ad_description_hash], ['ad_id', '<>', $ad->ad_id]])->get();
-         
-        //send info mail
-        Mail::send('emails.ad_edit', ['user' => Auth::user(), 'ad' => $ad], function ($m) use ($request){
-            $m->from(config('dc.site_contact_mail'), config('dc.site_domain'));
-            $m->to($request->user()->email)->subject(trans('publish_edit.Your ad is edited!'));
-        });
-
-        //send control mail
-        if(config('dc.enable_control_mails')) {
-            Mail::send('emails.control_ad_activation', ['user' => Auth::user(), 'ad' => $ad], function ($m) {
-                $m->from(config('dc.site_contact_mail'), config('dc.site_domain'));
-                $m->to(config('dc.control_mail'))->subject(config('dc.control_mail_edit_subject'));
-            });
-        }
-
-        Cache::flush();
-
-        $message[] = trans('publish_edit.Your ad is saved.');
-        $message[] = trans('publish_edit.Click here to return to my ads', ['link' => route('myads')]);
-        $message[] = trans('publish_edit.Click here to publish new ad', ['link' => route('publish')]);
-
-        //set flash message and go to info page
-        session()->flash('message', $message);
-        return redirect(route('info'));
+        return view('ad.myads', ['myAdList' => $myAdList, 'title' => $title, 'params' => $params]);
     }
 
     /**
@@ -1963,7 +1543,7 @@ class AdController extends Controller
         $user = $this->userModel->getUserById($request->user_id);
         $where = ['user_id' => $user->user_id, 'ad_active' => 1];
         $order = ['ad_publish_date' => 'desc'];
-        $user_ad_list = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+        $userAdList = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
 
         //set page title
         $title = [config('dc.site_domain')];
@@ -1971,7 +1551,7 @@ class AdController extends Controller
         $title[] = trans('user.Ad List User', ['name' => $user->name]);
         $title[] = trans('myads.Page:') . ' ' . $page;
 
-        return view('ad.user', ['user' => $user, 'user_ad_list' => $user_ad_list, 'title' => $title, 'params' => $params]);
+        return view('ad.user', ['user' => $user, 'userAdList' => $userAdList, 'title' => $title, 'params' => $params]);
     }
 
     /**
@@ -1995,7 +1575,7 @@ class AdController extends Controller
             $where['pay_active']    = 1;
             $order['pay_ord']       = 'ASC';
             $payModel               = new Pay();
-            $paymentMethods        = $payModel->getList($where, $order);
+            $paymentMethods         = $payModel->getList($where, $order);
         }
 
         $enablePayFromWallet = 0;
@@ -2063,13 +1643,13 @@ class AdController extends Controller
                     $adDetail->save();
 
                     //subtract money from wallet
-                    $wallet_data = ['user_id' => $adDetail->user_id,
+                    $walletData = ['user_id' => $adDetail->user_id,
                         'ad_id' => $adDetail->ad_id,
                         'sum' => -number_format(config('dc.wallet_promo_ad_price'), 2, '.', ''),
                         'wallet_date' => date('Y-m-d H:i:s'),
                         'wallet_description' => trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adDetail->ad_id, 'date' => $promoUntilDate])
                     ];
-                    Wallet::create($wallet_data);
+                    Wallet::create($walletData);
                     Cache::flush();
 
                     $message[] = trans('payment_fortumo.Your ad #:ad_id is Promo Until :date.', ['ad_id' => $adDetail->ad_id, 'date' => $promoUntilDate]);
@@ -2148,9 +1728,9 @@ class AdController extends Controller
         $where = ['ad_active' => 1];
         $order = ['ad_publish_date' => 'desc'];
 
-        $my_ad_list = new Collection();
+        $myAdList = new Collection();
         if(!empty($whereIn)) {
-            $my_ad_list = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
+            $myAdList = $this->adModel->getAdList($where, $order, $limit, $orderRaw, $whereIn, $whereRaw, $paginate, $page);
         }
 
         //set page title
@@ -2158,6 +1738,354 @@ class AdController extends Controller
         $title[] = trans('myfav.My Favorite Classifieds');
         $title[] = trans('myfav.Page:') . ' ' . $page;
 
-        return view('ad.myfav', ['my_ad_list' => $my_ad_list, 'title' => $title, 'params' => $params]);
+        return view('ad.myfav', ['my_ad_list' => $myAdList, 'title' => $title, 'params' => $params]);
+    }
+
+    /**
+     * Ajax get car models based on selected car brand
+     *
+     * @param Request $request
+     */
+    public function ajaxGetCarModels(Request $request)
+    {
+        $ret = array('code' => 400);
+        $carBrandId = (int)$request->car_brand_id;
+        if(is_numeric($carBrandId) && $carBrandId > 0){
+
+            $carModel   = new CarModel();
+            $select     = ['car_model_id', 'car_model_name'];
+            $where      = ['car_brand_id' => $carBrandId, 'car_model_active' => 1];
+            $order      = ['car_model_name' => 'asc'];
+            $carModelListCollection = $carModel->getListSimple($select, $where, $order);
+
+            if(!$carModelListCollection->isEmpty()){
+                $info = [0 => trans('search.Select Car Model')];
+                foreach ($carModelListCollection as $k => $v){
+                    $info[$v->car_model_id] = $v->car_model_name;
+                }
+                if(!empty($info)){
+                    $ret['code'] = 200;
+                    $ret['info'] = $info;
+                }
+            }
+        }
+        return response()->json($ret);
+    }
+
+    /**
+     * Ajax get category childs
+     *
+     * @param Request $request
+     */
+    public function ajaxGetCategory(Request $request)
+    {
+        $ret = array('code' => 400);
+        $categoryId = (int)$request->category_id;
+        if(is_numeric($categoryId)){
+            if($categoryId == 0) {
+                $firstLevelChilds = $this->categoryModel->getOneLevel();
+            } else {
+                $firstLevelChilds = $this->categoryModel->getOneLevel($categoryId);
+                $breadcrumpData = $this->categoryModel->getParentsByIdFlat($categoryId);
+            }
+            if(!$firstLevelChilds->isEmpty()){
+                foreach ($firstLevelChilds as $k => $v){
+                    $info[$v->category_id] = $v->category_title;
+                }
+                if(!empty($breadcrumpData)){
+                    foreach($breadcrumpData as $k => $v){
+                        $binfo[$v['category_id']] = $v['category_title'];
+                    }
+
+                }
+                if(!empty($info)){
+                    if(empty($binfo)){
+                        $binfo = [];
+                    }
+                    $ret['code'] = 200;
+                    $ret['info'] = $info;
+                    $ret['binfo'] = $binfo;
+                }
+            } else {
+                $ret['code'] = 300;
+                $ret['info'] = $categoryId;
+            }
+        }
+        return response()->json($ret);
+    }
+
+    /**
+     * Ajax get location childs
+     *
+     * @param Request $request
+     */
+    public function ajaxGetLocation(Request $request)
+    {
+        $ret = array('code' => 400);
+        $locationId = (int)$request->location_id;
+        if(is_numeric($locationId)){
+            if($locationId == 0) {
+                $firstLevelChilds = $this->locationModel->getOneLevel();
+            } else {
+                $firstLevelChilds = $this->locationModel->getOneLevel($locationId);
+                $breadcrumpData = $this->locationModel->getParentsByIdFlat($locationId);
+            }
+            if(!$firstLevelChilds->isEmpty()){
+                foreach ($firstLevelChilds as $k => $v){
+                    $info[$v->location_id] = $v->location_name;
+                }
+                if(!empty($breadcrumpData)){
+                    foreach($breadcrumpData as $k => $v){
+                        $binfo[$v['location_id']] = $v['location_name'];
+                    }
+
+                }
+                if(!empty($info)){
+                    if(empty($binfo)){
+                        $binfo = [];
+                    }
+                    $ret['code'] = 200;
+                    $ret['info'] = $info;
+                    $ret['binfo'] = $binfo;
+                }
+            } else {
+                $ret['code'] = 300;
+                $ret['info'] = $locationId;
+            }
+        }
+        return response()->json($ret);
+    }
+
+    /**
+     * Ajax save ad report
+     *
+     * @param Request $request
+     */
+    public function ajaxReportAd(Request $request)
+    {
+        $ret = array('code' => 400);
+        parse_str($request->form_data, $formData);
+        if(isset($formData['report_ad_id']) && is_numeric($formData['report_ad_id']) && isset($formData['report_radio']) && is_numeric($formData['report_radio'])){
+            $adReport = new AdReport();
+            $adReport->report_ad_id = $formData['report_ad_id'];
+            $adReport->report_type_id = $formData['report_radio'];
+            $adReport->report_info = nl2br($formData['report_more_info']);
+            $adReport->report_date = date('Y-m-d H:i:s');
+            if(Auth::check()){
+                $adReport->report_user_id = $request->user()->user_id;
+            }
+            try{
+                $adReport->save();
+                $ret['code'] = 200;
+                $ret['message'] = trans('publish_edit.Thanks, The report is send.');
+            } catch (\Exception $e){
+                $ret['message'] = trans('publish_edit.Ups, something is wrong, please try again.');
+            }
+        } else {
+            $ret['message'] = trans('publish_edit.Ups, something is wrong, please try again.');
+        }
+        return response()->json($ret);
+    }
+
+    /**
+     * Ajax save ad to favorites
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ajaxSaveToFav(Request $request)
+    {
+        $ret = array('code' => 400);
+        $adId = $request->ad_id;
+
+        if(isset($adId) && is_numeric($adId)){
+            $favAdsInfo = $request->cookie('__' . md5(config('dc.site_domain')) . '_fav_ads', array());
+            if(Auth::check()){
+                //registered user save/remove to/from db
+                $adFavModel = new AdFav();
+                $userId = $request->user()->user_id;
+                $favAdsDb = $adFavModel->getFavAds($userId);
+                if(isset($favAdsDb[$adId])){
+                    //remove from db
+                    $adFavModel->where('ad_id', $adId)->where('user_id', $userId)->delete();
+                    $ret['code'] = 201;
+                } else {
+                    //remove all favs from db for this user
+                    $adFavModel->where('user_id', $userId)->delete();
+
+                    $favAdsInfo[$adId] = $adId;
+                    $favToSave = array_replace($favAdsInfo, $favAdsDb);
+
+                    //save to db, if there is cookie info save it too
+                    foreach ($favToSave as $k){
+                        $adFavModel = new AdFav();
+                        $adFavModel->ad_id = $k;
+                        $adFavModel->user_id = $userId;
+                        $adFavModel->save();
+                    }
+                    $ret['code'] = 200;
+                }
+
+                //remove cookie, data is saved to db
+                $favAdsInfo = array();
+            } else {
+                //not registered user save/remove ad to/from cookie
+                if(isset($favAdsInfo[$adId])){
+                    unset($favAdsInfo[$adId]);
+                    $ret['code'] = 201;
+                } else {
+                    $favAdsInfo[$adId] = $adId;
+                    $ret['code'] = 200;
+                }
+            }
+            $cookie = Cookie::forever('__' . md5(config('dc.site_domain')) . '_fav_ads', $favAdsInfo);
+            Cookie::queue($cookie);
+        }
+
+        return response()->json($ret);
+    }
+
+    /**
+     * Fill ad data array based on category type
+     *
+     * @param $adData
+     * @return array
+     */
+    public function utilFillAdFields($adData)
+    {
+        if(is_array($adData) && isset($adData['category_type'])) {
+            switch ($adData['category_type']) {
+                case 1:
+                    if (isset($adData['price_radio']) && $adData['price_radio'] == 1) {
+                        $adData['ad_price'] = $adData['ad_price_type_1'];
+                        $adData['ad_free'] = 0;
+                    } else {
+                        $adData['ad_price'] = 0;
+                        $adData['ad_free'] = 1;
+                    }
+                    $adData['condition_id'] = $adData['condition_id_type_1'];
+                    break;
+                case 2:
+                    $adData['ad_price'] = $adData['ad_price_type_2'];
+                    $adData['condition_id'] = $adData['condition_id_type_2'];
+                    break;
+                case 3:
+                    $adData['ad_price'] = $adData['ad_price_type_3'];
+                    $adData['condition_id'] = $adData['condition_id_type_3'];
+                    break;
+                case 4:
+                    if (isset($adData['price_radio_type_4']) && $adData['price_radio_type_4'] == 1) {
+                        $adData['ad_price'] = $adData['ad_price_type_4'];
+                        $adData['ad_free'] = 0;
+                    } else {
+                        $adData['ad_price'] = 0;
+                        $adData['ad_free'] = 1;
+                    }
+                    break;
+                case 5:
+                    if (isset($adData['price_radio_type_5']) && $adData['price_radio_type_5'] == 1) {
+                        $adData['ad_price'] = $adData['ad_price_type_5'];
+                        $adData['ad_free'] = 0;
+                    } else {
+                        $adData['ad_price'] = 0;
+                        $adData['ad_free'] = 1;
+                    }
+                    $adData['condition_id'] = $adData['condition_id_type_5'];
+                    break;
+                case 6:
+                    if (isset($adData['price_radio_type_6']) && $adData['price_radio_type_6'] == 1) {
+                        $adData['ad_price'] = $adData['ad_price_type_6'];
+                        $adData['ad_free'] = 0;
+                    } else {
+                        $adData['ad_price'] = 0;
+                        $adData['ad_free'] = 1;
+                    }
+                    $adData['condition_id'] = $adData['condition_id_type_6'];
+                    break;
+                case 7:
+                    $adData['ad_price'] = $adData['ad_price_type_7'];
+                    $adData['estate_sq_m'] = $adData['estate_sq_m_type_7'];
+                    break;
+            }
+        }
+
+        return $adData;
+    }
+
+    /**
+     * Save and Resize uploaded ad images
+     *
+     * @param $adImage
+     * @param $destinationPath
+     * @param $ad
+     */
+    public function utilSaveAdImage($adImage, $destinationPath, $ad)
+    {
+        $firstImageUploaded = 0;
+        foreach ($adImage as $k){
+            if(!empty($k) && $k->isValid()){
+                $fileName = $ad->ad_id . '_' . md5(time() + rand(0,9999)) . '.' . $k->getClientOriginalExtension();
+                $k->move($destinationPath, $fileName);
+
+                $img    = Image::make($destinationPath . $fileName);
+                $width  = $img->width();
+                $height = $img->height();
+
+                if($width > 1000 || $height > 1000) {
+                    if ($width == $height) {
+                        $img->resize(1000, 1000);
+                        if(config('dc.watermark')){
+                            $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
+                        }
+                        $img->save($destinationPath . '1000_' . $fileName);
+                    } elseif ($width > $height) {
+                        $img->resize(1000, null, function($constraint){
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        });
+                        if(config('dc.watermark')){
+                            $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
+                        }
+                        $img->save($destinationPath . '1000_' . $fileName);
+                    } elseif ($width < $height) {
+                        $img->resize(null, 1000, function($constraint){
+                            $constraint->aspectRatio();
+                            $constraint->upsize();
+                        });
+                        if(config('dc.watermark')){
+                            $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
+                        }
+                        $img->save($destinationPath . '1000_' . $fileName);
+                    }
+                } else {
+                    if(config('dc.watermark')){
+                        $img->insert(public_path('uf/settings/') . config('dc.watermark'), config('dc.watermark_position'));
+                        $img->save($destinationPath . '1000_' . $fileName);
+                    } else {
+                        $img->save($destinationPath . '1000_' . $fileName);
+                    }
+                }
+
+                if(!$firstImageUploaded){
+                    if($width >= 720 || $height >= 720) {
+                        $img->fit(720, 720);
+                        $img->save($destinationPath . '740_' . $fileName);
+                    } else {
+                        $img->resizeCanvas(720, 720, 'top');
+                        $img->save($destinationPath . '740_' . $fileName);
+                    }
+                    $ad->ad_pic = $fileName;
+                    $ad->save();
+                    $firstImageUploaded = 1;
+                } else {
+                    $adPic = new AdPic();
+                    $adPic->ad_id = $ad->ad_id;
+                    $adPic->ad_pic = $fileName;
+                    $adPic->save();
+                }
+
+                @unlink($destinationPath . $fileName);
+            }
+        }
     }
 }

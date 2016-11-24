@@ -41,7 +41,7 @@
                         <h2>{{ trans('myads.My Classifieds') }}</h2>
                     </div>
                 </div>
-                @if(!$my_ad_list->isEmpty())
+                @if(!$myAdList->isEmpty())
                     <div class="table-responsive">
                         <table class="table table-hover table-striped">
                             <thead>
@@ -58,7 +58,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach($my_ad_list as $k => $v)
+                            @foreach($myAdList as $k => $v)
                                 <?$link = url(str_slug($v->ad_title) . '-' . 'ad' . $v->ad_id . '.html');?>
                                 <tr>
                                     <td>{{ $v->ad_id }}</td>
@@ -88,7 +88,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-md-12">
-                                <nav>{{  $my_ad_list->appends($params)->links() }}</nav>
+                                <nav>{{  $myAdList->appends($params)->links() }}</nav>
                             </div>
                         </div>
                     </div>

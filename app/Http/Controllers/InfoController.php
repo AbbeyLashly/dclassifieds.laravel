@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 class InfoController extends Controller
 {
     /**

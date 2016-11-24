@@ -45,10 +45,10 @@ Route::group(['namespace' => 'Admin', 'middleware' => ['auth', 'admin']], functi
     Route::get('/admin/ad/edit/{id}', 'AdController@edit');
     Route::post('/admin/ad/save/{id?}', 'AdController@save');
     Route::any('/admin/ad/delete/{id?}', 'AdController@delete');
-    Route::get('/admin/ad/deletemainimg/{id}', 'AdController@deletemainimg');
-    Route::get('/admin/ad/deleteimg/{id}/{ad_id}', 'AdController@deleteimg');
-    Route::get('/admin/ad/banbyip/{id}', 'AdController@banbyip');
-    Route::get('/admin/ad/banbymail/{id}', 'AdController@banbymail');
+    Route::get('/admin/ad/deletemainimg/{id}', 'AdController@deleteMainImage');
+    Route::get('/admin/ad/deleteimg/{id}/{ad_id}', 'AdController@deleteImage');
+    Route::get('/admin/ad/banbyip/{id}', 'AdController@banByIp');
+    Route::get('/admin/ad/banbymail/{id}', 'AdController@banByMail');
 
     //Users
     Route::get('/admin/user', 'UserController@index');

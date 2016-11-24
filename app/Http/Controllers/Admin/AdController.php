@@ -118,46 +118,52 @@ class AdController extends Controller
     public function edit(Request $request)
     {
         //get ad id
-        $ad_id = $request->id;
+        $adId = $request->id;
 
         //get ad info
-        $ad_detail = $this->ad->getAdDetail($ad_id, 0);
+        $adDetail = $this->ad->getAdDetail($adId, 0);
 
-        $ad_detail->ad_price_type_1     = $ad_detail->ad_price_type_2 = $ad_detail->ad_price_type_3 = $ad_detail->ad_price_type_4 = $ad_detail->ad_price;
-        $ad_detail->ad_price_type_5     = $ad_detail->ad_price_type_6 = $ad_detail->ad_price_type_7 = $ad_detail->ad_price;
+        $adDetail->ad_price_type_1     = $adDetail->ad_price_type_2 = $adDetail->ad_price_type_3 = $adDetail->ad_price_type_4 = $adDetail->ad_price;
+        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price;
 
-        if($ad_detail->ad_price > 0){
-            $ad_detail->price_radio = $ad_detail->price_radio_type_4 = $ad_detail->price_radio_type_5 = $ad_detail->price_radio_type_6 = 1;
-        } elseif ($ad_detail->ad_free){
-            $ad_detail->price_radio = $ad_detail->price_radio_type_4 = $ad_detail->price_radio_type_5 = $ad_detail->price_radio_type_6 = 2;
+        if($adDetail->ad_price > 0){
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 1;
+        } elseif ($adDetail->ad_free){
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 2;
         }
 
-        $ad_detail->condition_id_type_1 = $ad_detail->condition_id_type_3 = $ad_detail->condition_id;
-        $ad_detail->estate_sq_m_type_7  = $ad_detail->estate_sq_m;
-        $ad_detail->ad_description      = Util::br2nl($ad_detail->ad_description);
+        $adDetail->condition_id_type_1 = $adDetail->condition_id_type_3 = $adDetail->condition_id;
+        $adDetail->estate_sq_m_type_7  = $adDetail->estate_sq_m;
+        $adDetail->ad_description      = Util::br2nl($adDetail->ad_description);
 
         //get ad pics
-        $ad_pic = AdPic::where('ad_id', $ad_id)->get();
+        $adPic = AdPic::where('ad_id', $adId)->get();
 
-        $car_model_id = array();
+        $carModelListArray = [];
         if(old('car_brand_id')){
             if(is_numeric(old('car_brand_id')) && old('car_brand_id') > 0){
-                $car_models = CarModel::where('car_brand_id', old('car_brand_id'))->orderBy('car_model_name', 'asc')->get();
-                if(!$car_models->isEmpty()){
-                    $car_model_id = array(0 => 'Select Car Model');
-                    foreach ($car_models as $k => $v){
-                        $car_model_id[$v->car_model_id] = $v->car_model_name;
+
+                $carModel   = new CarModel();
+                $select     = ['car_model_id', 'car_model_name'];
+                $where      = ['car_brand_id' => old('car_brand_id'), 'car_model_active' => 1];
+                $order      = ['car_model_name' => 'asc'];
+                $carModelListCollection = $carModel->getListSimple($select, $where, $order);
+
+                if(!$carModelListCollection->isEmpty()){
+                    $carModelListArray = [0 => trans('search.Select Car Model')];
+                    foreach ($carModelListCollection as $k => $v){
+                        $carModelListArray[$v->car_model_id] = $v->car_model_name;
                     }
                 }
             }
         }
 
-        $ad_detail->ad_category_info = $this->category->getParentsByIdFlat($ad_detail->category_id);
-        $ad_detail->pics = AdPic::where('ad_id', $ad_detail->ad_id)->get();
+        $adDetail->ad_category_info = $this->category->getParentsByIdFlat($adDetail->category_id);
+        $adDetail->pics = AdPic::where('ad_id', $adDetail->ad_id)->get();
 
         return view('admin.ad.ad_edit', [
-            'ad_detail' => $ad_detail,
-            'ad_pic' => $ad_pic,
+            'ad_detail' => $adDetail,
+            'ad_pic' => $adPic,
             'c' => $this->category->getAllHierarhy(),
             'l' => $this->location->getAllHierarhy(),
             'at' => AdType::all(),
@@ -167,7 +173,7 @@ class AdController extends Controller
             'estate_heating_type' => EstateHeatingType::all(),
             'estate_type' => EstateType::all(),
             'car_brand_id' => CarBrand::all(),
-            'car_model_id' => $car_model_id,
+            'car_model_id' => $carModelListArray,
             'car_engine_id' => CarEngine::all(),
             'car_transmission_id' => CarTransmission::all(),
             'car_condition_id' => CarCondition::all(),
@@ -179,81 +185,81 @@ class AdController extends Controller
 
     public function save(AdPostRequest $request)
     {
-        $ad_data = $request->all();
+        $adData = $request->all();
 
-        //fill aditional fields
-        $ad_data['ad_description'] = Util::nl2br(strip_tags($ad_data['ad_description']));
-        if(!isset($ad_data['ad_active'])){
-            $ad_data['ad_active'] = 0;
+        //fill additional fields
+        $adData['ad_description'] = Util::nl2br(strip_tags($adData['ad_description']));
+        if(!isset($adData['ad_active'])){
+            $adData['ad_active'] = 0;
         } else {
-            $ad_data['ad_active'] = 1;
+            $adData['ad_active'] = 1;
         }
-        if(!isset($ad_data['ad_promo'])){
-            $ad_data['ad_promo'] = 0;
-            $ad_data['ad_promo_until'] = NULL;
+        if(!isset($adData['ad_promo'])){
+            $adData['ad_promo'] = 0;
+            $adData['ad_promo_until'] = NULL;
         } else {
-            $ad_data['ad_promo'] = 1;
+            $adData['ad_promo'] = 1;
         }
 
-        switch ($ad_data['category_type']){
+        switch ($adData['category_type']){
             case 1:
-                if($ad_data['price_radio'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_1'];
-                    $ad_data['ad_free'] = 0;
+                if($adData['price_radio'] == 1){
+                    $adData['ad_price'] = $adData['ad_price_type_1'];
+                    $adData['ad_free'] = 0;
                 } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
+                    $adData['ad_price'] = 0;
+                    $adData['ad_free'] = 1;
                 }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_1'];
+                $adData['condition_id'] = $adData['condition_id_type_1'];
                 break;
             case 2:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_2'];
-                $ad_data['condition_id'] = $ad_data['condition_id_type_2'];
+                $adData['ad_price'] = $adData['ad_price_type_2'];
+                $adData['condition_id'] = $adData['condition_id_type_2'];
                 break;
             case 3:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_3'];
-                $ad_data['condition_id'] = $ad_data['condition_id_type_3'];
+                $adData['ad_price'] = $adData['ad_price_type_3'];
+                $adData['condition_id'] = $adData['condition_id_type_3'];
                 break;
             case 4:
-                if($ad_data['price_radio_type_4'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_4'];
-                    $ad_data['ad_free'] = 0;
+                if($adData['price_radio_type_4'] == 1){
+                    $adData['ad_price'] = $adData['ad_price_type_4'];
+                    $adData['ad_free'] = 0;
                 } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
+                    $adData['ad_price'] = 0;
+                    $adData['ad_free'] = 1;
                 }
                 break;
             case 5:
-                if($ad_data['price_radio_type_5'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_5'];
-                    $ad_data['ad_free'] = 0;
+                if($adData['price_radio_type_5'] == 1){
+                    $adData['ad_price'] = $adData['ad_price_type_5'];
+                    $adData['ad_free'] = 0;
                 } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
+                    $adData['ad_price'] = 0;
+                    $adData['ad_free'] = 1;
                 }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_5'];
+                $adData['condition_id'] = $adData['condition_id_type_5'];
                 break;
             case 6:
-                if($ad_data['price_radio_type_6'] == 1){
-                    $ad_data['ad_price'] = $ad_data['ad_price_type_6'];
-                    $ad_data['ad_free'] = 0;
+                if($adData['price_radio_type_6'] == 1){
+                    $adData['ad_price'] = $adData['ad_price_type_6'];
+                    $adData['ad_free'] = 0;
                 } else {
-                    $ad_data['ad_price'] = 0;
-                    $ad_data['ad_free'] = 1;
+                    $adData['ad_price'] = 0;
+                    $adData['ad_free'] = 1;
                 }
-                $ad_data['condition_id'] = $ad_data['condition_id_type_6'];
+                $adData['condition_id'] = $adData['condition_id_type_6'];
                 break;
             case 7:
-                $ad_data['ad_price'] = $ad_data['ad_price_type_7'];
-                $ad_data['estate_sq_m'] = $ad_data['estate_sq_m_type_7'];
+                $adData['ad_price'] = $adData['ad_price_type_7'];
+                $adData['estate_sq_m'] = $adData['estate_sq_m_type_7'];
                 break;
         }
 
-        $ad_data['ad_description_hash'] = md5($ad_data['ad_description']);
+        $adData['ad_description_hash'] = md5($adData['ad_description']);
 
         //save ad
-        $ad = Ad::find($ad_data['ad_id']);
-        $ad->update($ad_data);
+        $ad = Ad::find($adData['ad_id']);
+        $ad->update($adData);
 
         /**
          * clear cache, set message, redirect to list
@@ -312,7 +318,7 @@ class AdController extends Controller
         return redirect(url('admin/ad'));
     }
 
-    public function deletemainimg(Request $request)
+    public function deleteMainImage(Request $request)
     {
         $id = 0;
 
@@ -341,23 +347,23 @@ class AdController extends Controller
         return redirect(url('admin/ad/edit/' . $id));
     }
 
-    public function deleteimg(Request $request)
+    public function deleteImage(Request $request)
     {
         $id = 0;
-        $ad_id = 0;
+        $adId = 0;
 
         if(isset($request->id)){
             $id = $request->id;
         }
 
         if(isset($request->ad_id)){
-            $ad_id = $request->ad_id;
+            $adId = $request->ad_id;
         }
 
         //delete
-        if(!empty($id) && !empty($ad_id)){
+        if(!empty($id) && !empty($adId)){
 
-            $pic = AdPic::where('ad_id', $ad_id)->where('ad_pic_id', $id)->first();
+            $pic = AdPic::where('ad_id', $adId)->where('ad_pic_id', $id)->first();
             if($pic){
                 @unlink(public_path('uf/adata/') . '740_' . $pic->ad_pic);
                 @unlink(public_path('uf/adata/') . '1000_' . $pic->ad_pic);
@@ -366,13 +372,13 @@ class AdController extends Controller
 
             //clear cache, set message, redirect to list
             Cache::flush();
-            return redirect(url('admin/ad/edit/' . $ad_id));
+            return redirect(url('admin/ad/edit/' . $adId));
         }
 
-        return redirect(url('admin/ad/edit/' . $ad_id));
+        return redirect(url('admin/ad/edit/' . $adId));
     }
 
-    public function banbyip(Request $request)
+    public function banByIp(Request $request)
     {
         $id = 0;
 
@@ -397,7 +403,7 @@ class AdController extends Controller
         return redirect(url('admin/ad'));
     }
 
-    public function banbymail(Request $request)
+    public function banByMail(Request $request)
     {
         $id = 0;
 

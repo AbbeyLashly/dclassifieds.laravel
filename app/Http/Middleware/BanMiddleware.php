@@ -23,12 +23,12 @@ class BanMiddleware
         /**
          * check for ban by ip
          */
-        $remote_ip  = $request->ip();
-        $cache_key  = '_ban_ip_' . $remote_ip;
-        $ban_info   = Cache::rememberForever($cache_key, function() use($remote_ip) {
-            return AdBanIp::where('ban_ip', $remote_ip)->first();
+        $remoteIp  = $request->ip();
+        $cacheKey  = '_ban_ip_' . $remoteIp;
+        $banInfo   = Cache::rememberForever($cacheKey, function() use($remoteIp) {
+            return AdBanIp::where('ban_ip', $remoteIp)->first();
         });
-        if(!empty($ban_info) && !$request->is('ban')){
+        if(!empty($banInfo) && !$request->is('ban')){
             return redirect('ban');
         }
 
@@ -36,12 +36,12 @@ class BanMiddleware
          * check if user is banned my email
          */
         if (Auth()->check()) {
-            $user_mail  = Auth()->user()->email;
-            $cache_key  = '_ban_email_' . $user_mail;
-            $ban_info   = Cache::rememberForever($cache_key, function() use($user_mail) {
-                return AdBanEmail::where('ban_email', $user_mail)->first();
+            $userMail  = Auth()->user()->email;
+            $cacheKey  = '_ban_email_' . $userMail;
+            $banInfo   = Cache::rememberForever($cacheKey, function() use($userMail) {
+                return AdBanEmail::where('ban_email', $userMail)->first();
             });
-            if(!empty($ban_info) && !$request->is('ban')){
+            if(!empty($banInfo) && !$request->is('ban')){
                 return redirect('ban');
             }
         }
