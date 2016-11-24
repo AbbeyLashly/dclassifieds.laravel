@@ -19,8 +19,8 @@ class AdPic extends Model
 
     public function getAdPics($_where = [], $_order = [])
     {
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        $ret = Cache::get($cache_key, new Collection());
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        $ret = Cache::get($cacheKey, new Collection());
         if($ret->isEmpty()) {
             $q = $this->newQuery();
 
@@ -43,7 +43,7 @@ class AdPic extends Model
             $res = $q->get();
             if(!$res->isEmpty()){
                 $ret = $res;
-                Cache::put($cache_key, $ret, config('dc.cache_expire'));
+                Cache::put($cacheKey, $ret, config('dc.cache_expire'));
             }
         }
         return $ret;

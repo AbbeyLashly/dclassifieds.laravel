@@ -94,8 +94,8 @@ class Category extends Model
     
     public function getOneLevel($_parent_id = null)
     {
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        return Cache::rememberForever($cache_key, function() use ($_parent_id) {
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        return Cache::rememberForever($cacheKey, function() use ($_parent_id) {
             return $this->where('category_parent_id', $_parent_id)
                 ->where('category_active', 1)
                 ->orderBy('category_ord', 'asc')
@@ -106,8 +106,8 @@ class Category extends Model
     public function getIdBySlug($_slug)
     {
         $ret = 0;
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        $res = Cache::rememberForever($cache_key, function() use ($_slug) {
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        $res = Cache::rememberForever($cacheKey, function() use ($_slug) {
             return $this->select('category_id')
                 ->where('category_slug', $_slug)
                 ->first();
@@ -121,8 +121,8 @@ class Category extends Model
     public function getSlugById($_category_id)
     {
         $ret = '';
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        $res = Cache::rememberForever($cache_key, function() use ($_category_id) {
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        $res = Cache::rememberForever($cacheKey, function() use ($_category_id) {
             return $this->select('category_slug')
                 ->where('category_id', $_category_id)
                 ->first();

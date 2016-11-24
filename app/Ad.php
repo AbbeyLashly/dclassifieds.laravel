@@ -12,12 +12,12 @@ class Ad extends Model
     protected $primaryKey = 'ad_id';
     
     protected $fillable = ['ad_id', 'user_id', 'category_id', 'location_id', 'type_id', 'condition_id', 'ad_email', 
-    'ad_publish_date', 'ad_valid_until', 'ad_active', 'ad_ip', 'ad_price', 'ad_free', 'ad_phone', 'ad_title', 'ad_description', 
-    'ad_description_hash', 'ad_publisher_name', 'code', 'ad_promo', 'ad_promo_until', 'ad_link', 'ad_video', 'ad_lat_lng',
-    'ad_skype', 'ad_address', 'ad_pic', 'ad_view', 'estate_type_id', 'estate_sq_m', 'estate_year', 'estate_construction_type_id', 
-    'estate_floor', 'estate_num_floors_in_building', 'estate_heating_type_id', 'estate_furnishing_type_id', 'car_brand_id', 
-    'car_model_id', 'car_engine_id', 'car_transmission_id', 'car_modification_id', 'car_condition_id', 'car_year', 'car_kilometeres',
-    'clothes_size_id', 'shoes_size_id', 'created_at', 'updated_at'];
+        'ad_publish_date', 'ad_valid_until', 'ad_active', 'ad_ip', 'ad_price', 'ad_free', 'ad_phone', 'ad_title', 'ad_description',
+        'ad_description_hash', 'ad_publisher_name', 'code', 'ad_promo', 'ad_promo_until', 'ad_link', 'ad_video', 'ad_lat_lng',
+        'ad_skype', 'ad_address', 'ad_pic', 'ad_view', 'estate_type_id', 'estate_sq_m', 'estate_year', 'estate_construction_type_id',
+        'estate_floor', 'estate_num_floors_in_building', 'estate_heating_type_id', 'estate_furnishing_type_id', 'car_brand_id',
+        'car_model_id', 'car_engine_id', 'car_transmission_id', 'car_modification_id', 'car_condition_id', 'car_year', 'car_kilometeres',
+        'clothes_size_id', 'shoes_size_id', 'created_at', 'updated_at'];
     
     //used for $fillable generation
     public function getTableColumns() {
@@ -39,8 +39,8 @@ class Ad extends Model
     
     public function getAdList($_where = [], $_order = [], $_limit = 0, $_orderRaw = '', $_whereIn = [], $_whereRaw = [], $_paginate = 0, $_page = 1)
     {
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        $ret = Cache::get($cache_key, new Collection());
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        $ret = Cache::get($cacheKey, new Collection());
         if($ret->isEmpty()){
             $q = $this->newQuery();
             
@@ -97,7 +97,7 @@ class Ad extends Model
             }
             if(!$res->isEmpty()){
                 $ret = $res;
-                Cache::put($cache_key, $ret, config('dc.cache_expire'));
+                Cache::put($cacheKey, $ret, config('dc.cache_expire'));
             }
         }
         return $ret;
@@ -105,8 +105,8 @@ class Ad extends Model
 
     public function getAdCount($_where = [], $_whereIn = [], $_whereRaw = [])
     {
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        $ret = Cache::get($cache_key, 0);
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        $ret = Cache::get($cacheKey, 0);
         if(!$ret){
             $q = $this->newQuery();
 
@@ -141,7 +141,7 @@ class Ad extends Model
             $res = $q->count();
             if($res > 0){
                 $ret = $res;
-                Cache::put($cache_key, $ret, config('dc.cache_expire'));
+                Cache::put($cacheKey, $ret, config('dc.cache_expire'));
             }
         }
         return $ret;
@@ -149,8 +149,8 @@ class Ad extends Model
     
     public function getAdDetail($_ad_id, $_active = 1)
     {
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        $ret = Cache::get($cache_key, '');
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        $ret = Cache::get($cacheKey, '');
         if(empty($ret)){
             $q = Ad::select('ad.*', 'U.*', 'U.created_at AS user_register_date', 'C.category_title', 'C.category_type', 'L.location_name', 'L.location_slug', 'AC.ad_condition_name', 'AT.ad_type_name',
                     'ET.estate_type_name', 'ECT.estate_construction_type_name', 'EHT.estate_heating_type_name', 'EFT.estate_furnishing_type_name',
@@ -180,7 +180,7 @@ class Ad extends Model
                 $q->where('ad_active', 1);
             }
             $ret = $q->findOrFail($_ad_id);
-            Cache::put($cache_key, $ret, config('dc.cache_expire'));
+            Cache::put($cacheKey, $ret, config('dc.cache_expire'));
         }
         return $ret;
     }

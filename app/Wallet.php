@@ -16,8 +16,8 @@ class Wallet extends Model
 
     public function getList($_where = [], $_order = [], $_limit = 0, $_orderRaw = '', $_whereIn = [], $_whereRaw = [], $_paginate = 0, $_page = 1)
     {
-        $cache_key = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
-        $ret = Cache::get($cache_key, new Collection());
+        $cacheKey = __CLASS__ . '_' . __LINE__ . '_' . md5(config('dc.site_domain') . serialize(func_get_args()));
+        $ret = Cache::get($cacheKey, new Collection());
         if($ret->isEmpty()){
             $q = $this->newQuery();
 
@@ -72,7 +72,7 @@ class Wallet extends Model
             }
             if(!$res->isEmpty()){
                 $ret = $res;
-                Cache::put($cache_key, $ret, config('dc.cache_expire'));
+                Cache::put($cacheKey, $ret, config('dc.cache_expire'));
             }
         }
         return $ret;
