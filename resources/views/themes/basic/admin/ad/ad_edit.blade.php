@@ -44,14 +44,18 @@
                             <div class="form-group required {{ $errors->has('category_id') ? ' has-error' : '' }}">
                                 <label for="category_id" class="control-label">{{ trans('publish_edit.Category') }}</label>
                                 @if(isset($c) && !empty($c))
+                                <?$cid = Util::getOldOrModelValue('category_id', $ad_detail);?>
                                 <select name="category_id" id="category_id" class="form-control chosen_select" disabled>
                                     <option value="0"></option>
                                     @foreach ($c as $k => $v)
-                                        <optgroup label="{{$v['title']}}">
-                                            @if(isset($v['c']) && !empty($v['c']))
-                                                @include('common.cselect', ['c' => $v['c'], 'cid' => Util::getOldOrModelValue('category_id', $ad_detail)])
-                                            @endif
-                                        </optgroup>
+                                        @if(isset($cid) && $cid == $v['cid'])
+                                            <option value="{{$v['cid']}}" style="font-weight: bold;" selected data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
+                                        @else
+                                            <option value="{{$v['cid']}}" style="font-weight: bold;" data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
+                                        @endif
+                                        @if(isset($v['c']) && !empty($v['c']))
+                                            @include('common.cselect', ['c' => $v['c'], 'cid' => $cid])
+                                        @endif
                                     @endforeach
                                 </select>
                                 @endif
@@ -723,6 +727,44 @@
 
                                 <hr>
                             <!-- end of type 7 -->
+                            </div>
+
+                            <!-- category type 8 services -->
+                            <div id="type_8" class="common_fields_container">
+                                <div class="form-group required {{ $errors->has('ad_price_type_8') ? ' has-error' : '' }}" style="margin-bottom: 15px;">
+                                    <label for="ad_price_type_4" class="control-label">{{ trans('publish_edit.Salary') }}</label>
+                                    <div>
+                                        <div class="pull-left checkbox"><input type="radio" name="price_radio_type_8" id="price_radio_type_8" value="1" {{ Util::getOldOrModelValue('price_radio_type_8', $ad_detail) == 1 ? 'checked' : '' }}></div>
+                                        <div class="pull-left" style="margin-left:5px;">
+                                            <div class="input-group">
+                                                @if(config('dc.show_price_sign_before_price'))
+                                                    <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
+                                                    <input type="text" class="form-control" id="ad_price_type_8" name="ad_price_type_8" value="{{ Util::getOldOrModelValue('ad_price_type_8', $ad_detail) }}" />
+                                                @else
+                                                    <input type="text" class="form-control" id="ad_price_type_8" name="ad_price_type_8" value="{{ Util::getOldOrModelValue('ad_price_type_8', $ad_detail) }}" />
+                                                    <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="clearfix"></div>
+
+                                        <div>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="price_radio_type_8" id="price_radio_type_8" value="2" {{ Util::getOldOrModelValue('price_radio_type_8', $ad_detail) == 2 ? 'checked' : '' }}> {{ trans('publish_edit.Negotiable') }}
+                                            </label>
+                                        </div>
+
+                                        <div class="clearfix"></div>
+
+                                        @if ($errors->has('ad_price_type_8'))
+                                            <span class="help-block">
+                                                <strong>{{ $errors->first('ad_price_type_8') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            <!-- end of type 4 -->
                             </div>
 
                             <div class="form-group required {{ $errors->has('type_id') ? ' has-error' : '' }}">

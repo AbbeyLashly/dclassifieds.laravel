@@ -31,6 +31,7 @@ class CategoryController extends Controller
             Category::CLOTHES_TYPE => trans('admin_common.Clothes Type'),
             Category::SHOES_TYPE => trans('admin_common.Shoes Type'),
             Category::REAL_ESTATE_LAND_TYPE => trans('admin_common.Real Estate Land Type'),
+            Category::JOBS_TYPE => trans('admin_common.Jobs Type'),
         ];
         return view('admin.category.category_list', ['category_list' => $this->category->getAllHierarhy(null, 0, 0), 'categoryType' => $categoryType]);
     }
@@ -45,6 +46,7 @@ class CategoryController extends Controller
             Category::CLOTHES_TYPE => trans('admin_common.Clothes Type'),
             Category::SHOES_TYPE => trans('admin_common.Shoes Type'),
             Category::REAL_ESTATE_LAND_TYPE => trans('admin_common.Real Estate Land Type'),
+            Category::JOBS_TYPE => trans('admin_common.Jobs Type'),
         ];
 
         $id = 0;

@@ -124,12 +124,12 @@ class AdController extends Controller
         $adDetail = $this->ad->getAdDetail($adId, 0);
 
         $adDetail->ad_price_type_1     = $adDetail->ad_price_type_2 = $adDetail->ad_price_type_3 = $adDetail->ad_price_type_4 = $adDetail->ad_price;
-        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price;
+        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price_type_8 = $adDetail->ad_price;
 
         if($adDetail->ad_price > 0){
-            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 1;
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = $adDetail->price_radio_type_8 = 1;
         } elseif ($adDetail->ad_free){
-            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 2;
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = $adDetail->price_radio_type_8 = 2;
         }
 
         $adDetail->condition_id_type_1 = $adDetail->condition_id_type_3 = $adDetail->condition_id;
@@ -252,6 +252,15 @@ class AdController extends Controller
             case 7:
                 $adData['ad_price'] = $adData['ad_price_type_7'];
                 $adData['estate_sq_m'] = $adData['estate_sq_m_type_7'];
+                break;
+            case 8:
+                if($adData['price_radio_type_8'] == 1){
+                    $adData['ad_price'] = $adData['ad_price_type_8'];
+                    $adData['ad_free'] = 0;
+                } else {
+                    $adData['ad_price'] = 0;
+                    $adData['ad_free'] = 1;
+                }
                 break;
         }
 

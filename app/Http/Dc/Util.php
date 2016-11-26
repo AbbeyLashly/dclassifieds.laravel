@@ -5,11 +5,24 @@ use Route;
 
 class Util
 {
+    /**
+     * Sanitize string
+     *
+     * @param $string
+     * @return string
+     */
     static function sanitize( $string )
     {
         return addslashes(strip_tags(trim($string)));
     }
-    
+
+    /**
+     * Build url from route name and parameters
+     *
+     * @param $_route_name
+     * @param array $_params
+     * @return string
+     */
     static function buildUrlByRouteName($_route_name, $_params = array())
     {
         $params = array();
@@ -20,13 +33,27 @@ class Util
         }
         return route($_route_name) . '/' . join('/', $params);
     }
-    
+
+    /**
+     * Build url from parameters
+     *
+     * @param array $_url_params
+     * @param string $_divider
+     * @return string
+     */
     static function buildUrl($_url_params = array(), $_divider = '/')
     {
         $root = request()->root();
         return $root . $_divider . join($_divider, $_url_params);
     }
-    
+
+    /**
+     * Create query string from array
+     *
+     * @param array $_params
+     * @param int $_remove_zero
+     * @return string
+     */
     static function getQueryStringFromArray($_params = array(), $_remove_zero = 1)
     {
         $ret = array();
@@ -50,7 +77,12 @@ class Util
             return '';
         }
     }
-    
+
+    /**
+     * Get user ip
+     *
+     * @return string
+     */
     static function getRemoteAddress()
     {
         $ret = '';
@@ -69,7 +101,13 @@ class Util
     
         return $ret;
     }
-    
+
+    /**
+     * Extract video from video link
+     *
+     * @param $_video_link
+     * @return string
+     */
     static function getVideoReady( $_video_link )
     {
         //youtube video template
@@ -88,7 +126,14 @@ class Util
     
         return $video;
     }
-    
+
+    /**
+     * Format price
+     *
+     * @param $_price
+     * @param string $_price_sign
+     * @return string
+     */
     static function formatPrice( $_price, $_price_sign = '' )
     {
         if(!empty($_price_sign)) {
@@ -101,7 +146,30 @@ class Util
             return number_format($_price, 2, '.', ' ');
         }
     }
-    
+
+    /**
+     * Return Free or Negotiable if ad type = 8
+     *
+     * @param $adType
+     * @return string|\Symfony\Component\Translation\TranslatorInterface
+     */
+    static function getFreeName($adType)
+    {
+        $ret = trans('publish_edit.Free');
+        if($adType == 8){
+            $ret = trans('publish_edit.Negotiable');
+        }
+        return $ret;
+    }
+
+    /**
+     * Get value from old or from data model
+     *
+     * @param $_name
+     * @param string $_model
+     * @param string $_model_name
+     * @return mixed
+     */
     static function getOldOrModelValue($_name, $_model = '', $_model_name = '')
     {
         if(empty($_model_name)){
@@ -116,17 +184,34 @@ class Util
             return $_model->$_model_name;
         }
     }
-    
+
+    /**
+     * Convert html <br /> to new line \n
+     *
+     * @param $_text
+     * @return mixed
+     */
     static function br2nl($_text)
     {
         return str_replace('<br />', "\n", $_text);
     }
-    
+
+    /**
+     * Convert new line \n to html <br />
+     *
+     * @param $_text
+     * @return mixed
+     */
     static function nl2br($_text)
     {
         return str_replace("\r\n","<br />", $_text);
     }
-    
+
+    /**
+     * Get current controller name
+     *
+     * @return string
+     */
     static function getController()
     {
         $controller_action = class_basename(Route::current()->getAction()['controller']);

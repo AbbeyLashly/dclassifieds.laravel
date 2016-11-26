@@ -179,6 +179,16 @@ class AdPostRequest extends Request
             return $input->category_type == 7 ? 1 : 0;
         });
 
+        /**
+         * type 8 Jobs
+         */
+        $validator->sometimes(['ad_price_type_8'], 'required|numeric|not_in:0', function($input){
+            if(($input->category_type == 8 && $input->price_radio_type_8 == 1) || ($input->category_type == 8 && !isset($input->price_radio_type_8))){
+                return true;
+            }
+            return false;
+        });
+
         return $validator;
     }
 

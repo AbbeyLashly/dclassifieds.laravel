@@ -14,6 +14,7 @@ class Category extends Model
     const CLOTHES_TYPE      = 5; //clothes ads
     const SHOES_TYPE        = 6; //shoes ads
     const REAL_ESTATE_LAND_TYPE = 7; //real estate land ads
+    const JOBS_TYPE         = 8; //jobs ads
 
     protected $table        = 'category';
     protected $primaryKey   = 'category_id';

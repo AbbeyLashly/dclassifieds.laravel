@@ -97,6 +97,10 @@ $(document).ready(function(){
         $('#price_radio_type_6').prop("checked", true);
     });
 
+    $('#ad_price_type_8').keydown(function(){
+        $('#price_radio_type_8').prop("checked", true);
+    });
+
     $('.clear').click(function(){
         _id = $(this).data("id");
         document.getElementById('ad_image_' + _id).value = '';

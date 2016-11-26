@@ -46,7 +46,7 @@ class Ad extends Model
             
             $q->select('ad.ad_id', 'ad.ad_title', 'ad.ad_pic', 'ad.ad_price', 'ad.ad_free', 'ad.ad_promo', 
                     'ad.ad_publish_date', 'ad.ad_valid_until', 'ad.ad_active', 'ad.code', 'ad.ad_view', 'L.location_name',
-                    'ad.user_id', 'ad.ad_publisher_name', 'ad.ad_email', 'ad.ad_ip');
+                    'ad.user_id', 'ad.ad_publisher_name', 'ad.ad_email', 'ad.ad_ip', 'C.category_type');
             
             if(!empty($_where)){
                 foreach ($_where as $k => $v){
@@ -89,6 +89,7 @@ class Ad extends Model
             }
             
             $q->leftJoin('location AS L', 'L.location_id' , '=', 'ad.location_id');
+            $q->leftJoin('category AS C', 'C.category_id' , '=', 'ad.category_id');
             
             if($_paginate > 0){
                 $res = $q->paginate($_paginate);

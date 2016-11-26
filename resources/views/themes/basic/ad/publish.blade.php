@@ -60,6 +60,7 @@
                         <div class="col-md-5">
                             <div class="input-group">
                                 @if(isset($categoryList) && !empty($categoryList))
+                                    <?$cid = old('category_id');?>
                                     <select name="category_id" id="category_id" class="form-control cid_select">
                                         <option value="0"></option>
                                         @foreach ($categoryList as $k => $v)
@@ -69,7 +70,7 @@
                                                 <option value="{{$v['cid']}}" style="font-weight: bold;" data-type="{{ $v['category_type'] }}">{{$v['title']}}</option>
                                             @endif
                                             @if(isset($v['c']) && !empty($v['c']))
-                                                @include('common.cselect', ['c' => $v['c'], 'cid' => old('category_id')])
+                                                @include('common.cselect', ['c' => $v['c'], 'cid' => $cid])
                                             @endif
                                         @endforeach
                                     </select>
@@ -111,7 +112,6 @@
                     <hr>
 
                     <!-- category type 1 common goods -->
-
                     <div id="type_1" class="common_fields_container">
                         <div class="form-group required {{ $errors->has('ad_price_type_1') ? ' has-error' : '' }}" style="margin-bottom: 0px;">
                             <label for="ad_price_type_1" class="col-md-4 control-label">{{ trans('publish_edit.Price') }}</label>
@@ -951,6 +951,49 @@
 
                         <hr>
                     <!-- end of type 7 -->
+                    </div>
+
+                    <!-- category type 8 jobs -->
+                    <div id="type_8" class="common_fields_container">
+                        <div class="form-group required {{ $errors->has('ad_price_type_8') ? ' has-error' : '' }}" style="margin-bottom: 0px;">
+                            <label for="ad_price_type_8" class="col-md-4 control-label">{{ trans('publish_edit.Salary') }}</label>
+                            <div class="col-md-5">
+                                <div class="pull-left checkbox"><input type="radio" name="price_radio_type_8" id="price_radio_type_8" value="1" {{ old('price_radio_type_8') == 1 ? 'checked' : '' }}></div>
+                                <div class="pull-left" style="margin-left:5px; width:50%;">
+                                    <div class="input-group">
+                                        @if(config('dc.show_price_sign_before_price'))
+                                            <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
+                                            <input type="text" class="form-control" id="ad_price_type_8" name="ad_price_type_8" value="{{ old('ad_price_type_8') }}" />
+                                        @else
+                                            <input type="text" class="form-control" id="ad_price_type_8" name="ad_price_type_8" value="{{ old('ad_price_type_8') }}" />
+                                            <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                                @if ($errors->has('ad_price_type_8'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('ad_price_type_8') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-4 col-md-6">
+                                <label class="radio-inline">
+                                    <input type="radio" name="price_radio_type_8" id="price_radio_type_8" value="2" {{ old('price_radio_type_8') == 2 ? 'checked' : '' }}> {{ trans('publish_edit.Negotiable') }}
+                                </label>
+                                @if(trans('publish_edit.Enter salary'))
+                                    <span class="help-block">
+                                        {!! trans('publish_edit.Enter salary') !!}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <hr>
+                    <!-- end of type 8 -->
                     </div>
 
                     <div class="form-group required {{ $errors->has('type_id') ? ' has-error' : '' }}">

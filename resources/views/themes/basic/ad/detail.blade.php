@@ -205,7 +205,7 @@
                 <div class="ad_detail_price text-center" itemprop="offers" itemscope="" itemtype="http://schema.org/Offer">
                     <h2>
                         @if($adDetail->ad_free)
-                            <span itemprop="price">{{ trans('detail.free') }}</span>
+                            <span itemprop="price">{{ Util::getFreeName($adDetail->category_type) }}</span>
                         @else
                             @if(config('dc.show_price_sign_before_price'))
                                 {{ config('dc.site_price_sign') }}<span itemprop="price">{{ Util::formatPrice($adDetail->ad_price) }}</span>
@@ -331,7 +331,7 @@
                                     <div class="ad-list-item-content">
                                         <h5 class="ad_list_title"><a href="{{ $link }}">{{ str_limit($v['ad_title'], 60) }}</a></h5>
                                         <p class="ad-list-item-location"><i class="fa fa-map-marker"></i> {{ $v['location_name'] }}</p>
-                                        <h4>{{ $v['ad_price'] ? Util::formatPrice($v['ad_price'], config('dc.site_price_sign')) : trans('publish_edit.Free') }}</h4>
+                                        <h4>{{ $v['ad_price'] ? Util::formatPrice($v['ad_price'], config('dc.site_price_sign')) : Util::getFreeName($v['category_type']) }}</h4>
                                     </div>
                                 </div>
                             </div>

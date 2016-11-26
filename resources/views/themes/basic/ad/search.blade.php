@@ -62,7 +62,7 @@
 
                     <?$hide_condition = 0;?>
                     @if(isset($selected_category_info) && !empty($selected_category_info))
-                        @if($selected_category_info['category_type'] == 4 || $selected_category_info['category_type'] == 7)
+                        @if($selected_category_info['category_type'] == 4 || $selected_category_info['category_type'] == 7 || $selected_category_info['category_type'] == 8)
                             <?$hide_condition = 1;?>
                         @endif
                     @endif
@@ -98,11 +98,17 @@
 
                     <div class="col-md-3 padding_bottom_15">
                         <div class="input-group">
+                            <?
+                                $placeholder = trans('search.Price from');
+                                if(isset($selected_category_info['category_type']) && $selected_category_info['category_type'] == 8){
+                                    $placeholder = trans('search.Salary From');
+                                }
+                            ?>
                             @if(config('dc.show_price_sign_before_price'))
                                 <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
-                                <input type="text" name="price_from" id="price_from" class="form-control" placeholder="{{ trans('search.Price from') }}" value="{{ old('price_from') }}"/>
+                                <input type="text" name="price_from" id="price_from" class="form-control" placeholder="{{ $placeholder }}" value="{{ old('price_from') }}"/>
                             @else
-                                <input type="text" name="price_from" id="price_from" class="form-control" placeholder="{{ trans('search.Price from') }}" value="{{ old('price_from') }}"/>
+                                <input type="text" name="price_from" id="price_from" class="form-control" placeholder="{{ $placeholder }}" value="{{ old('price_from') }}"/>
                                 <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
                             @endif
                         </div>
@@ -110,30 +116,40 @@
 
                     <div class="col-md-3 padding_bottom_15">
                         <div class="input-group">
+                            <?
+                                $placeholder = trans('search.Price to');
+                                if(isset($selected_category_info['category_type']) && $selected_category_info['category_type'] == 8){
+                                    $placeholder = trans('search.Salary To');
+                                }
+                            ?>
                             @if(config('dc.show_price_sign_before_price'))
                                 <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
-                                <input type="text" name="price_to" id="price_to" class="form-control" placeholder="{{ trans('search.Price to') }}" value="{{ old('price_to') }}"/>
+                                <input type="text" name="price_to" id="price_to" class="form-control" placeholder="{{ $placeholder }}" value="{{ old('price_to') }}"/>
                             @else
-                                <input type="text" name="price_to" id="price_to" class="form-control" placeholder="{{ trans('search.Price to') }}" value="{{ old('price_to') }}"/>
+                                <input type="text" name="price_to" id="price_to" class="form-control" placeholder="{{ $placeholder }}" value="{{ old('price_to') }}"/>
                                 <div class="input-group-addon">{{ config('dc.site_price_sign') }}</div>
                             @endif
                         </div>
                     </div>
 
-                    <?$hide_free = 0;?>
+                    <?
+                    $hide_free = 0;
+                    $category_type = 0;
+                    ?>
                     @if(isset($selected_category_info) && !empty($selected_category_info))
+                        <?$category_type = $selected_category_info['category_type'];?>
                         @if($selected_category_info['category_type'] == 7)
                             <?$hide_free = 1;?>
                         @endif
                     @endif
                     @if(!$hide_free)
-                    <div class="col-md-3 padding_bottom_15">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="price_free" id="price_free" {{ !empty(old('price_free')) ? 'checked' : ''}} value="1"> {{ trans('search.Free') }}
-                            </label>
+                        <div class="col-md-3 padding_bottom_15">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="price_free" id="price_free" {{ !empty(old('price_free')) ? 'checked' : ''}} value="1"> {{ Util::getFreeName($category_type) }}
+                                </label>
+                            </div>
                         </div>
-                    </div>
                     @endif
 
                     @if(isset($selected_category_info) && !empty($selected_category_info))

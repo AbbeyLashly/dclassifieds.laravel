@@ -119,5 +119,6 @@ return [
     'Watermark position' => 'Watermark position',
     'Show Price Sign Before Price' => 'Show Price Sign Before Price',
     'Enable category description in search results' => 'Enable category description in search results',
-    'Cron Password' => 'Cron Password'
+    'Cron Password' => 'Cron Password',
+    'Enable fill empty promo slots with normal ads' => 'Enable fill empty promo slots with normal ads'
 ];

@@ -79,6 +79,10 @@ $(document).ready(function(){
     $('#ad_price_type_6').keydown(function(){
         $('#price_radio_type_6').prop("checked", true);
     });
+
+    $('#ad_price_type_8').keydown(function(){
+        $('#price_radio_type_8').prop("checked", true);
+    });
 });
 
 //show ad publish fields on category change and document ready

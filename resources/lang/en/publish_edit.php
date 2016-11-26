@@ -129,5 +129,8 @@ return [
     'Quick Select' => 'Quick Select',
     'Quick Select Location' => 'Quick Select',
     'Close' => 'Close',
-    'If you dont receive mail from us, please check your spam folder or contact us.' => 'If you don\'t receive mail from us, please check your spam folder or contact us.'
+    'If you dont receive mail from us, please check your spam folder or contact us.' => 'If you don\'t receive mail from us, please check your spam folder or contact us.',
+    'Salary' => 'Salary',
+    'Negotiable' => 'Negotiable',
+    'Enter salary' => ''
 ];

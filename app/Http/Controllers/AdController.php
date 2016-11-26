@@ -111,7 +111,8 @@ class AdController extends Controller
         $limit = config('dc.num_promo_ads_home_page');
         $promoAdList = $this->adModel->getAdList($where, $order, $limit, [], $whereIn);
 
-        if($promoAdList->count() < config('dc.num_promo_ads_home_page')){
+        //if not enough promo ads, fill the empty slots with normal ads
+        if(config('dc.enable_fill_empty_slots') && ($promoAdList->count() < config('dc.num_promo_ads_home_page'))){
             $where['ad_promo'] = 0;
             $limit = config('dc.num_promo_ads_home_page') - $promoAdList->count();
             $promoAdList = $promoAdList->merge($this->adModel->getAdList($where, $order, $limit, [], $whereIn));
@@ -145,7 +146,7 @@ class AdController extends Controller
                     }
                 }
                 $thisCategoryChilds[] = $v->category_id;
-                $whereIn['category_id'] = $thisCategoryChilds;
+                $whereIn['ad.category_id'] = $thisCategoryChilds;
                 $v->ad_count = $this->adModel->getAdCount($where, $whereIn);
             }
         }
@@ -570,7 +571,7 @@ class AdController extends Controller
             $whereIn['ad.location_id'] = $allLocationChilds;
         }
         if($cid > 0){
-            $whereIn['category_id'] = $allCategoryChilds;
+            $whereIn['ad.category_id'] = $allCategoryChilds;
         }
         if(!empty($searchText)){
             $whereRaw['match(ad_title, ad_description) against(?)'] = [$searchText];
@@ -631,7 +632,7 @@ class AdController extends Controller
                     }
                 }
                 $thisCategoryChilds[] = $v->category_id;
-                $whereIn['category_id'] = $thisCategoryChilds;
+                $whereIn['ad.category_id'] = $thisCategoryChilds;
                 $v->ad_count = $this->adModel->getAdCount($where, $whereIn, $whereRaw);
             }
         }
@@ -733,7 +734,8 @@ class AdController extends Controller
             'location_name' => $adDetail->location_name,
             'ad_price'      => $adDetail->ad_price,
             'ad_pic'        => $adDetail->ad_pic,
-            'ad_promo'      => $adDetail->ad_promo
+            'ad_promo'      => $adDetail->ad_promo,
+            'category_type' => $adDetail->category_type
         ];
 
         if(session()->has('last_view')){
@@ -1103,12 +1105,12 @@ class AdController extends Controller
         }
 
         $adDetail->ad_price_type_1     = $adDetail->ad_price_type_2 = $adDetail->ad_price_type_3 = $adDetail->ad_price_type_4 = $adDetail->ad_price;
-        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price;
+        $adDetail->ad_price_type_5     = $adDetail->ad_price_type_6 = $adDetail->ad_price_type_7 = $adDetail->ad_price_type_8 = $adDetail->ad_price;
 
         if($adDetail->ad_price > 0){
-            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 1;
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = $adDetail->price_radio_type_8 = 1;
         } elseif ($adDetail->ad_free){
-            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = 2;
+            $adDetail->price_radio = $adDetail->price_radio_type_4 = $adDetail->price_radio_type_5 = $adDetail->price_radio_type_6 = $adDetail->price_radio_type_8 = 2;
         }
 
         $adDetail->condition_id_type_1 = $adDetail->condition_id_type_3 = $adDetail->condition_id;
@@ -2005,6 +2007,15 @@ class AdController extends Controller
                 case 7:
                     $adData['ad_price'] = $adData['ad_price_type_7'];
                     $adData['estate_sq_m'] = $adData['estate_sq_m_type_7'];
+                    break;
+                case 8:
+                    if (isset($adData['price_radio_type_8']) && $adData['price_radio_type_8'] == 1) {
+                        $adData['ad_price'] = $adData['ad_price_type_8'];
+                        $adData['ad_free'] = 0;
+                    } else {
+                        $adData['ad_price'] = 0;
+                        $adData['ad_free'] = 1;
+                    }
                     break;
             }
         }

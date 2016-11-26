@@ -39,5 +39,7 @@ return [
     'Select Clothes Sizes' => 'Select Clothes Sizes',
     'Select Shoes Sizes' => 'Select Shoes Sizes',
     'Free' => 'Free',
-    'PROMO' => 'PROMO'
+    'PROMO' => 'PROMO',
+    'Salary From' => 'Salary From',
+    'Salary To' => 'Salary To'
 ];
