@@ -1274,7 +1274,11 @@
 
 @section('js')
     <script src="{{asset('js/fancybox/jquery.fancybox.pack.js')}}"></script>
-    <script src="http://maps.googleapis.com/maps/api/js?sensor=true&language=en"></script>
+    @if(config('dc.google_maps_api_key'))
+        <script src="http://maps.googleapis.com/maps/api/js?key={!! config('dc.google_maps_api_key') !!}&sensor=true&language={{ config('dc.google_maps_language') }}"></script>
+    @else
+        <script src="http://maps.googleapis.com/maps/api/js?sensor=true&language={{ config('dc.google_maps_language') }}"></script>
+    @endif
     <script src="{{asset('js/google.map.js')}}"></script>
     <script src="{{asset('js/publish.js')}}"></script>
 @endsection

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Nov 16, 2016 at 05:09 PM
+-- Generation Time: Nov 27, 2016 at 03:52 PM
 -- Server version: 5.1.42
 -- PHP Version: 5.2.12
 
@@ -690,7 +690,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `setting_ord` int(11) DEFAULT '0',
   `setting_required` tinyint(4) DEFAULT '1',
   PRIMARY KEY (`setting_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=104 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=107 ;
 
 --
 -- Dumping data for table `settings`
@@ -798,7 +798,10 @@ INSERT INTO `settings` (`setting_id`, `setting_name`, `setting_value`, `setting_
 (100, 'watermark_position', 'center', 'Watermark position', 1, 'text', 'Watermark position info', 0, 1),
 (101, 'show_price_sign_before_price', '0', 'Show Price Sign Before Price', 1, 'yesno', NULL, 0, 1),
 (102, 'enable_category_description_in_search', '1', 'Enable category description in search results', 1, 'yesno', NULL, 0, 1),
-(103, 'cron_password', '123456', 'Cron Password', 1, 'text', NULL, 0, 1);
+(103, 'cron_password', '123456', 'Cron Password', 1, 'text', NULL, 0, 1),
+(104, 'enable_fill_empty_slots', '1', 'Enable fill empty promo slots with normal ads', 1, 'yesno', NULL, 0, 1),
+(105, 'google_maps_api_key', NULL, 'Google maps api key', 1, 'text', NULL, 0, 0),
+(106, 'google_maps_language', 'en', 'Google maps language', 1, 'text', NULL, 0, 1);
 
 -- --------------------------------------------------------
 

@@ -120,5 +120,7 @@ return [
     'Show Price Sign Before Price' => 'Показвай знака за цена преди цената',
     'Enable category description in search results' => 'Разреши описание на категорията в списък обяви',
     'Cron Password' => 'Cron Password',
-    'Enable fill empty promo slots with normal ads' => 'Ако няма достатъчно промо обяви запълвай с обикновенни обяви'
+    'Enable fill empty promo slots with normal ads' => 'Ако няма достатъчно промо обяви запълвай с обикновенни обяви',
+    'Google maps api key' => 'Google maps api key',
+    'Google maps language' => 'Език на Google maps'
 ];
