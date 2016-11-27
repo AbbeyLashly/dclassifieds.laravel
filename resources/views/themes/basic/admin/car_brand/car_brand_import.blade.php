@@ -8,7 +8,7 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url('admin') }}"><i class="fa fa-dashboard"></i> {{ trans('admin_common.Home') }}</a></li>
-            <li><a href="{{ url('admin/carbrands') }}">{{ trans('admin_common.Car Brands') }}</a></li>
+            <li><a href="{{ url('admin/carbrand') }}">{{ trans('admin_common.Car Brands') }}</a></li>
             <li class="active">{{ trans('admin_common.Import') }}</li>
         </ol>
     </section>

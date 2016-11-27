@@ -385,5 +385,8 @@ return [
     'Invalid Magic Keyword' => 'Invalid Magic Keyword',
     'Magic keyword saved' => 'Magic keyword saved',
     'Magic keyword deleted' => 'Magic keyword deleted',
-    'Invalid theme' => 'Invalid theme'
+    'Invalid theme' => 'Invalid theme',
+    'Main Menu' => 'Main Menu',
+    'Member since' => 'Member since',
+    'Sign out' => 'Sign out'
 ];

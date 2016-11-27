@@ -15,6 +15,12 @@
 
         @yield('styles')
 
+        @if(config('dc.app_locale') == 'en')
+        <link rel="stylesheet" href="{{ asset('adminlte/dist/css/fonts.css') }}">
+        @else
+        <link rel="stylesheet" href="{{ asset('adminlte/dist/css/fontsCyr.css') }}">
+        @endif
+
         <link rel="stylesheet" href="{{ asset('adminlte/dist/css/AdminLTE.min.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/dist/css/skins/skin-' . config('dc.admin_skin') . '.min.css') }}">
         <link rel="stylesheet" href="{{ asset('adminlte/style.css') }}">
@@ -71,13 +77,13 @@
                                         @endif
                                         <p>
                                             {{ Auth::user()->name }}
-                                            <small>Member since {{ Auth::user()->created_at }}</small>
+                                            <small>{{ trans('admin_common.Member since') }} {{ Auth::user()->created_at }}</small>
                                         </p>
                                     </li>
                                     <!-- Menu Footer-->
                                     <li class="user-footer">
                                         <div class="pull-right">
-                                            <a href="{{ url('logout') }}" class="btn btn-default btn-flat">Sign out</a>
+                                            <a href="{{ url('logout') }}" class="btn btn-default btn-flat">{{ trans('admin_common.Sign out') }}</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -109,7 +115,7 @@
                     <!-- Sidebar Menu -->
                     <?$controller = Util::getController();?>
                     <ul class="sidebar-menu">
-                        <li class="header">Main Menu</li>
+                        <li class="header">{{ trans('admin_common.Main Menu') }}</li>
                         @include('admin.common.main_menu')
                     </ul>
                     <!-- /.sidebar-menu -->

@@ -19,7 +19,7 @@
             <div class="col-md-6">
                 <div class="box">
                     <div class="box-header with-border">
-                      <h3 class="box-title">Add/Edit Banner</h3>
+                      <h3 class="box-title">{{ trans('admin_common.Add/Edit') }}</h3>
                     </div>
                     <!-- /.box-header -->
 

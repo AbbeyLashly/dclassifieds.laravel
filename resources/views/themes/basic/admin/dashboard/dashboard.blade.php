@@ -3,7 +3,6 @@
     <section class="content-header">
         <h1>
             Dashboard
-            <small>DClassifieds v3</small>
         </h1>
     </section>
 

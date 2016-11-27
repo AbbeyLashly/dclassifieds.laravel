@@ -69,3 +69,14 @@
         </div>
     </div>
 @endsection
+
+@if(isset($userAdList) && !$userAdList->isEmpty())
+    @section('meta')
+        @if($userAdList->appends($params)->previousPageUrl())
+            <link rel="prev" href="{{ $userAdList->appends($params)->previousPageUrl() }}" />
+        @endif
+        @if($userAdList->appends($params)->nextPageUrl())
+            <link rel="next" href="{{ $userAdList->appends($params)->nextPageUrl() }}" />
+        @endif
+    @endsection
+@endif

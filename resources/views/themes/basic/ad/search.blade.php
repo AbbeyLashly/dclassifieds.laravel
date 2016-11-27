@@ -505,3 +505,14 @@
     </div>
     @endif
 @endsection
+
+@if(isset($adList) && !$adList->isEmpty())
+    @section('meta')
+        @if($adList->appends($params)->previousPageUrl())
+            <link rel="prev" href="{{ $adList->appends($params)->previousPageUrl() }}" />
+        @endif
+        @if($adList->appends($params)->nextPageUrl())
+            <link rel="next" href="{{ $adList->appends($params)->nextPageUrl() }}" />
+        @endif
+    @endsection
+@endif

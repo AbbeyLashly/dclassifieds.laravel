@@ -1,21 +1,21 @@
-.controls {
-	padding: 5px 10px;
-	border-bottom: 1px solid #f4f4f4;
+.controls       {
+                padding: 5px 10px;
+                border-bottom: 1px solid #f4f4f4;
 }
 
 .form-group.required .control-label:after {
-	content:"*";
-	color:red;
+                content:"*";
+                color:red;
 }
 
 .common_fields_container{
-	display:none;
+                display:none;
 }
 
 #car_model_loader{
-				display:none; 
-				z-index:100; 
-				position:absolute; 
-				left:10px; 
-				top:32px;
+                display:none;
+                z-index:100;
+                position:absolute;
+                left:10px;
+                top:32px;
 }
