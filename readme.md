@@ -1,5 +1,8 @@
 ## DClassifieds v3 Laravel 5.2 Version
 
+[![Donate via PayPal](https://img.shields.io/badge/donate-paypal-87ceeb.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&currency_code=EUR&business=paypal@dedo.bg&item_name=donation%20for%20DClassifieds%20project)
+*Please consider supporting this project by making a donation via [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&currency_code=EUR&business=paypal@dedo.bg&item_name=donation%20for%20DClassifieds%20project)*
+
 DClassifieds Free Classifieds Script is free open source classifieds script based on Laravel 5.2 framework. For this reason DClassifieds inherits all benefits of the Laravel framework futures.
 
 ### License
