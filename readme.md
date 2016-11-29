@@ -13,7 +13,7 @@ DClassifieds Free Classifieds Script is open-sourced software licensed under the
 
 [http://v3.dclassifieds.eu/](http://v3.dclassifieds.eu/)
 
-### Futures
+### Features
 - Unlimited Levels of Categories
 - Unlimited Levels of Locations
 - 7 Types of categories (different fields in ad publish and ad search)
