@@ -1609,7 +1609,7 @@ class AdController extends Controller
     {
         //get ad info
         $adId = $request->ad_id;
-        $adDetail = $this->adModel->getAdDetail($adId);
+        $adDetail = $this->adModel->getAdDetail($adId, 0);
 
         $rules = [
             'ad_type_pay' => 'required|integer|not_in:0'
