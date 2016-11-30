@@ -143,6 +143,7 @@
                 @endif
                 </p>
                 {!! config('dc.footer_html')  !!}
+                <p>Powered by <a href="http://www.dclassifieds.eu" target="_blank">DClassifieds v3</a></p>
             </div>
         </footer>
         
