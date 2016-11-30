@@ -86,8 +86,6 @@ If you find bugs, please report here: https://github.com/gdinko/dclassifieds.lar
 ### Contact and Credits
 - Made in Bulgaria, Sofia
 - Developer: Dinko Georgiev - contact@dclassifieds.eu
-- QA: Georgi Georgiev
-- p.s. we are not relatives :)
 
 ### How to translate
 Copy the folder resources/lang/en, then rename it and translate, then change the language from admin -> settings

@@ -1125,11 +1125,11 @@ class AdController extends Controller
         $carModelListArray = [];
         $selectedCarBrandId = Util::getOldOrModelValue('car_brand_id', $adDetail);
         if($selectedCarBrandId){
-            if(is_numeric($selectedCarBrandId) && $selectedCarBrandId > 0){
+            if(is_numeric($selectedCarBrandId) && old('car_brand_id') > 0){
 
                 $carModel   = new CarModel();
                 $select     = ['car_model_id', 'car_model_name'];
-                $where      = ['car_brand_id' => $selectedCarBrandId, 'car_model_active' => 1];
+                $where      = ['car_brand_id' => old('car_brand_id'), 'car_model_active' => 1];
                 $order      = ['car_model_name' => 'asc'];
                 $carModelListCollection = $carModel->getListSimple($select, $where, $order);
 
