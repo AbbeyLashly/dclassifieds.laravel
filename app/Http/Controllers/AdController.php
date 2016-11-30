@@ -1568,7 +1568,7 @@ class AdController extends Controller
     {
         //get ad info
         $adId = $request->ad_id;
-        $adDetail = $this->adModel->getAdDetail($adId);
+        $adDetail = $this->adModel->getAdDetail($adId, 0);
 
         //set page title
         $title = [config('dc.site_domain')];
