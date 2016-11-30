@@ -1083,6 +1083,9 @@ class AdController extends Controller
             $message[] = trans('publish_edit.Click here to publish new ad', ['link' => route('publish')]);
         }
 
+        //clear cache
+        Cache::flush();
+
         //set flash message and go to info page
         session()->flash('message', $message);
         return redirect(route('info'));
