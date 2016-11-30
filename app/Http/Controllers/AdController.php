@@ -854,6 +854,8 @@ class AdController extends Controller
         //check if promo ads are enabled
         $paymentMethods = new Collection();
         if(config('dc.enable_promo_ads')){
+            $where                  = [];
+            $order                  = [];
             $where['pay_active']    = 1;
             $order['pay_ord']       = 'ASC';
             $payModel               = new Pay();
