@@ -721,6 +721,7 @@ class AdController extends Controller
         //get this user other ads
         $where = [];
         $order = [];
+        $where['ad.user_id'] = $adDetail->user_id;
         $where['ad_active'] = 1;
         $where['ad_id'] = ['!=', $adDetail->ad_id];
         $order['ad_publish_date'] = 'desc';

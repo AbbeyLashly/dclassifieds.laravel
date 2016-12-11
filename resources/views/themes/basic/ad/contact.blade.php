@@ -62,7 +62,7 @@
 
                     <div class="row ad_detail_ad_text">
                         <div class="col-md-12">
-                            {{ $ad_detail->ad_description }}
+                            {!! $ad_detail->ad_description !!}
                         </div>
                     </div>
                     <hr>
