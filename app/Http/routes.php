@@ -278,7 +278,7 @@ Route::get('/republish/{token}', 'AdController@rePublish')->name('republish');
 
 Route::get('/ad/edit/{ad_id}', 'AdController@getAdEdit')->name('adedit')->where(['ad_id' => '\d+'])->middleware('auth');
 Route::post('/ad/edit/{ad_id}', 'AdController@postAdEdit')->name('postAdEdit')->where(['ad_id' => '\d+'])->middleware('auth');
-Route::get('/ad/user/{user_id}', 'AdController@userAds')->name('userads')->where(['user_id' => '\d+'])->middleware('auth');
+Route::get('/ad/user/{user_id}', 'AdController@userAds')->name('userads')->where(['user_id' => '\d+']);
 
 Route::get('/proxy', 'AdController@proxy')->name('proxy');
 

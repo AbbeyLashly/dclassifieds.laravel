@@ -9,7 +9,7 @@
             @if(!empty($v->ad_pic))
                 <a href="{{ $link }}"><img src="{{ asset('uf/adata/' . '740_' . $v->ad_pic) }}" class="img-responsive"></a>
             @else
-                <a href="{{ $link }}"><img src="{{ 'https://www.gravatar.com/avatar/' . md5(trim($v->email)) . '?s=740&d=identicon' }}" class="img-responsive"></a>
+                <a href="{{ $link }}"><img src="{{ 'https://www.gravatar.com/avatar/' . md5(trim($v->ad_email)) . '?s=740&d=identicon' }}" class="img-responsive"></a>
             @endif
         </div>
         <div class="ad-list-item-content">

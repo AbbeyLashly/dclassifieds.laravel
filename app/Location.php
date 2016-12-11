@@ -56,7 +56,7 @@ class Location extends Model
                     ];
 
                     if(!empty($v->location_post_code)){
-                        $ret[$v->location_id]['title'] = $v->location_name . ' [ZIP:' . $v->location_post_code . ']';
+                        $ret[$v->location_id]['title'] = $v->location_name . ' [' . trans('location.ZIP') . ':' . $v->location_post_code . ']';
                     }
 
                     if($v->children->count() > 0){

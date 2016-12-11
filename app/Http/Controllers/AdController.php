@@ -735,7 +735,8 @@ class AdController extends Controller
             'ad_price'      => $adDetail->ad_price,
             'ad_pic'        => $adDetail->ad_pic,
             'ad_promo'      => $adDetail->ad_promo,
-            'category_type' => $adDetail->category_type
+            'category_type' => $adDetail->category_type,
+            'ad_email'      => $adDetail->ad_email
         ];
 
         if(session()->has('last_view')){
