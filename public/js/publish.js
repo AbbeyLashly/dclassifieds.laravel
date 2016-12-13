@@ -57,7 +57,7 @@ $(document).ready(function(){
                 if(data.code == 200){
                     var html = '';
                     $.each(data.info, function( index, value ) {
-                        html += '<div class="col-md-4 location_modal_item"><a href="" class="location_selector btn-block" data-id="' + index + '">' + value + '</a></div>';
+                        html += '<div class="col-md-4 location_modal_item"><a href="" class="location_selector btn-block" data-id="' + value.id + '">' + value.name + '</a></div>';
                     });
                     $('#quick-location-select-container').html(html);
                     var bhtml = '<li><a href="" class="location_selector btn-block" style="display:inline;" data-id="0">' + __START + '</a></li>';

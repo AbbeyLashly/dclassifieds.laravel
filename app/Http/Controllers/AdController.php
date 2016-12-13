@@ -1842,7 +1842,7 @@ class AdController extends Controller
             }
             if(!$firstLevelChilds->isEmpty()){
                 foreach ($firstLevelChilds as $k => $v){
-                    $info[$v->location_id] = $v->location_name;
+                    $info[] = ['id' => $v->location_id, 'name' => $v->location_name];
                 }
                 if(!empty($breadcrumpData)){
                     foreach($breadcrumpData as $k => $v){
