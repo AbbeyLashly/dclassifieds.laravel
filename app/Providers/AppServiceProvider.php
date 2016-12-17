@@ -117,6 +117,7 @@ class AppServiceProvider extends ServiceProvider
             app()->setLocale(config('dc.app_locale'));
             config(['app.key'           => config('dc.api_key')]);
             config(['app.timezone'      => config('dc.app_timezone')]);
+            date_default_timezone_set(config('app.timezone'));
         }
 
         /**
